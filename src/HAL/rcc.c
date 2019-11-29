@@ -14,10 +14,12 @@ void SystemClockInit() {
 		//Error_Handler();
 	}
 
+	//LL_RCC_HSE_EnableCSS();
+	LL_RCC_HSE_EnableBypass();
 	LL_RCC_HSE_Enable();
 	while(LL_RCC_HSE_IsReady() != 1);		//Wait till HSE is ready
 
-	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
+	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_2, LL_RCC_PLL_MUL_9);
 	LL_RCC_PLL_Enable();
 	while(LL_RCC_PLL_IsReady() != 1);		//Wait till PLL is ready
 

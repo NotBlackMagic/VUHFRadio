@@ -8,6 +8,8 @@
 #include "stm32f1xx.h"
 #include "stm32f1xx_ll_bus.h"
 #include "stm32f1xx_ll_gpio.h"
+#include "stm32f1xx_ll_pwr.h"
+#include "stm32f1xx_ll_rcc.h"
 
 #include "pinMaping.h"
 

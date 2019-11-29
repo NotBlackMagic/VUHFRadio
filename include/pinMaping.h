@@ -22,10 +22,10 @@ extern "C" {
 #define GPIO_OUT_CS_V						28		//Output CS of VHF
 
 //ADC Pin Mapping
-#define	GPIO_ADC_I_VCC_U					6		//ADC Input Current AX5043 UHF Radio
-#define	GPIO_ADC_I_VCC_V					5		//ADC Input Current AX5043 VHF Radio
-#define	GPIO_ADC_I_VCC_M					7		//ADC Input Current MCU/Amps
-#define	GPIO_ADC_I_5V						8		//ADC Input Current USB/5V
+#define	GPIO_ADC_I_VCC_U					5		//ADC Input Current AX5043 UHF Radio
+#define	GPIO_ADC_I_VCC_V					4		//ADC Input Current AX5043 VHF Radio
+#define	GPIO_ADC_I_VCC_M					6		//ADC Input Current MCU/Amps
+#define	GPIO_ADC_I_5V						7		//ADC Input Current USB/5V
 
 //ADC Channel Mapping
 #define ADC_CH_I_VCC_U						5		//ADC Channel Current AX5043 UHF Radio

@@ -16,16 +16,17 @@ int main(void) {
 	//Initialize all configured peripherals
 	GPIOInit();
 	USBVCPInit();
+	ADC1Init();
 	SPI1Init();
 	SPI2Init();
 //	PWM1Init();
 //	PWM2Init();
 
 	//Initialize the VHF and UHF Radio
-	RadioInit();
+	//RadioInit();
 
 	//Initializations done, VUHFRadio Powered Up
-	GPIOWrite(GPIO_OUT_LED0, 0);
+	GPIOWrite(GPIO_OUT_LED4, 1);
 
 	uint8_t isVCPConnected = 0;
 	uint8_t rxData[256];
@@ -57,7 +58,7 @@ int main(void) {
 		else {
 			isVCPConnected = 0;
 		}
-		GPIOWrite(GPIO_OUT_LED1, USBVCPIsConnected());
+		GPIOWrite(GPIO_OUT_LED5, USBVCPIsConnected());
 	}
 }
 

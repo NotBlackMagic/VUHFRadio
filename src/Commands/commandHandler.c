@@ -5,10 +5,7 @@ const CommandStruct commandArray[COMMAND_LENGTH] = {
 		{1, "LIST", "List all available commands \n", CommandList},
 		{2, "PTT-U", "Get PTT UHF State \n", CommandBasicPTTU},
 		{3, "PTT-V", "Get PTT VHF State \n", CommandBasicPTTV},
-		{4, "CUR-U", "Get Current VCC U \n", CommandBasicCurrentVCCU},
-		{5, "CUR-V", "Get Current VCC V \n", CommandBasicCurrentVCCV},
-		{6, "CUR-M", "Get Current VCC MCU \n", CommandBasicCurrentVCCM},
-		{7, "CUR-5V", "Get Current 5V/USB \n", CommandBasicCurrent5V}
+		{4, "CUR", "Get Currents \n", CommandBasicCurrent}
 };
 
 uint8_t CommandHandler(uint8_t* command, uint8_t* args, CommandTypeEnum commandType) {

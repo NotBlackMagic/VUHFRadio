@@ -11,6 +11,12 @@ void GPIOInit() {
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOC);
 
+	//Enable PC14 and PC15 as general IO
+//	PWR->CR |= 1<<8;
+//	RCC->BDCR &= 0xFFFFFFFE;
+//	BKP->CR &= 0xFFFFFFFE;
+//	PWR->CR &= 0xFFFFFEFF;
+
 	//Set Generic Output GPIO's
 	GPIOSetPinMode(GPIO_OUT_LED0, GPIO_Mode_Output);	//Output LED 0
 	GPIOSetPinMode(GPIO_OUT_LED1, GPIO_Mode_Output);	//Output LED 1
