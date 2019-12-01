@@ -21,6 +21,9 @@ extern "C" {
 #include "ax5043_timer.h"
 #include "ax5043_txparam.h"
 
+#define RADIO_UHF					0
+#define RADIO_VHF					1
+
 void RadioInit();
 
 #ifdef __cplusplus

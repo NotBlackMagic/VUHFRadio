@@ -5,6 +5,8 @@
 #include "spi.h"
 #include "usb_vcp.h"
 
+#include "radio.h"
+
 #include "atCmdInter.h"
 #include "commandHandler.h"
 
@@ -24,6 +26,10 @@ int main(void) {
 
 	//Initialize the VHF and UHF Radio
 	RadioInit();
+
+	volatile uint8_t revision = AX5043GeneralRevision(RADIO_VHF);
+	volatile uint8_t scratch = AX5043GeneralScratch(RADIO_VHF);
+	volatile RadioState status = AX5043GeneralRadioState(RADIO_VHF);
 
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED4, 1);
