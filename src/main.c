@@ -23,7 +23,7 @@ int main(void) {
 //	PWM2Init();
 
 	//Initialize the VHF and UHF Radio
-	//RadioInit();
+	RadioInit();
 
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED4, 1);

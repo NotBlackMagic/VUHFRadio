@@ -199,7 +199,7 @@ PLLLoopBoostFilter AX5043SynthGetPLLLoopBoostFilter(uint8_t interfaceID) {
   * @return	None
   */
 void AX5043SynthSetPLLChargePumpCurrent(uint8_t interfaceID, uint8_t current) {
-	AX5043WriteShortAddress(interfaceID, PLLCPI_MASK, &current, 1);
+	AX5043WriteShortAddress(interfaceID, PLLCPI, &current, 1);
 }
 
 /**
@@ -209,7 +209,7 @@ void AX5043SynthSetPLLChargePumpCurrent(uint8_t interfaceID, uint8_t current) {
   */
 uint8_t AX5043SynthGetPLLChargePumpCurrent(uint8_t interfaceID) {
 	uint8_t current;
-	AX5043ReadShortAddress(interfaceID, PLLCPI_MASK, &current, 1);
+	AX5043ReadShortAddress(interfaceID, PLLCPI, &current, 1);
 	return current;
 }
 
@@ -220,7 +220,7 @@ uint8_t AX5043SynthGetPLLChargePumpCurrent(uint8_t interfaceID) {
   * @return	None
   */
 void AX5043SynthSetPLLBoostChargePumpCurrent(uint8_t interfaceID, uint8_t current) {
-	AX5043WriteShortAddress(interfaceID, PLLCPIBOOST_MASK, &current, 1);
+	AX5043WriteShortAddress(interfaceID, PLLCPIBOOST, &current, 1);
 }
 
 /**
@@ -230,7 +230,7 @@ void AX5043SynthSetPLLBoostChargePumpCurrent(uint8_t interfaceID, uint8_t curren
   */
 uint8_t AX5043SynthGetPLLBoostChargePumpCurrent(uint8_t interfaceID) {
 	uint8_t current;
-	AX5043ReadShortAddress(interfaceID, PLLCPIBOOST_MASK, &current, 1);
+	AX5043ReadShortAddress(interfaceID, PLLCPIBOOST, &current, 1);
 	return current;
 }
 
