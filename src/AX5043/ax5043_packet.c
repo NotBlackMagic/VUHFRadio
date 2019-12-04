@@ -1,6 +1,412 @@
 #include "ax5043_packet.h"
 
 /**
+  * @brief	This function enables data bit inversion
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable data bit inversion
+  * @return	None
+  */
+void AX5043PacketEnableEncodeBitInversion(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	config = (config & ~ENCINV_MASK) | (enable);
+	AX5043WriteLongAddress(interfaceID, ENCODING, &config, 1);
+}
+
+/**
+  * @brief	This function if data bit inversion is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If data bit inversion is enabled
+  */
+uint8_t AX5043PacketIsEncodeBitInversionEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	return (config & ENCINV_MASK);
+}
+
+/**
+  * @brief	This function enables differential encode/decode
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable differential encode/decode
+  * @return	None
+  */
+void AX5043PacketEnableEncodeDiffrential(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	config = (config & ~ENCDIFF_MASK) | (enable << 1);
+	AX5043WriteLongAddress(interfaceID, ENCODING, &config, 1);
+}
+
+/**
+  * @brief	This function if differential encode/decode is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If differential encode/decode is enabled
+  */
+uint8_t AX5043PacketIsEncodeDiffrentialEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	return ((config & ENCDIFF_MASK) >> 1);
+}
+
+/**
+  * @brief	This function enables scramble/descramble
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable scramble/descramble
+  * @return	None
+  */
+void AX5043PacketEnableEncodeScramble(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	config = (config & ~ENCSCRAM_MASK) | (enable << 2);
+	AX5043WriteLongAddress(interfaceID, ENCODING, &config, 1);
+}
+
+/**
+  * @brief	This function if differential scramble/descramble  is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If scramble/descramble is enabled
+  */
+uint8_t AX5043PacketIsEncodeScrambleEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	return ((config & ENCSCRAM_MASK) >> 2);
+}
+
+/**
+  * @brief	This function enables manchester encoding
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable scramble/descramble
+  * @return	None
+  */
+void AX5043PacketEnableEncodeManchester(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	config = (config & ~ENCMNACH_MASK) | (enable << 3);
+	AX5043WriteLongAddress(interfaceID, ENCODING, &config, 1);
+}
+
+/**
+  * @brief	This function if manchester encoding is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If manchester encoding is enabled
+  */
+uint8_t AX5043PacketIsEncodManchesterEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	return ((config & ENCMNACH_MASK) >> 3);
+}
+
+/**
+  * @brief	This function disables Dibit synchronization in 4-FSK
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable Dibit synchronization in 4-FSK
+  * @return	None
+  */
+void AX5043PacketDisableEncodeDibit(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	config = (config & ~ENCNOSYNC_MASK) | (enable << 4);
+	AX5043WriteLongAddress(interfaceID, ENCODING, &config, 1);
+}
+
+/**
+  * @brief	This function if Dibit synchronization in 4-FSK is disabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If Dibit synchronization in 4-FSK is disabled
+  */
+uint8_t AX5043PacketIsEncodeDibitDisabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
+	return ((config & ENCNOSYNC_MASK) >> 4);
+}
+
+/**
+  * @brief	This function aborts current HDLC packet/pattern match
+  * @param	interfaceID: Which interface (chip) used
+  * @return	None
+  */
+void AX5043PacketAbortPatternMatch(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	config = (config & ~FABORT_MASK) | (FABORT_MASK);
+	AX5043WriteLongAddress(interfaceID, FRAMING, &config, 1);
+}
+
+/**
+  * @brief	This function sets Frame Mode
+  * @param	interfaceID: Which interface (chip) used
+  * @param	FrmMode: Frame mode to use
+  * @return	None
+  */
+void AX5043PacketSetFrameMode(uint8_t interfaceID, FrmMode frameMode) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	config = (config & ~FRMMODE_MASK) | (frameMode << 1);
+	AX5043WriteLongAddress(interfaceID, FRAMING, &config, 1);
+}
+
+/**
+  * @brief	This function gets Frame Mode
+  * @param	interfaceID: Which interface (chip) used
+  * @return	Frame mode in use
+  */
+FrmMode AX5043PacketGetFrameMode(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	return (FrmMode)((config & FRMMODE_MASK) >> 1);
+}
+
+/**
+  * @brief	This function sets CRC Mode
+  * @param	interfaceID: Which interface (chip) used
+  * @param	CRCMode: CRC mode to use
+  * @return	None
+  */
+void AX5043PacketSetCRCMode(uint8_t interfaceID, CRCMode frameMode) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	config = (config & ~CRCMODE_MASK) | (frameMode << 4);
+	AX5043WriteLongAddress(interfaceID, FRAMING, &config, 1);
+}
+
+/**
+  * @brief	This function gets CRC Mode
+  * @param	interfaceID: Which interface (chip) used
+  * @return	CRCMode mode in use
+  */
+CRCMode AX5043PacketGetCRCMode(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	return (CRCMode)((config & CRCMODE_MASK) >> 4);
+}
+
+/**
+  * @brief	This function gets if a packet start was detected
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If a packet start was detected
+  */
+uint8_t AX5043PacketPacketStartDetected(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FRAMING, &config, 1);
+	return ((config & FRMRX_MASK) >> 7);
+}
+
+/**
+  * @brief	This function sets the CRC reset value
+  * @param	interfaceID: Which interface (chip) used
+  * @param	crcInit: CRC Reset value
+  * @return	None
+  */
+void AX5043PacketSetCRCInitValue(uint8_t interfaceID, uint32_t crcInit) {
+	uint8_t config;
+	config = (crcInit) & CRCINIT0_MASK;
+	AX5043WriteLongAddress(interfaceID, CRCINIT0, &config, 1);
+	config = (crcInit >> 8) & CRCINIT1_MASK;
+	AX5043WriteLongAddress(interfaceID, CRCINIT1, &config, 1);
+	config = (crcInit >> 16) & CRCINIT2_MASK;
+	AX5043WriteLongAddress(interfaceID, CRCINIT2, &config, 1);
+	config = (crcInit >> 24) & CRCINIT3_MASK;
+	AX5043WriteLongAddress(interfaceID, CRCINIT3, &config, 1);
+}
+
+/**
+  * @brief	This function gets the CRC reset value
+  * @param	interfaceID: Which interface (chip) used
+  * @return	CRC Reset value
+  */
+uint32_t AX5043PacketGetCRCInitValue(uint8_t interfaceID) {
+	uint8_t config;
+	uint32_t crcInit = 0;
+	AX5043ReadLongAddress(interfaceID, CRCINIT0, &config, 1);
+	crcInit = config & CRCINIT0_MASK;
+	AX5043ReadLongAddress(interfaceID, CRCINIT1, &config, 1);
+	crcInit += (config & CRCINIT1_MASK) << 8;
+	AX5043ReadLongAddress(interfaceID, CRCINIT2, &config, 1);
+	crcInit += (config & CRCINIT2_MASK) << 16;
+	AX5043ReadLongAddress(interfaceID, CRCINIT3, &config, 1);
+	crcInit += (config & CRCINIT3_MASK) << 24;
+	return crcInit;
+}
+
+/**
+  * @brief	This function enables FEC
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable FEC
+  * @return	None
+  */
+void AX5043PacketEnableFEC(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~FECENA_MASK) | (enable);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function if FEC is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If FEC is enabled
+  */
+uint8_t AX5043PacketIsFECEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	return ((config & FECENA_MASK));
+}
+
+/**
+  * @brief	This function set the attenuation soft RX data by 2^-FECINPSHIFT
+  * @param	interfaceID: Which interface (chip) used
+  * @param	inputShift: FECINPSHIFT
+  * @return	None
+  */
+void AX5043PacketSetFECInputShift(uint8_t interfaceID, uint8_t inputShift) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~FECINPSHIFT_MASK) | (inputShift << 1);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function gets the attenuation soft RX data by 2^-FECINPSHIFT
+  * @param	interfaceID: Which interface (chip) used
+  * @return	FECINPSHIFT
+  */
+uint8_t AX5043PacketGetFECInputShift(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	return ((config & FECINPSHIFT_MASK) >> 1);
+}
+
+/**
+  * @brief	This function enables noninverted interleave synchronization
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable noninverted interleave synchronization
+  * @return	None
+  */
+void AX5043PacketEnableFECNonInvInterleave(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~FECPOS_MASK) | (enable << 4);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function if noninverted interleave synchronization is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If noninverted interleave synchronization is enabled
+  */
+uint8_t AX5043PacketIsFECNonInvInterleaveEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	return ((config & FECPOS_MASK) >> 4);
+}
+
+/**
+  * @brief	This function enables inverted interleave synchronization
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable inverted interleave synchronization
+  * @return	None
+  */
+void AX5043PacketEnableFECInvInterleave(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~FECNEG_MASK) | (enable << 5);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function if inverted interleave synchronization is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If inverted interleave synchronization is enabled
+  */
+uint8_t AX5043PacketIsFECInvInterleaveEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	return ((config & FECNEG_MASK) >> 5);
+}
+
+/**
+  * @brief	This function enables inverted interleave synchronization
+  * @param	interfaceID: Which interface (chip) used
+  * @return	None
+  */
+void AX5043PacketResetViterbiDecoder(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~RSTVITERBI_MASK) | (RSTVITERBI_MASK);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function enables shorten backtrack memory
+  * @param	interfaceID: Which interface (chip) used
+  * @param	enable: Enable shorten backtrack memory
+  * @return	None
+  */
+void AX5043PacketEnableShortenBacktrack(uint8_t interfaceID, uint8_t enable) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	config = (config & ~SHORTMEM_MASK) | (enable << 7);
+	AX5043WriteLongAddress(interfaceID, FEC, &config, 1);
+}
+
+/**
+  * @brief	This function if shorten backtrack memory is enabled
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If shorten backtrack memory is enabled
+  */
+uint8_t AX5043PacketIsShortenBacktrackEnabled(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FEC, &config, 1);
+	return ((config & SHORTMEM_MASK) >> 7);
+}
+
+/**
+  * @brief	This function sets FEC Interleaver synchronization threshold
+  * @param	interfaceID: Which interface (chip) used
+  * @param	fecSync: FEC Interleaver synchronization threshold
+  * @return	None
+  */
+void AX5043PacketSetFECSync(uint8_t interfaceID, uint8_t fecSync) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FECSYNC, &config, 1);
+	config = (config & ~FECSYNC_MASK) | (fecSync);
+	AX5043WriteLongAddress(interfaceID, FECSYNC, &config, 1);
+}
+
+/**
+  * @brief	This function gets FEC Interleaver synchronization threshold
+  * @param	interfaceID: Which interface (chip) used
+  * @return	FEC Interleaver synchronization threshold
+  */
+uint8_t AX5043PacketGetFECSync(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FECSYNC, &config, 1);
+	return ((config & FECSYNC_MASK));
+}
+
+/**
+  * @brief	This function gets the Metric increment of the survivor path
+  * @param	interfaceID: Which interface (chip) used
+  * @return	FEC Interleaver synchronization threshold
+  */
+uint8_t AX5043PacketGetMetricIncrementSurvivorPath(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FECSTATUS, &config, 1);
+	return ((config & MAXMETRIC_MASK));
+}
+
+/**
+  * @brief	This function gets if inverted synchronization sequence received
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If inverted synchronization sequence received
+  */
+uint8_t AX5043PacketGetInvertedSyncSeqReceived(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, FECSTATUS, &config, 1);
+	return ((config & FECINV_MASK) >> 7);
+}
+
+/**
   * @brief	This function sets the Address bytes Position
   * @param	interfaceID: Which interface (chip) used
   * @param	position: Address bytes Position

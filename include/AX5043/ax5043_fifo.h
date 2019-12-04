@@ -99,8 +99,8 @@ typedef enum {
 
 FIFOStat AX5043FIFOGetFIFOStat(uint8_t interfaceID);
 void AX5043FIFOSetFIFOStatCommand(uint8_t interfaceID, FIFOStatCmd fifoStatCommand);
-void AX5043FIFOSetFIFOData(uint8_t interfaceID, uint8_t *data, uint8_t length);
-void AX5043FIFOGetFIFOData(uint8_t interfaceID, uint8_t *data, uint8_t length);
+void AX5043FIFOSetFIFO(uint8_t interfaceID, uint8_t *data, uint8_t length);
+void AX5043FIFOGetFIFO(uint8_t interfaceID, uint8_t *data, uint8_t length);
 uint16_t AX5043FIFOGetFIFOCount(uint8_t interfaceID);
 uint16_t AX5043FIFOGetFIFOFree(uint8_t interfaceID);
 uint16_t AX5043FIFOGetFIFOThreshold(uint8_t interfaceID);

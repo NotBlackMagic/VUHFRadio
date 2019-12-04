@@ -23,24 +23,24 @@ void AX5043FIFOSetFIFOStatCommand(uint8_t interfaceID, FIFOStatCmd fifoStatComma
 }
 
 /**
-  * @brief	This function writes to the FIFO Data Register
+  * @brief	This function writes to the FIFO Register
   * @param	interfaceID: Which interface (chip) used
   * @param	data: The Data to write to the FIFO
   * @param	length: Number of bytes to write
   * @return	None
   */
-void AX5043FIFOSetFIFOData(uint8_t interfaceID, uint8_t *data, uint8_t length) {
+void AX5043FIFOSetFIFO(uint8_t interfaceID, uint8_t *data, uint8_t length) {
 	AX5043WriteShortAddress(interfaceID, FIFODATA, data, length);
 }
 
 /**
-  * @brief	This function reads to the FIFO Data Register
+  * @brief	This function reads to the FIFO Register
   * @param	interfaceID: Which interface (chip) used
   * @param	data: The Data read from the FIFO
   * @param	length: Number of bytes to read from the FIFO
   * @return	None
   */
-void AX5043FIFOGetFIFOData(uint8_t interfaceID, uint8_t *data, uint8_t length) {
+void AX5043FIFOGetFIFO(uint8_t interfaceID, uint8_t *data, uint8_t length) {
 	AX5043ReadShortAddress(interfaceID, FIFODATA, data, length);
 }
 

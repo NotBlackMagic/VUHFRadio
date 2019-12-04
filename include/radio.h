@@ -24,7 +24,13 @@ extern "C" {
 #define RADIO_UHF					0
 #define RADIO_VHF					1
 
-void RadioInit();
+void RadioInterfacesInit();
+void RadioVHFInit();
+void RadioUHFInit();
+void RadioVHFEnterTX();
+void RadioUHFEnterTX();
+void RadioVHFWriteFrame(uint8_t data[], uint8_t dataLength);
+void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength);
 
 #ifdef __cplusplus
 }

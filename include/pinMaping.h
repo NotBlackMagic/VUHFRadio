@@ -12,12 +12,12 @@ extern "C" {
 #define GPIO_IN_IRQ_V						17		//Input IRQ of VHF
 
 //Output Pin Mapping
-#define GPIO_OUT_LED0						0		//Output LED 0
-#define GPIO_OUT_LED1						1		//Output LED 1
-#define GPIO_OUT_LED2						2		//Output LED 2
-#define GPIO_OUT_LED3						3		//Output LED 3
-#define GPIO_OUT_LED4						46		//Output LED 4
-#define GPIO_OUT_LED5						47		//Output LED 5
+#define GPIO_OUT_LED0						3		//Output LED 0
+#define GPIO_OUT_LED1						2		//Output LED 1
+#define GPIO_OUT_LED2						1		//Output LED 2
+#define GPIO_OUT_LED3						0		//Output LED 3
+#define GPIO_OUT_LED4						47		//Output LED 4
+#define GPIO_OUT_LED5						46		//Output LED 5
 #define GPIO_OUT_CS_U						18		//Output CS of UHF
 #define GPIO_OUT_CS_V						28		//Output CS of VHF
 

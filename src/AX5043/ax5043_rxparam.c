@@ -1060,7 +1060,7 @@ uint8_t AX5043RXParamGetAGCMaximumReset3(uint8_t interfaceID) {
   * @return	None
   */
 void AX5043PacketSetGainTimingRecovery0(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & TIMEGAIN0E_MASK) + ((exponent << 4) & TIMEGAIN0M_MASK);
+	uint8_t config = (exponent & TIMEGAIN0E_MASK) + ((mantissa << 4) & TIMEGAIN0M_MASK);
 	AX5043WriteLongAddress(interfaceID, TIMEGAIN0, &config, 1);
 }
 
@@ -1074,8 +1074,8 @@ void AX5043PacketSetGainTimingRecovery0(uint8_t interfaceID, uint8_t mantissa, u
 void AX5043PacketGetGainTimingRecovery0(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, TIMEGAIN0, &config, 1);
-	*mantissa = (config & TIMEGAIN0E_MASK);
-	*exponent = (config & TIMEGAIN0M_MASK) >> 4;
+	*mantissa = (config & TIMEGAIN0E_MASK) >> 4;
+	*exponent = (config & TIMEGAIN0M_MASK);
 }
 
 /**
@@ -1086,7 +1086,7 @@ void AX5043PacketGetGainTimingRecovery0(uint8_t interfaceID, uint8_t* mantissa, 
   * @return	None
   */
 void AX5043PacketSetGainTimingRecovery1(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & TIMEGAIN1E_MASK) + ((exponent << 4) & TIMEGAIN1M_MASK);
+	uint8_t config = (exponent & TIMEGAIN1E_MASK) + ((mantissa << 4) & TIMEGAIN1M_MASK);
 	AX5043WriteLongAddress(interfaceID, TIMEGAIN1, &config, 1);
 }
 
@@ -1100,8 +1100,8 @@ void AX5043PacketSetGainTimingRecovery1(uint8_t interfaceID, uint8_t mantissa, u
 void AX5043PacketGetGainTimingRecovery1(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, TIMEGAIN1, &config, 1);
-	*mantissa = (config & TIMEGAIN1E_MASK);
-	*exponent = (config & TIMEGAIN1M_MASK) >> 4;
+	*mantissa = (config & TIMEGAIN1E_MASK) >> 4;
+	*exponent = (config & TIMEGAIN1M_MASK);
 }
 
 /**
@@ -1112,7 +1112,7 @@ void AX5043PacketGetGainTimingRecovery1(uint8_t interfaceID, uint8_t* mantissa, 
   * @return	None
   */
 void AX5043PacketSetGainTimingRecovery2(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & TIMEGAIN2E_MASK) + ((exponent << 4) & TIMEGAIN2M_MASK);
+	uint8_t config = (exponent & TIMEGAIN2E_MASK) + ((mantissa << 4) & TIMEGAIN2M_MASK);
 	AX5043WriteLongAddress(interfaceID, TIMEGAIN2, &config, 1);
 }
 
@@ -1126,8 +1126,8 @@ void AX5043PacketSetGainTimingRecovery2(uint8_t interfaceID, uint8_t mantissa, u
 void AX5043PacketGetGainTimingRecovery2(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, TIMEGAIN2, &config, 1);
-	*mantissa = (config & TIMEGAIN2E_MASK);
-	*exponent = (config & TIMEGAIN2M_MASK) >> 4;
+	*mantissa = (config & TIMEGAIN2E_MASK) >> 4;
+	*exponent = (config & TIMEGAIN2M_MASK);
 }
 
 /**
@@ -1138,7 +1138,7 @@ void AX5043PacketGetGainTimingRecovery2(uint8_t interfaceID, uint8_t* mantissa, 
   * @return	None
   */
 void AX5043PacketSetGainTimingRecovery3(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & TIMEGAIN3E_MASK) + ((exponent << 4) & TIMEGAIN3M_MASK);
+	uint8_t config = (exponent & TIMEGAIN3E_MASK) + ((mantissa << 4) & TIMEGAIN3M_MASK);
 	AX5043WriteLongAddress(interfaceID, TIMEGAIN3, &config, 1);
 }
 
@@ -1152,8 +1152,8 @@ void AX5043PacketSetGainTimingRecovery3(uint8_t interfaceID, uint8_t mantissa, u
 void AX5043PacketGetGainTimingRecovery3(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, TIMEGAIN3, &config, 1);
-	*mantissa = (config & TIMEGAIN3E_MASK);
-	*exponent = (config & TIMEGAIN3M_MASK) >> 4;
+	*mantissa = (config & TIMEGAIN3E_MASK) >> 4;
+	*exponent = (config & TIMEGAIN3M_MASK);
 }
 
 /**
@@ -1164,7 +1164,7 @@ void AX5043PacketGetGainTimingRecovery3(uint8_t interfaceID, uint8_t* mantissa, 
   * @return	None
   */
 void AX5043PacketSetGainDatarateRecovery0(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & DRGAIN0E_MASK) + ((exponent << 4) & DRGAIN0M_MASK);
+	uint8_t config = (exponent & DRGAIN0E_MASK) + ((mantissa << 4) & DRGAIN0M_MASK);
 	AX5043WriteLongAddress(interfaceID, DRGAIN0, &config, 1);
 }
 
@@ -1178,8 +1178,8 @@ void AX5043PacketSetGainDatarateRecovery0(uint8_t interfaceID, uint8_t mantissa,
 void AX5043PacketGetGainDatarateRecovery0(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, DRGAIN0, &config, 1);
-	*mantissa = (config & DRGAIN0E_MASK);
-	*exponent = (config & DRGAIN0M_MASK) >> 4;
+	*mantissa = (config & DRGAIN0E_MASK) >> 4;
+	*exponent = (config & DRGAIN0M_MASK);
 }
 
 /**
@@ -1190,7 +1190,7 @@ void AX5043PacketGetGainDatarateRecovery0(uint8_t interfaceID, uint8_t* mantissa
   * @return	None
   */
 void AX5043PacketSetGainDatarateRecovery1(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & DRGAIN1E_MASK) + ((exponent << 4) & DRGAIN1M_MASK);
+	uint8_t config = (exponent & DRGAIN1E_MASK) + ((mantissa << 4) & DRGAIN1M_MASK);
 	AX5043WriteLongAddress(interfaceID, DRGAIN1, &config, 1);
 }
 
@@ -1204,8 +1204,8 @@ void AX5043PacketSetGainDatarateRecovery1(uint8_t interfaceID, uint8_t mantissa,
 void AX5043PacketGetGainDatarateRecovery1(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, DRGAIN1, &config, 1);
-	*mantissa = (config & DRGAIN1E_MASK);
-	*exponent = (config & DRGAIN1M_MASK) >> 4;
+	*mantissa = (config & DRGAIN1E_MASK) >> 4;
+	*exponent = (config & DRGAIN1M_MASK);
 }
 
 /**
@@ -1216,7 +1216,7 @@ void AX5043PacketGetGainDatarateRecovery1(uint8_t interfaceID, uint8_t* mantissa
   * @return	None
   */
 void AX5043PacketSetGainDatarateRecovery2(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & DRGAIN2E_MASK) + ((exponent << 4) & DRGAIN2M_MASK);
+	uint8_t config = (exponent & DRGAIN2E_MASK) + ((mantissa << 4) & DRGAIN2M_MASK);
 	AX5043WriteLongAddress(interfaceID, DRGAIN2, &config, 1);
 }
 
@@ -1230,8 +1230,8 @@ void AX5043PacketSetGainDatarateRecovery2(uint8_t interfaceID, uint8_t mantissa,
 void AX5043PacketGetGainDatarateRecovery2(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, DRGAIN2, &config, 1);
-	*mantissa = (config & DRGAIN2E_MASK);
-	*exponent = (config & DRGAIN2M_MASK) >> 4;
+	*mantissa = (config & DRGAIN2E_MASK) >> 4;
+	*exponent = (config & DRGAIN2M_MASK);
 }
 
 /**
@@ -1242,7 +1242,7 @@ void AX5043PacketGetGainDatarateRecovery2(uint8_t interfaceID, uint8_t* mantissa
   * @return	None
   */
 void AX5043PacketSetGainDatarateRecovery3(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
-	uint8_t config = (mantissa & DRGAIN3E_MASK) + ((exponent << 4) & DRGAIN3M_MASK);
+	uint8_t config = (exponent & DRGAIN3E_MASK) + ((mantissa << 4) & DRGAIN3M_MASK);
 	AX5043WriteLongAddress(interfaceID, DRGAIN3, &config, 1);
 }
 
@@ -1256,8 +1256,8 @@ void AX5043PacketSetGainDatarateRecovery3(uint8_t interfaceID, uint8_t mantissa,
 void AX5043PacketGetGainDatarateRecovery3(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, DRGAIN3, &config, 1);
-	*mantissa = (config & DRGAIN3E_MASK);
-	*exponent = (config & DRGAIN3M_MASK) >> 4;
+	*mantissa = (config & DRGAIN3E_MASK) >> 4;
+	*exponent = (config & DRGAIN3M_MASK);
 }
 
 /**

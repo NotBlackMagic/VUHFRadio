@@ -8,6 +8,57 @@ extern "C" {
 #include "ax5043_interface.h"
 #include "ax5043_regs.h"
 
+//Registers Configuration of ENCODING
+#define ENCINV_MASK							0x01	//Invert data if set to 1
+#define ENCDIFF_MASK						0x02	//Differential encode/decode data if set to 1
+#define ENCSCRAM_MASK						0x04	//Enable scramble/descramble if set to 1
+#define ENCMNACH_MASK						0x08	//Enable manchester encoding/decoding. FM0/FM1 may be achieved by also appropriately setting ENC DIFF and ENC INV
+#define ENCNOSYNC_MASK						0x10	//Disable Dibit synchronization in 4-FSK mode
+
+//Registers Configuration of FRAMING
+#define FABORT_MASK							0x01	//Write 1 to abort current HDLC[1] packet/pattern match
+#define FRMMODE_MASK						0x0E	//Frame Mode Bit Values Mask
+#define CRCMODE_MASK						0x70	//CRC Mode Bit Values Mask
+#define FRMRX_MASK							0x80	//Packet start detected: set when a flag is detected in HDLC[1] mode or preamble match in RAW pattern match mode
+//FRMMODE Bits
+typedef enum {
+	FrmMode_Raw = 0,
+	FrmMode_RawSoftBits = 1,
+	FrmMode_HDLC = 2,
+	FrmMode_RawPatternMatch = 3,
+	FrmMode_WMBUS = 4,
+	FrmMode_WMBUS4to6 = 5
+} FrmMode;
+//CRCMODE Bits
+typedef enum {
+	CRCMode_Off = 0,
+	CRCMode_CCITT = 1,
+	CRCMode_CRC16 = 2,
+	CRCMode_DNP = 3,
+	CRCMode_CRC32 = 6
+} CRCMode;
+
+//Register Configuration of CRCINIT Register
+#define CRCINIT0_MASK						0xFF	//CRC reset value; normally all 1's
+#define CRCINIT1_MASK						0xFF	//CRC reset value; normally all 1's
+#define CRCINIT2_MASK						0xFF	//CRC reset value; normally all 1's
+#define CRCINIT3_MASK						0xFF	//CRC reset value; normally all 1's
+
+//Register Configuration of FEC Register
+#define FECENA_MASK							0x01	//Enable FEC (Convolutional Encoder)
+#define FECINPSHIFT_MASK					0x0E	//Attenuate soft RX data by 2^-FECINPSHIFT
+#define FECPOS_MASK							0x10	//Enable noninverted interleave synchronization
+#define FECNEG_MASK							0x20	//Enable inverted interleave synchronization
+#define RSTVITERBI_MASK						0x40	//Reset Viterbi decoder
+#define SHORTMEM_MASK						0x80	//Shorten backtrack memory
+
+//Register Configuration of FECSYNC Register
+#define FECSYNC_MASK						0xFF	//Interleaver synchronization threshold
+
+//Register Configuration of FECSTATUS Register
+#define MAXMETRIC_MASK						0x7F	//Metric increment of the survivor path
+#define FECINV_MASK							0x80	//Inverted synchronization sequence received
+
 //Register Configuration of PKTADDRCFG Register
 #define ADDRPOS_MASK						0x0F	//Position of the address bytes Mask
 #define FECSYNCDIS_MASK						0x20	//When set, disable FEC sync search during packet reception Mask
@@ -162,6 +213,39 @@ typedef enum {
 #define ACCPTSZF_MASK						0x10	//Accept Packets that are too long
 #define ACCPTLRGP_MASK						0x20	//Accept Packets that span multiple FIFO chunks
 
+void AX5043PacketEnableEncodeBitInversion(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodeBitInversionEnabled(uint8_t interfaceID);
+void AX5043PacketEnableEncodeDiffrential(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodeDiffrentialEnabled(uint8_t interfaceID);
+void AX5043PacketEnableEncodeScramble(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodeScrambleEnabled(uint8_t interfaceID);
+void AX5043PacketEnableEncodeManchester(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodManchesterEnabled(uint8_t interfaceID);
+void AX5043PacketDisableEncodeDibit(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodeDibitDisabled(uint8_t interfaceID);
+void AX5043PacketAbortPatternMatch(uint8_t interfaceID);
+void AX5043PacketSetFrameMode(uint8_t interfaceID, FrmMode frameMode);
+FrmMode AX5043PacketGetFrameMode(uint8_t interfaceID);
+void AX5043PacketSetCRCMode(uint8_t interfaceID, CRCMode frameMode);
+CRCMode AX5043PacketGetCRCMode(uint8_t interfaceID);
+uint8_t AX5043PacketPacketStartDetected(uint8_t interfaceID);
+void AX5043PacketSetCRCInitValue(uint8_t interfaceID, uint32_t crcInit);
+uint32_t AX5043PacketGetCRCInitValue(uint8_t interfaceID);
+void AX5043PacketEnableFEC(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsFECEnabled(uint8_t interfaceID);
+void AX5043PacketSetFECInputShift(uint8_t interfaceID, uint8_t inputShift);
+uint8_t AX5043PacketGetFECInputShift(uint8_t interfaceID);
+void AX5043PacketEnableFECNonInvInterleave(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsFECNonInvInterleaveEnabled(uint8_t interfaceID);
+void AX5043PacketEnableFECInvInterleave(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsFECInvInterleaveEnabled(uint8_t interfaceID);
+void AX5043PacketResetViterbiDecoder(uint8_t interfaceID);
+void AX5043PacketEnableShortenBacktrack(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsShortenBacktrackEnabled(uint8_t interfaceID);
+void AX5043PacketSetFECSync(uint8_t interfaceID, uint8_t fecSync);
+uint8_t AX5043PacketGetFECSync(uint8_t interfaceID);
+uint8_t AX5043PacketGetMetricIncrementSurvivorPath(uint8_t interfaceID);
+uint8_t AX5043PacketGetInvertedSyncSeqReceived(uint8_t interfaceID);
 void AX5043PacketSetAddressBytesPosition(uint8_t interfaceID, uint8_t position);
 uint8_t AX5043PacketGetAddressBytesPosition(uint8_t interfaceID);
 void AX5043PacketDisableFECSync(uint8_t interfaceID, uint8_t disable);

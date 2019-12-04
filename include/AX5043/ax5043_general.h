@@ -35,6 +35,22 @@ typedef enum {
 //Register Configuration of XTALCAP Register
 #define XTALCAP_MASK						0x3F	//Load Capacitance Configuration, For XTALCAP(5:0) != 0, CL = 8pF + 0.5pF*XTALCAP(5:0)
 
+//Registers Configuration of MODULATION
+#define MODULATION_MASK						0x0F	//Modulation Bit Value Mask
+#define RXHALFSPEED_MASK					0x10	//If set, halves the received bitrate
+//MODULATION Bits
+typedef enum {
+	ASK = 0,
+	ASK_Coherent = 1,
+	PSK = 4,
+	OQSK = 6,
+	MSK = 7,
+	FSK = 8,
+	FSK4 = 9,
+	AFSK = 10,
+	FM = 11
+} Modulations;
+
 uint8_t AX5043GeneralRevision(uint8_t interfaceID);
 uint8_t AX5043GeneralScratch(uint8_t interfaceID);
 RadioState AX5043GeneralRadioState(uint8_t interfaceID);
@@ -48,6 +64,10 @@ void AX5043GeneralSetAntennaSelection(uint8_t interfaceID, uint8_t antennaSelect
 uint8_t AX5043GeneralGetAntennaSelection(uint8_t interfaceID);
 void AX5043GeneralSetXTALLoadCap(uint8_t interfaceID, uint8_t cap);
 uint8_t AX5043GeneralGetXTALLoadCap(uint8_t interfaceID);
+void AX5043GeneralSetModulation(uint8_t interfaceID, Modulations modulation);
+Modulations AX5043GeneralGetModulation(uint8_t interfaceID);
+void AX5043GeneralSetRXHalfSpeed(uint8_t interfaceID, uint8_t halfSpeed);
+uint8_t AX5043GeneralGetRXHalfSpeed(uint8_t interfaceID);
 
 #ifdef __cplusplus
 }

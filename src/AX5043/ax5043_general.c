@@ -147,3 +147,51 @@ uint8_t AX5043GeneralGetXTALLoadCap(uint8_t interfaceID) {
 	AX5043WriteShortAddress(interfaceID, XTALCAP, &cap, 1);
 	return (cap & XTALCAP_MASK);
 }
+
+/**
+  * @brief	This function sets the modulation mode
+  * @param	interfaceID: Which interface (chip) used
+  * @param	Modulations: Selects the modulation/demodulation mode
+  * @return	None
+  */
+void AX5043GeneralSetModulation(uint8_t interfaceID, Modulations modulation) {
+	uint8_t config;
+	AX5043ReadShortAddress(interfaceID, MODULATION, &config, 1);
+	config = (config & ~MODULATION_MASK) | (modulation);
+	AX5043WriteShortAddress(interfaceID, MODULATION, &config, 1);
+}
+
+/**
+  * @brief	This function gets the modulation mode
+  * @param	interfaceID: Which interface (chip) used
+  * @return	The Modulations mode
+  */
+Modulations AX5043GeneralGetModulation(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadShortAddress(interfaceID, MODULATION, &config, 1);
+	return (Modulations)(config & MODULATION_MASK);
+}
+
+/**
+  * @brief	This function sets RX half speed
+  * @param	interfaceID: Which interface (chip) used
+  * @param	halfSpeed: If set, halves the received bitrate
+  * @return	None
+  */
+void AX5043GeneralSetRXHalfSpeed(uint8_t interfaceID, uint8_t halfSpeed) {
+	uint8_t config;
+	AX5043ReadShortAddress(interfaceID, MODULATION, &config, 1);
+	config = (config & ~RXHALFSPEED_MASK) | (halfSpeed << 4);
+	AX5043WriteShortAddress(interfaceID, MODULATION, &config, 1);
+}
+
+/**
+  * @brief	This function gets if RX half speed is used
+  * @param	interfaceID: Which interface (chip) used
+  * @return	If received bitrate is halved
+  */
+uint8_t AX5043GeneralGetRXHalfSpeed(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadShortAddress(interfaceID, MODULATION, &config, 1);
+	return ((config & RXHALFSPEED_MASK) >> 4);
+}
