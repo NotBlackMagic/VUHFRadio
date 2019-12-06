@@ -28,6 +28,15 @@ typedef enum {
 //Register Configuration of XTALSTATUS Register
 #define XTALSTATUS_MASK						0x01	//XTALSTATUS Bit Values Mask
 
+//Register Configuration of RSSI Register
+#define RSSI_MASK							0xFF	//RSSI Mask
+
+//Register Configuration of BGNDRSSI Register
+#define BGNDRSSI_MASK						0xFF	//BGNDRSSI Mask
+
+//Register Configuration of AGCCOUNTER Register
+#define AGCCOUNTER_MASK						0xFF	//AGCCOUNTER Mask
+
 //Register Configuration of DIVERSITY Register
 #define DIVERSITY_DIVENA_MASK				0x01	//DIVENA Bit Value Mask
 #define DIVERSITY_ANTSEL_MASK				0x02	//ANTSEL Bit Value Mask
@@ -55,9 +64,10 @@ uint8_t AX5043GeneralRevision(uint8_t interfaceID);
 uint8_t AX5043GeneralScratch(uint8_t interfaceID);
 RadioState AX5043GeneralRadioState(uint8_t interfaceID);
 uint8_t AX5043GeneralXTALStatus(uint8_t interfaceID);
-uint8_t AX5043GeneralRSSI(uint8_t interfaceID);
+uint8_t AX5043GeneralGetRSSI(uint8_t interfaceID);
 void AX5043GeneralSetBackgroundNoise(uint8_t interfaceID, uint8_t noise);
 uint8_t AX5043GeneralGetBackgroundNoise(uint8_t interfaceID);
+uint8_t AX5043GeneralGetAGCCurrentGain(uint8_t interfaceID);
 void AX5043GeneralSetEnableAntennaDiversity(uint8_t interfaceID, uint8_t antennaDiversity);
 uint8_t AX5043GeneralGetAntennaDiversity(uint8_t interfaceID);
 void AX5043GeneralSetAntennaSelection(uint8_t interfaceID, uint8_t antennaSelect);

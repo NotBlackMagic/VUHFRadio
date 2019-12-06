@@ -35,7 +35,6 @@ int main(void) {
 
 
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
-
 	uint8_t rxTestData[300];
 	while(1) {
 		uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
@@ -45,8 +44,14 @@ int main(void) {
 		}
 
 		char str[100];
-		uint8_t rssi = AX5043GeneralRSSI(RADIO_UHF);
-		uint8_t len = sprintf(str, "RSSI: %u\n", rssi);
+		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
+		uint8_t len = sprintf(str, "RSSI AGC: %u; RSSI: %u\n", rssiAGC, rssi);
+		USBVCPWrite(str, len);
+
+		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
+		uint32_t trackDatarate = AX5043RXTrackingDatarate(RADIO_UHF);
+		len = sprintf(str, "Freq: %u; Datarate: %u\n", trackFreq, trackDatarate);
 		USBVCPWrite(str, len);
 
 		Delay(100);

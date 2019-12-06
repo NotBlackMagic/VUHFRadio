@@ -1,5 +1,7 @@
 #include "radio.h"
 
+#define FXTAL						16000000	//Xtal Frequency in Hz
+
 void RadioUHFCS(uint8_t cs) {
 	GPIOWrite(GPIO_OUT_CS_U, cs);
 }
@@ -114,7 +116,11 @@ void RadioUHFInit() {
 	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Modem_Data_Output, 0, 0);
 	//AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
-	//AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_Low, 0, 0);	//Default
+	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
+
+	//Set DAC
+	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_RSSI);
+	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
 
 	//Set Performance Tuning Registers
 	uint8_t data = 0x0F;
@@ -183,15 +189,19 @@ void RadioUHFInit() {
 	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x25);		//Set AFSK Mark freq. of 2200 Hz
 
 	//Set Demodulation for RX Mode
-	AX5043RXParamSetIFFrequency(RADIO_UHF, 0x00CD);	//Set IF to 3135 Hz
-	AX5043RXParamSetDecimation(RADIO_UHF, 0x28);	//Set decimation to have fbsaeband = 25 kHz
-	AX5043RXParamSetRXDatarate(RADIO_UHF, 0xA6AB);	//Set to 1200 bits/s
+	RadioUHFSetIF(50000);
+	RadioUHFSetBandwidth(100000);
+	RadioUHFSetRXBitrate(1200);
+
+	//AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0CCD);	//Set IF to 50 kHz
+//	AX5043RXParamSetDecimation(RADIO_UHF, 0x28);	//Set decimation to have fbsaeband = 100 kHz
+//	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x034156);	//Set to 1200 bits/s
 	AX5043RXParamSetRXMaximumDatarateOffset(RADIO_UHF, 0x00);
 	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0x0419);	//Max RF offset set to +- 1kHz
 	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 1);		//Correction done at 1st LO
-	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x00C5);	//Set AFSK Space freq. of 1200 Hz
-	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x0169);	//Set AFSK Mark freq. of 2200 Hz
-	AX5043RXParamSetAFSKDetBandwitdh(RADIO_UHF, 0x07);
+	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x0028);	//Set AFSK Space freq. of 1200 Hz
+	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x0049);	//Set AFSK Mark freq. of 2200 Hz
+	AX5043RXParamSetAFSKDetBandwitdh(RADIO_UHF, 0x0B);
 	AX5043RXParamSetRXParameterNumber0(RADIO_UHF, 0);
 	AX5043RXParamSetRXParameterNumber1(RADIO_UHF, 1);
 	AX5043RXParamSetRXParameterNumber2(RADIO_UHF, 3);
@@ -251,6 +261,22 @@ void RadioUHFEnterTX() {
 	while(status.svmodem != 0x01) {
 		status = AX5043PwrStats(RADIO_UHF);
 	}
+}
+
+void RadioUHFSetBandwidth(uint32_t bandwidth) {
+	uint8_t decimation = FXTAL / (bandwidth << 4);
+	AX5043RXParamSetDecimation(RADIO_UHF, decimation);
+}
+
+void RadioUHFSetIF(uint32_t ifFreq) {
+	uint16_t ifF = (uint16_t)(ifFreq * (1048576.f / FXTAL) + 0.5f);
+	AX5043RXParamSetIFFrequency(RADIO_UHF, ifF);
+}
+
+void RadioUHFSetRXBitrate(uint32_t bitrate) {
+	uint8_t decimation = AX5043RXParamGetDecimation(RADIO_UHF);
+	uint32_t dr = (FXTAL << 7) / (bitrate * decimation);
+	AX5043RXParamSetRXDatarate(RADIO_UHF, dr);
 }
 
 void RadioVHFWriteFrame(uint8_t data[], uint8_t dataLength) {

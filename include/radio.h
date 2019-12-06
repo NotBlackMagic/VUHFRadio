@@ -29,6 +29,11 @@ void RadioVHFInit();
 void RadioUHFInit();
 void RadioVHFEnterTX();
 void RadioUHFEnterTX();
+
+void RadioUHFSetBandwidth(uint32_t bandwidth);
+void RadioUHFSetIF(uint32_t ifFreq);
+void RadioUHFSetRXBitrate(uint32_t bitrate);
+
 void RadioVHFWriteFrame(uint8_t data[], uint8_t dataLength);
 void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength);
 

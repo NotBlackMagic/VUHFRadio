@@ -51,10 +51,10 @@ uint8_t AX5043GeneralXTALStatus(uint8_t interfaceID) {
   * @param	interfaceID: Which interface (chip) used
   * @return	RSSI Value in dB
   */
-uint8_t AX5043GeneralRSSI(uint8_t interfaceID) {
+uint8_t AX5043GeneralGetRSSI(uint8_t interfaceID) {
 	uint8_t rssi;
 	AX5043ReadShortAddress(interfaceID, RSSI, &rssi, 1);
-	return rssi;
+	return (rssi & RSSI_MASK);
 }
 
 /**
@@ -64,7 +64,7 @@ uint8_t AX5043GeneralRSSI(uint8_t interfaceID) {
   * @return	None
   */
 void AX5043GeneralSetBackgroundNoise(uint8_t interfaceID, uint8_t noise) {
-	AX5043WriteShortAddress(interfaceID, RSSI, &noise, 1);
+	AX5043WriteShortAddress(interfaceID, BGNDRSSI, &noise, 1);
 }
 
 /**
@@ -74,8 +74,19 @@ void AX5043GeneralSetBackgroundNoise(uint8_t interfaceID, uint8_t noise) {
   */
 uint8_t AX5043GeneralGetBackgroundNoise(uint8_t interfaceID) {
 	uint8_t noise;
-	AX5043ReadShortAddress(interfaceID, RSSI, &noise, 1);
-	return noise;
+	AX5043ReadShortAddress(interfaceID, BGNDRSSI, &noise, 1);
+	return (noise & BGNDRSSI_MASK);
+}
+
+/**
+  * @brief	This function gets the current AGC gain
+  * @param	interfaceID: Which interface (chip) used
+  * @return	AGC Gain in 0.75 dB steps
+  */
+uint8_t AX5043GeneralGetAGCCurrentGain(uint8_t interfaceID) {
+	uint8_t agcCnt;
+	AX5043ReadShortAddress(interfaceID, AGCCOUNTER, &agcCnt, 1);
+	return (agcCnt & AGCCOUNTER_MASK);
 }
 
 /**
