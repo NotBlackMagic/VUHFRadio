@@ -8,9 +8,9 @@
   */
 void AX5043RXParamSetIFFrequency(uint8_t interfaceID, uint16_t ifFrequency) {
 	uint8_t config;
-	config = (ifFrequency & IFFREQ0_MASK);
+	config = (ifFrequency) & IFFREQ0_MASK;
 	AX5043WriteLongAddress(interfaceID, IFFREQ0, &config, 1);
-	config = (ifFrequency & IFFREQ1_MASK) >> 8;
+	config = (ifFrequency >> 8) & IFFREQ1_MASK;
 	AX5043WriteLongAddress(interfaceID, IFFREQ1, &config, 1);
 }
 
@@ -59,11 +59,11 @@ uint8_t AX5043RXParamGetDecimation(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXDatarate(uint8_t interfaceID, uint32_t datarate) {
 	uint8_t config;
-	config = (datarate & RXDATARATE0_MASK);
+	config = (datarate) & RXDATARATE0_MASK;
 	AX5043WriteLongAddress(interfaceID, RXDATARATE0, &config, 1);
-	config = (datarate & RXDATARATE1_MASK) >> 8;
+	config = (datarate >> 8) & RXDATARATE1_MASK;
 	AX5043WriteLongAddress(interfaceID, RXDATARATE1, &config, 1);
-	config = (datarate & RXDATARATE2_MASK) >> 16;
+	config = (datarate >> 16) & RXDATARATE2_MASK;
 	AX5043WriteLongAddress(interfaceID, RXDATARATE2, &config, 1);
 }
 
@@ -92,11 +92,11 @@ uint32_t AX5043RXParamGetRXDatarate(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXMaximumDatarateOffset(uint8_t interfaceID, uint32_t datarate) {
 	uint8_t config;
-	config = (datarate & MAXDROFFSET0_MASK);
+	config = (datarate) & MAXDROFFSET0_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXDROFFSET0, &config, 1);
-	config = (datarate & MAXDROFFSET1_MASK) >> 8;
+	config = (datarate >> 8) & MAXDROFFSET1_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXDROFFSET1, &config, 1);
-	config = (datarate & MAXDROFFSET2_MASK) >> 16;
+	config = (datarate >> 16) & MAXDROFFSET2_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXDROFFSET2, &config, 1);
 }
 
@@ -125,11 +125,11 @@ uint32_t AX5043RXParamGetRXMaximumDatarateOffset(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXMaximumFrequencyOffset(uint8_t interfaceID, uint32_t frequency) {
 	uint8_t config;
-	config = (frequency & MAXRFOFFSET0_MASK);
+	config = (frequency) & MAXRFOFFSET0_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXRFOFFSET0, &config, 1);
-	config = (frequency & MAXRFOFFSET1_MASK) >> 8;
+	config = (frequency >> 8) & MAXRFOFFSET1_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXRFOFFSET1, &config, 1);
-	config = (frequency & MAXRFOFFSET2_MASK) >> 16;
+	config = (frequency >> 16) & MAXRFOFFSET2_MASK;
 	AX5043WriteLongAddress(interfaceID, MAXRFOFFSET2, &config, 1);
 }
 
@@ -182,9 +182,9 @@ uint8_t AX5043RXParamGetCorrectFrequencyOffsetLO(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXFSKMaxDeviation(uint8_t interfaceID, uint16_t deviation) {
 	uint8_t config;
-	config = (deviation & FSKDMAX0_MASK);
+	config = (deviation) & FSKDMAX0_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDMAX0, &config, 1);
-	config = (deviation & FSKDMAX1_MASK) >> 8;
+	config = (deviation >> 8) & FSKDMAX1_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDMAX1, &config, 1);
 }
 
@@ -211,9 +211,9 @@ uint16_t AX5043RXParamGetRXFSKMaxDeviation(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXFSKMinDeviation(uint8_t interfaceID, uint16_t deviation) {
 	uint8_t config;
-	config = (deviation & FSKDMIN0_MASK);
+	config = (deviation) & FSKDMIN0_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDMIN0, &config, 1);
-	config = (deviation & FSKDMIN1_MASK) >> 8;
+	config = (deviation >> 8) & FSKDMIN1_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDMIN1, &config, 1);
 }
 
@@ -240,9 +240,9 @@ uint16_t AX5043RXParamGetRXFSKMinDeviation(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAFSKSpaceFrequency(uint8_t interfaceID, uint16_t spaceFreq) {
 	uint8_t config;
-	config = (spaceFreq & AFSKSPACE0_MASK);
+	config = (spaceFreq) & AFSKSPACE0_MASK;
 	AX5043WriteLongAddress(interfaceID, AFSKSPACE0, &config, 1);
-	config = (spaceFreq & AFSKSPACE1_MASK) >> 8;
+	config = (spaceFreq >> 8) & AFSKSPACE1_MASK;
 	AX5043WriteLongAddress(interfaceID, AFSKSPACE1, &config, 1);
 }
 
@@ -269,9 +269,9 @@ uint16_t AX5043RXParamGetAFSKSpaceFrequency(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAFSKMarkFrequency(uint8_t interfaceID, uint16_t spaceFreq) {
 	uint8_t config;
-	config = (spaceFreq & AFSKMARK0_MASK);
+	config = (spaceFreq) & AFSKMARK0_MASK;
 	AX5043WriteLongAddress(interfaceID, AFSKMARK0, &config, 1);
-	config = (spaceFreq & AFSKMARK1_MASK) >> 8;
+	config = (spaceFreq >> 8) & AFSKMARK1_MASK;
 	AX5043WriteLongAddress(interfaceID, AFSKMARK1, &config, 1);
 }
 
@@ -2812,9 +2812,9 @@ uint8_t AX5043RXParamGetRXAmplitudeRecoveryByAverage3(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXFrequencyDeviation0(uint8_t interfaceID, uint16_t deviation) {
 	uint8_t config;
-	config = (deviation & FREQDEV00_MASK);
+	config = (deviation) & FREQDEV00_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV00, &config, 1);
-	config = (deviation & FREQDEV01_MASK) >> 8;
+	config = (deviation >> 8) & FREQDEV01_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV10, &config, 1);
 }
 
@@ -2841,9 +2841,9 @@ uint16_t AX5043RXParamGetRXFrequencyDeviation0(uint8_t interfaceID) {
   */
 void AX5043RXParamSetRXFrequencyDeviation1(uint8_t interfaceID, uint16_t deviation) {
 	uint8_t config;
-	config = (deviation & FREQDEV01_MASK);
+	config = (deviation) & FREQDEV01_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV01, &config, 1);
-	config = (deviation & FREQDEV11_MASK) >> 8;
+	config = (deviation >> 8) & FREQDEV11_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV11, &config, 1);
 }
 
@@ -2872,7 +2872,7 @@ void AX5043RXParamSetRXFrequencyDeviation2(uint8_t interfaceID, uint16_t deviati
 	uint8_t config;
 	config = (deviation & FREQDEV02_MASK);
 	AX5043WriteLongAddress(interfaceID, FREQDEV02, &config, 1);
-	config = (deviation & FREQDEV12_MASK) >> 8;
+	config = (deviation >> 8) & FREQDEV12_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV12, &config, 1);
 }
 
@@ -2901,7 +2901,7 @@ void AX5043RXParamSetRXFrequencyDeviation3(uint8_t interfaceID, uint16_t deviati
 	uint8_t config;
 	config = (deviation & FREQDEV03_MASK);
 	AX5043WriteLongAddress(interfaceID, FREQDEV03, &config, 1);
-	config = (deviation & FREQDEV13_MASK) >> 8;
+	config = (deviation >> 8) & FREQDEV13_MASK;
 	AX5043WriteLongAddress(interfaceID, FREQDEV13, &config, 1);
 }
 

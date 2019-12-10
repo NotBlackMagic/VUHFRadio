@@ -30,11 +30,11 @@ FreqShape AX5043TXParamGetFrequencyShape(uint8_t interfaceID) {
   */
 void AX5043TXParamSetFSKFrequencyDeviation(uint8_t interfaceID, uint32_t freqDeviation) {
 	uint8_t config;
-	config = (freqDeviation & FSKDEV0_MASK);
+	config = (freqDeviation) & FSKDEV0_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDEV0, &config, 1);
-	config = (freqDeviation & FSKDEV1_MASK) >> 8;
+	config = (freqDeviation >> 8) & FSKDEV1_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDEV1, &config, 1);
-	config = (freqDeviation & FSKDEV2_MASK) >> 16;
+	config = (freqDeviation >> 16) & FSKDEV2_MASK;
 	AX5043WriteLongAddress(interfaceID, FSKDEV2, &config, 1);
 }
 
@@ -301,11 +301,11 @@ uint8_t AX5043TXParamGetDisbleTransitterOnBrownOut(uint8_t interfaceID) {
   */
 void AX5043TXParamSetTXDatarate(uint8_t interfaceID, uint32_t datarate) {
 	uint8_t config;
-	config = (datarate & TXRATE0_MASK);
+	config = (datarate) & TXRATE0_MASK;
 	AX5043WriteLongAddress(interfaceID, TXRATE0, &config, 1);
-	config = (datarate & TXRATE1_MASK) >> 8;
+	config = (datarate >> 8) & TXRATE1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXRATE1, &config, 1);
-	config = (datarate & TXRATE2_MASK) >> 16;
+	config = (datarate >> 16) & TXRATE2_MASK;
 	AX5043WriteLongAddress(interfaceID, TXRATE2, &config, 1);
 }
 
@@ -318,7 +318,7 @@ uint32_t AX5043TXParamGetTXDatarate(uint8_t interfaceID) {
 	uint32_t datarate = 0;
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, TXRATE0, &config, 1);
-	datarate = (config & TXRATE0_MASK);
+	datarate = (config) & TXRATE0_MASK;
 	AX5043ReadLongAddress(interfaceID, TXRATE1, &config, 1);
 	datarate += (config & TXRATE1_MASK) << 8;
 	AX5043ReadLongAddress(interfaceID, TXRATE2, &config, 1);
@@ -335,9 +335,9 @@ uint32_t AX5043TXParamGetTXDatarate(uint8_t interfaceID) {
   */
 void AX5043TXParamSetTXPredistortionCoeffA(uint8_t interfaceID, uint16_t coeff) {
 	uint8_t config;
-	config = (coeff & TXPWRCOEFFA0_MASK);
+	config = (coeff) & TXPWRCOEFFA0_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFA0, &config, 1);
-	config = (coeff & TXPWRCOEFFA1_MASK) >> 8;
+	config = (coeff >> 8) & TXPWRCOEFFA1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFA1, &config, 1);
 }
 
@@ -366,9 +366,9 @@ uint16_t AX5043TXParamGetTXPredistortionCoeffA(uint8_t interfaceID) {
   */
 void AX5043TXParamSetTXPredistortionCoeffB(uint8_t interfaceID, uint16_t coeff) {
 	uint8_t config;
-	config = (coeff & TXPWRCOEFFB0_MASK);
+	config = (coeff) & TXPWRCOEFFB0_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFB0, &config, 1);
-	config = (coeff & TXPWRCOEFFB1_MASK) >> 8;
+	config = (coeff >> 8) & TXPWRCOEFFB1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFB1, &config, 1);
 }
 
@@ -399,7 +399,7 @@ void AX5043TXParamSetTXPredistortionCoeffC(uint8_t interfaceID, uint16_t coeff) 
 	uint8_t config;
 	config = (coeff & TXPWRCOEFFC0_MASK);
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFC0, &config, 1);
-	config = (coeff & TXPWRCOEFFC1_MASK) >> 8;
+	config = (coeff >> 8) & TXPWRCOEFFC1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFC1, &config, 1);
 }
 
@@ -430,7 +430,7 @@ void AX5043TXParamSetTXPredistortionCoeffD(uint8_t interfaceID, uint16_t coeff) 
 	uint8_t config;
 	config = (coeff & TXPWRCOEFFD0_MASK);
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFD0, &config, 1);
-	config = (coeff & TXPWRCOEFFD1_MASK) >> 8;
+	config = (coeff >> 8) & TXPWRCOEFFD1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFD1, &config, 1);
 }
 
@@ -461,7 +461,7 @@ void AX5043TXParamSetTXPredistortionCoeffE(uint8_t interfaceID, uint16_t coeff) 
 	uint8_t config;
 	config = (coeff & TXPWRCOEFFE0_MASK);
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFE0, &config, 1);
-	config = (coeff & TXPWRCOEFFE1_MASK) >> 8;
+	config = (coeff >> 8) & TXPWRCOEFFE1_MASK;
 	AX5043WriteLongAddress(interfaceID, TXPWRCOEFFE1, &config, 1);
 }
 

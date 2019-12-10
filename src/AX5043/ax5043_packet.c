@@ -30,7 +30,7 @@ uint8_t AX5043PacketIsEncodeBitInversionEnabled(uint8_t interfaceID) {
   * @param	enable: Enable differential encode/decode
   * @return	None
   */
-void AX5043PacketEnableEncodeDiffrential(uint8_t interfaceID, uint8_t enable) {
+void AX5043PacketEnableEncodeDifferential(uint8_t interfaceID, uint8_t enable) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
 	config = (config & ~ENCDIFF_MASK) | (enable << 1);
@@ -42,7 +42,7 @@ void AX5043PacketEnableEncodeDiffrential(uint8_t interfaceID, uint8_t enable) {
   * @param	interfaceID: Which interface (chip) used
   * @return	If differential encode/decode is enabled
   */
-uint8_t AX5043PacketIsEncodeDiffrentialEnabled(uint8_t interfaceID) {
+uint8_t AX5043PacketIsEncodeDifferentialEnabled(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, ENCODING, &config, 1);
 	return ((config & ENCDIFF_MASK) >> 1);

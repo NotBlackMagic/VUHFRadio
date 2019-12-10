@@ -119,7 +119,7 @@ void RadioUHFInit() {
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
 
 	//Set DAC
-	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_RSSI);
+	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_TRKRFFrequency);
 	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
 
 	//Set Performance Tuning Registers
@@ -157,7 +157,7 @@ void RadioUHFInit() {
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE53, &data, 1);
 	data = 0x24;
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE68, &data, 1);
-	data = 0x00;
+	data = 0x06;
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE114, &data, 1);
 
 	//Set Synth
@@ -166,7 +166,7 @@ void RadioUHFInit() {
 	AX5043SynthSetPLLVCOSelection(RADIO_UHF, 0);	//Use VCO 1
 //	AX5043SynthSetPLLVCO2Internal(RADIO_UHF, 1);	//Use VCO 2 with external inductor
 	AX5043SynthSetPLLVCOEnableRefDivider(RADIO_UHF, 1);
-	AX5043SynthSetFrequencyA(RADIO_UHF, 0x1B474335);	//For 436.45MHz is 0x1B473334 calulated but calibrated value is 0x1B474335
+	AX5043SynthSetFrequencyA(RADIO_UHF, (0x1B474335 + 0x0419));	//For 436.45MHz is 0x1B473334 calculated but calibrated value is 0x1B474335
 //	AX5043SynthSetFrequencyB(RADIO_UHF, 0x1B473334);
 
 	//Perform auto ranging
@@ -185,59 +185,67 @@ void RadioUHFInit() {
 	AX5043GeneralSetModulation(RADIO_UHF, AFSK);
 	AX5043TXParamSetTXDatarate(RADIO_UHF, 0x04EB);	//Set datarate to 1200 bits/s
 	AX5043TXParamSetFSKFrequencyDeviation(RADIO_UHF, 0x0A8E); //Set FSK deviation to 3000 Hz
-	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x14);	//Set AFSK Space freq. of 1200 Hz
-	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x25);		//Set AFSK Mark freq. of 2200 Hz
+	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x25);	//Set AFSK Space freq. of 2200 Hz
+	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x14);		//Set AFSK Mark freq. of 1200 Hz
 
-	//Set Demodulation for RX Mode
-	RadioUHFSetIF(50000);
-	RadioUHFSetBandwidth(100000);
-	RadioUHFSetRXBitrate(1200);
-
-	//AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0CCD);	//Set IF to 50 kHz
-//	AX5043RXParamSetDecimation(RADIO_UHF, 0x28);	//Set decimation to have fbsaeband = 100 kHz
-//	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x034156);	//Set to 1200 bits/s
-	AX5043RXParamSetRXMaximumDatarateOffset(RADIO_UHF, 0x00);
-	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0x0419);	//Max RF offset set to +- 1kHz
-	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 1);		//Correction done at 1st LO
-	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x0028);	//Set AFSK Space freq. of 1200 Hz
-	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x0049);	//Set AFSK Mark freq. of 2200 Hz
-	AX5043RXParamSetAFSKDetBandwitdh(RADIO_UHF, 0x0B);
-	AX5043RXParamSetRXParameterNumber0(RADIO_UHF, 0);
-	AX5043RXParamSetRXParameterNumber1(RADIO_UHF, 1);
-	AX5043RXParamSetRXParameterNumber2(RADIO_UHF, 3);
-	AX5043RXParamSetRXParameterNumber3(RADIO_UHF, 3);
-	//RX Parameter 0
-	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x08);
-	AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
-	AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_UHF, 0x84);
-	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, 0x0A, 0x0A);
-	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, 0x0A, 0x04);
-	AX5043RXParamSetRXFrequencyDeviation0(RADIO_UHF, 0x00);
-	AX5043RXParamSetBasebandGainBlockAOffsetCompRes0(RADIO_UHF, 0x00);
-	AX5043RXParamSetBasebandGainBlockBOffsetCompRes0(RADIO_UHF, 0x00);
-	//RX Parameter 1
-	AX5043RXParamSetAGCAttackSpeed1(RADIO_UHF, 0x08);
-	AX5043RXParamSetAGCReleaseSpeed1(RADIO_UHF, 0x0E);
-	AX5043RXParamSetAGCTargetAvgMagnitude1(RADIO_UHF, 0x84);
-	AX5043PacketSetGainTimingRecovery1(RADIO_UHF, 0x0A, 0x08);
-	AX5043PacketSetGainDatarateRecovery1(RADIO_UHF, 0x0A, 0x03);
-	AX5043RXParamSetRXFrequencyDeviation1(RADIO_UHF, 0x4B);
-	AX5043RXParamSetBasebandGainBlockAOffsetCompRes1(RADIO_UHF, 0x00);
-	AX5043RXParamSetBasebandGainBlockBOffsetCompRes1(RADIO_UHF, 0x00);
-	//RX Parameter 3
-	AX5043RXParamSetAGCAttackSpeed3(RADIO_UHF, 0x0F);
-	AX5043RXParamSetAGCReleaseSpeed3(RADIO_UHF, 0x0F);
-	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x84);
-	AX5043PacketSetGainTimingRecovery3(RADIO_UHF, 0x0A, 0x07);
-	AX5043PacketSetGainDatarateRecovery3(RADIO_UHF, 0x0A, 0x02);
-	AX5043RXParamSetRXFrequencyDeviation3(RADIO_UHF, 0x4B);
-	AX5043RXParamSetBasebandGainBlockAOffsetCompRes3(RADIO_UHF, 0x00);
-	AX5043RXParamSetBasebandGainBlockBOffsetCompRes3(RADIO_UHF, 0x00);
+//	//Set Demodulation for RX Mode
+//	RadioUHFSetIF(25000);
+//	RadioUHFSetBandwidth(100000);
+//	RadioUHFSetRXBitrate(1200);
+//
+////	AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0CCD);	//Set IF to 50 kHz
+////	AX5043RXParamSetDecimation(RADIO_UHF, 0x28);	//Set decimation to have fbsaeband = 100 kHz
+////	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x034156);	//Set to 1200 bits/s
+//	AX5043RXParamSetRXMaximumDatarateOffset(RADIO_UHF, 0x00);
+//	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0xCCCC);	//Max RF offset set to +- 1kHz
+//	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 1);		//Correction done at 1st LO
+//	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x0028);	//Set AFSK Space freq. of 1200 Hz
+//	AX5043RXParamSetAFSKMarkFrequency(RADIO_UHF, 0x0049);	//Set AFSK Mark freq. of 2200 Hz
+//	AX5043RXParamSetAFSKDetBandwitdh(RADIO_UHF, 0x0B);
+//	AX5043RXParamSetRXParameterNumber0(RADIO_UHF, 0);
+//	AX5043RXParamSetRXParameterNumber1(RADIO_UHF, 0);
+//	AX5043RXParamSetRXParameterNumber2(RADIO_UHF, 0);
+//	AX5043RXParamSetRXParameterNumber3(RADIO_UHF, 0);
+//	//RX Parameter 0
+//	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x08);
+//	AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
+//	AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_UHF, 0x84);
+//	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, 0x00, 0x00);
+//	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, 0x00, 0x00);
+//	AX5043RXParamSetRXFrequencyDeviation0(RADIO_UHF, 0x00);
+//	AX5043RXParamSetBasebandGainBlockAOffsetCompRes0(RADIO_UHF, 0x00);
+//	AX5043RXParamSetBasebandGainBlockBOffsetCompRes0(RADIO_UHF, 0x00);
+//
+//	AX5043RXParamSetRXFrequencyGainA0(RADIO_UHF, 0x0F);
+//	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x02);
+//	AX5043RXParamSetRXFrequencyGainC0(RADIO_UHF, 0x1F);
+//	AX5043RXParamSetRXFrequencyGainD0(RADIO_UHF, 0x08);
+//	AX5043RXParamSetRXFrequncyLeak(RADIO_UHF, 0x04);
+//	//RX Parameter 1
+//	AX5043RXParamSetAGCAttackSpeed1(RADIO_UHF, 0x08);
+//	AX5043RXParamSetAGCReleaseSpeed1(RADIO_UHF, 0x0E);
+//	AX5043RXParamSetAGCTargetAvgMagnitude1(RADIO_UHF, 0x84);
+//	AX5043PacketSetGainTimingRecovery1(RADIO_UHF, 0x0A, 0x08);
+//	AX5043PacketSetGainDatarateRecovery1(RADIO_UHF, 0x0A, 0x03);
+//	AX5043RXParamSetRXFrequencyDeviation1(RADIO_UHF, 0x4B);
+//	AX5043RXParamSetBasebandGainBlockAOffsetCompRes1(RADIO_UHF, 0x00);
+//	AX5043RXParamSetBasebandGainBlockBOffsetCompRes1(RADIO_UHF, 0x00);
+//	//RX Parameter 3
+//	AX5043RXParamSetAGCAttackSpeed3(RADIO_UHF, 0x08);
+//	AX5043RXParamSetAGCReleaseSpeed3(RADIO_UHF, 0x0E);
+//	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x84);
+//	AX5043PacketSetGainTimingRecovery3(RADIO_UHF, 0x0A, 0x07);
+//	AX5043PacketSetGainDatarateRecovery3(RADIO_UHF, 0x0A, 0x02);
+//	AX5043RXParamSetRXFrequencyDeviation3(RADIO_UHF, 0x4B);
+//	AX5043RXParamSetBasebandGainBlockAOffsetCompRes3(RADIO_UHF, 0x00);
+//	AX5043RXParamSetBasebandGainBlockBOffsetCompRes3(RADIO_UHF, 0x00);
 
 	//Set Packet, encoding and framing
-//	AX5043PacketEnableEncodeBitInversion(RADIO_UHF, 1);
-//	AX5043PacketEnableEncodeDiffrential(RADIO_UHF, 1);
+	AX5043PacketSetMSBFirst(RADIO_UHF, 1);
+	AX5043PacketEnableEncodeBitInversion(RADIO_UHF, 1);
+	AX5043PacketEnableEncodeDifferential(RADIO_UHF, 1);
 	AX5043PacketSetFrameMode(RADIO_UHF, FrmMode_Raw);
+
 //	AX5043PacketSetCRCMode(RADIO_UHF, CRCMode_Off);
 //	AX5043PacketSetPacketChunkSize(RADIO_UHF, PacketChunkSize_240byte);
 //	AX5043PacketSetPaternMatch0(RADIO_UHF, 0xAACCAACC);
@@ -302,7 +310,7 @@ void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength) {
 
 	fifoData[i++] = 0xE1;		//FIFO Data command
 	fifoData[i++] = dataLength; //FIFO Data Length
-	fifoData[i++] = 0x2B;		//Bypass encoder and framing, bypass CRC, set as start and end packet
+	fifoData[i++] = 0x18;		//Bypass encoder and framing, bypass CRC, set as start and end packet
 
 	//Copy to send data
 	uint8_t j;

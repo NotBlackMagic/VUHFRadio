@@ -215,8 +215,8 @@ typedef enum {
 
 void AX5043PacketEnableEncodeBitInversion(uint8_t interfaceID, uint8_t enable);
 uint8_t AX5043PacketIsEncodeBitInversionEnabled(uint8_t interfaceID);
-void AX5043PacketEnableEncodeDiffrential(uint8_t interfaceID, uint8_t enable);
-uint8_t AX5043PacketIsEncodeDiffrentialEnabled(uint8_t interfaceID);
+void AX5043PacketEnableEncodeDifferential(uint8_t interfaceID, uint8_t enable);
+uint8_t AX5043PacketIsEncodeDifferentialEnabled(uint8_t interfaceID);
 void AX5043PacketEnableEncodeScramble(uint8_t interfaceID, uint8_t enable);
 uint8_t AX5043PacketIsEncodeScrambleEnabled(uint8_t interfaceID);
 void AX5043PacketEnableEncodeManchester(uint8_t interfaceID, uint8_t enable);
