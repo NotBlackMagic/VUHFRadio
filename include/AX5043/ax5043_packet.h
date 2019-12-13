@@ -125,6 +125,10 @@ typedef enum {
 #define TMGTXSETTLEM_MASK					0x1F	//Transmit PLL (post Boost) Settling Time Mantissa Mask, PLL post boost settling time is TMGTXSETTLEM * 2^TMGTXSETTLEE us
 #define TMGTXSETTLEE_MASK					0xE0	//Transmit PLL (post Boost) Settling Time Exponent Mask, PLL post boost settling time is TMGTXSETTLEM * 2^TMGTXSETTLEE us
 
+//Register Configuration of TMGRXBOOST Register
+#define TMGRXBOOSTM_MASK					0x1F	//Transmit PLL Boost Time Mantissa Mask, PLL Boost time is TMGTXBOOSTM * 2^TMGTXBOOSTE us
+#define TMGRXBOOSTE_MASK					0xE0	//Transmit PLL Boost Time Exponent Mask, PLL Boost time is TMGTXBOOSTM * 2^TMGTXBOOSTE us
+
 //Register Configuration of TMGRXSETTLE Register
 #define TMGRXSETTLEM_MASK					0x1F	//Receive PLL (post Boost) Settling Time Mantissa Mask, Receive PLL post boost settling time is TMGRXSETTLEM * 2^TMGRXSETTLEE us
 #define TMGRXSETTLEE_MASK					0xE0	//Receive PLL (post Boost) Settling Time Exponent Mask, Receive PLL post boost settling time is TMGRXSETTLEM * 2^TMGRXSETTLEE us
@@ -290,6 +294,8 @@ void AX5043PacketSetTXPLLBoostTime(uint8_t interfaceID, uint8_t mantissa, uint8_
 void AX5043PacketGetTXPLLBoostTime(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent);
 void AX5043PacketSetTXPLLSettlingTime(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent);
 void AX5043PacketGetTXPLLSettlingTime(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent);
+void AX5043PacketSetRXPLLBoostTime(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent);
+void AX5043PacketGetRXPLLBoostTime(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent);
 void AX5043PacketSetRXPLLSettlingTime(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent);
 void AX5043PacketGetRXPLLSettlingTime(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent);
 void AX5043PacketSetRXDCOffsetAcquisitionTime(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent);
@@ -307,9 +313,9 @@ void AX5043PacketGetRXPreamble2Timeout(uint8_t interfaceID, uint8_t* mantissa, u
 void AX5043PacketSetRXPreamble3Timeout(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent);
 void AX5043PacketGetRXPreamble3Timeout(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent);
 void AX5043PacketSetRSSIOffset(uint8_t interfaceID, uint8_t offset);
-uint8_t AX5043PacketgetRSSIOffset(uint8_t interfaceID);
+uint8_t AX5043PacketGetRSSIOffset(uint8_t interfaceID);
 void AX5043PacketSetRSSIAbsThreshold(uint8_t interfaceID, uint8_t threshold);
-uint8_t AX5043PacketgetRSSIAbsThreshold(uint8_t interfaceID);
+uint8_t AX5043PacketGetRSSIAbsThreshold(uint8_t interfaceID);
 void AX5043PacketSetBGNDRSSITimeConstant(uint8_t interfaceID, uint8_t timeConstant);
 uint8_t AX5043PacketGetBGNDRSSITimeConstant(uint8_t interfaceID);
 void AX5043PacketSetRSSIRelativeThreshold(uint8_t interfaceID, uint8_t threshold);

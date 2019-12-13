@@ -129,15 +129,15 @@ uint16_t AX5043RXTrackingFSKDemodulation(uint8_t interfaceID) {
   * @param	interfaceID: Which interface (chip) used
   * @return	Current AFSK demodulator value
   */
-//uint16_t AX5043RXTrackingAFSKDemodulation(uint8_t interfaceID) {
-//	uint16_t afskDem = 0;
-//	uint8_t config;
-//	AX5043ReadShortAddress(interfaceID, TRKAFSKDEMOD0, &config, 1);
-//	afskDem = (config & TRKAFSKDEMOD0_MASK);
-//	AX5043ReadShortAddress(interfaceID, TRKAFSKDEMOD1, &config, 1);
-//	afskDem += (config & TRKAFSKDEMOD1_MASK) << 8;
-//	return afskDem;
-//}
+uint16_t AX5043RXTrackingAFSKDemodulation(uint8_t interfaceID) {
+	uint16_t afskDem = 0;
+	uint8_t config;
+	AX5043ReadShortAddress(interfaceID, TRKAFSKDEMOD0, &config, 1);
+	afskDem = (config & TRKAFSKDEMOD0_MASK);
+	AX5043ReadShortAddress(interfaceID, TRKAFSKDEMOD1, &config, 1);
+	afskDem += (config & TRKAFSKDEMOD1_MASK) << 8;
+	return afskDem;
+}
 
 /**
   * @brief	This function resets/clears the Datarate Tracking Register

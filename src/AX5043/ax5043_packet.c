@@ -969,6 +969,32 @@ void AX5043PacketGetTXPLLSettlingTime(uint8_t interfaceID, uint8_t* mantissa, ui
 }
 
 /**
+  * @brief	This function sets the Receive PLL Boost Time, (TMGTXBOOSTM * 2^TMGTXBOOSTE us)
+  * @param	interfaceID: Which interface (chip) used
+  * @param	mantissa: PLL Boost Time Mantissa
+  * @param	exponent: PLL Boost Time Exponent
+  * @return	None
+  */
+void AX5043PacketSetRXPLLBoostTime(uint8_t interfaceID, uint8_t mantissa, uint8_t exponent) {
+	uint8_t config = (mantissa & TMGRXBOOSTM_MASK) + ((exponent << 5) & TMGRXBOOSTE_MASK);
+	AX5043WriteLongAddress(interfaceID, TMGRXBOOST, &config, 1);
+}
+
+/**
+  * @brief	This function gets the Receive PLL Boost Time, (TMGTXBOOSTM * 2^TMGTXBOOSTE us)
+  * @param	interfaceID: Which interface (chip) used
+  * @param	mantissa: PLL Boost Time Mantissa return value
+  * @param	exponent: PLL Boost Time Exponent return value
+  * @return	None
+  */
+void AX5043PacketGetRXPLLBoostTime(uint8_t interfaceID, uint8_t* mantissa, uint8_t* exponent) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, TMGRXBOOST, &config, 1);
+	*mantissa = (config & TMGRXBOOSTM_MASK);
+	*exponent = (config & TMGRXBOOSTE_MASK) >> 5;
+}
+
+/**
   * @brief	This function sets the Receive PLL (post Boost) Settling Time, (TMGRXSETTLEM * 2^TMGRXSETTLEE us)
   * @param	interfaceID: Which interface (chip) used
   * @param	mantissa: PLL (post Boost) Settling Time Mantissa
@@ -1191,7 +1217,7 @@ void AX5043PacketSetRSSIOffset(uint8_t interfaceID, uint8_t offset) {
   * @param	interfaceID: Which interface (chip) used
   * @return	RSSI Offset Value
   */
-uint8_t AX5043PacketgetRSSIOffset(uint8_t interfaceID) {
+uint8_t AX5043PacketGetRSSIOffset(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, RSSIREFERENCE, &config, 1);
 	return config;
@@ -1212,7 +1238,7 @@ void AX5043PacketSetRSSIAbsThreshold(uint8_t interfaceID, uint8_t threshold) {
   * @param	interfaceID: Which interface (chip) used
   * @return	RSSI Threshold Value
   */
-uint8_t AX5043PacketgetRSSIAbsThreshold(uint8_t interfaceID) {
+uint8_t AX5043PacketGetRSSIAbsThreshold(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, RSSIABSTHR, &config, 1);
 	return config;

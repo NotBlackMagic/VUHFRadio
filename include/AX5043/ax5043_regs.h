@@ -105,6 +105,8 @@ extern "C" {
 #define TRKFREQ0						0x0051	//RF Frequency Tracking
 #define TRKFSKDEMOD1					0x0052	//FSK DemodulatorTracking
 #define TRKFSKDEMOD0					0x0053	//FSK DemodulatorTracking
+#define TRKAFSKDEMOD1					0x0054	//AFSK DemodulatorTracking
+#define TRKAFSKDEMOD0					0x0055	//AFSK DemodulatorTracking
 
 //Timer
 #define TIMER2							0x0059	//1 MHz Timer
@@ -411,6 +413,7 @@ extern "C" {
 #define PERFTUNE77						0x0F4D	//Performance Tuning Register 77
 #define PERFTUNE78						0x0F4E	//Performance Tuning Register 78
 #define PERFTUNE79						0x0F4F	//Performance Tuning Register 79
+#define PERFTUNE95						0x0F5F	//Performance Tuning Register 95
 #define PERFTUNE114						0x0F72	//Performance Tuning Register 114
 #define PERFTUNE255						0x0FFF	//Performance Tuning Register 255
 

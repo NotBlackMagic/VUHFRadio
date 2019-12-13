@@ -33,73 +33,71 @@ int main(void) {
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED5, 1);
 
+	volatile uint8_t diversity = AX5043GeneralGetAntennaDiversity(RADIO_UHF);
 
-//	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
-//	uint8_t rxTestData[300];
-//	while(1) {
-//		uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
-//		if(fifoCnt > 0) {
-//			AX5043FIFOGetFIFO(fifoCnt, rxTestData, fifoCnt);
-//			USBVCPWrite(rxTestData, fifoCnt);
-//		}
-//
-//		char str[100];
-//		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
-//		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
-//		uint8_t len = sprintf(str, "RSSI AGC: %u; RSSI: %u\n", rssiAGC, rssi);
-//		USBVCPWrite(str, len);
-//
-//		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
-//		uint32_t trackDatarate = AX5043RXTrackingDatarate(RADIO_UHF);
-//		len = sprintf(str, "Freq: %u; Datarate: %u\n", trackFreq, trackDatarate);
-//		USBVCPWrite(str, len);
-//
-//		Delay(100);
-//	}
+	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
+
+	uint8_t rxTestData[300];
+	while(1) {
+		uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
+		if(fifoCnt > 0) {
+			AX5043FIFOGetFIFO(fifoCnt, rxTestData, fifoCnt);
+			USBVCPWrite(rxTestData, fifoCnt);
+		}
+
+		char str[200];
+		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
+		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+		uint16_t trackAmp = AX5043RXTrackingAmplitude(RADIO_UHF);
+		uint8_t len = sprintf(str, "Amp: %u; RSSI AGC: %u; RSSI: %u\n", trackAmp, rssiAGC, rssi);
+		USBVCPWrite(str, len);
+
+		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
+		int32_t trackRFFreq = ((int32_t)AX5043RXTrackingGetRFFrequency(RADIO_UHF) << 12) >> 12;
+		uint32_t trackDatarate = AX5043RXTrackingDatarate(RADIO_UHF);
+		len = sprintf(str, "RFFreq: %d; Freq: %u; Datarate: %u\n", trackRFFreq, trackFreq, trackDatarate);
+		USBVCPWrite(str, len);
+
+		Delay(100);
+	}
 
 	//Send Test Frame
 	uint8_t testData[200];
 	uint8_t testDataLen = 0;
-	uint8_t i;
-	for(i = 0; i < 10; i++) {
-		testData[testDataLen++] = 0x7E;
-	}
-	testData[testDataLen++] = 0x49;
-	testData[testDataLen++] = 0x65;
-	testData[testDataLen++] = 0x15;
-	testData[testDataLen++] = 0x65;
-	testData[testDataLen++] = 0x41;
-	testData[testDataLen++] = 0x15;
-	testData[testDataLen++] = 0x46;
-	testData[testDataLen++] = 0x61;
-	testData[testDataLen++] = 0x65;
-	testData[testDataLen++] = 0x56;
-	testData[testDataLen++] = 0x61;
-	testData[testDataLen++] = 0x51;
-	testData[testDataLen++] = 0x05;
-	testData[testDataLen++] = 0xC6;
-	testData[testDataLen++] = 0xC0;
-	testData[testDataLen++] = 0x08;
+	testData[testDataLen++] = 'I' << 1;
+	testData[testDataLen++] = 'S' << 1;
+	testData[testDataLen++] = 'T' << 1;
+	testData[testDataLen++] = 'S' << 1;
+	testData[testDataLen++] = 'A' << 1;
+	testData[testDataLen++] = 'T' << 1;
+	testData[testDataLen++] = '1' << 1;
+	testData[testDataLen++] = 'C' << 1;
+	testData[testDataLen++] = 'S' << 1;
+	testData[testDataLen++] = '5' << 1;
+	testData[testDataLen++] = 'C' << 1;
+	testData[testDataLen++] = 'E' << 1;
+	testData[testDataLen++] = 'P' << 1;
+	testData[testDataLen++] = ('1' << 1) | 0x01;
+	testData[testDataLen++] = 0x03;
 	testData[testDataLen++] = 0x00;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0xAA;
-	testData[testDataLen++] = 0x65;
-	testData[testDataLen++] = 0xB2;
-	for(i = 0; i < 10; i++) {
-		testData[testDataLen++] = 0x7E;
-	}
+	testData[testDataLen++] = '0';
+	testData[testDataLen++] = '1';
+	testData[testDataLen++] = '2';
+	testData[testDataLen++] = '3';
+	testData[testDataLen++] = '4';
+	testData[testDataLen++] = '5';
+	testData[testDataLen++] = '6';
+	testData[testDataLen++] = '7';
+	testData[testDataLen++] = '8';
+	testData[testDataLen++] = '9';
+	testData[testDataLen++] = '\n';
 
 	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
 	RadioUHFEnterTX();
 	while(1) {
 		RadioUHFEnterTX();
+		RadioUHFWritePreamble(0x55, 10);
 		RadioUHFWriteFrame(testData, testDataLen);
 		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
 
