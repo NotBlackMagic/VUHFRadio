@@ -8,9 +8,10 @@ extern "C" {
 #include "commands.h"
 
 #include "commandsBasic.h"
+#include "commandRadio.h"
 
 //Number of Commands in command Array
-#define COMMAND_LENGTH						5
+#define COMMAND_LENGTH						6
 
 typedef struct {
 	uint16_t commandID;		//ID of the command
