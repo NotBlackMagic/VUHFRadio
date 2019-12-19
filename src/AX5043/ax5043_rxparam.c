@@ -525,7 +525,7 @@ uint8_t AX5043RXParamGetAGCAttackSpeed0(uint8_t interfaceID) {
 void AX5043RXParamSetAGCReleaseSpeed0(uint8_t interfaceID, uint8_t releaseSpeed) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN0, &config, 1);
-	config = (config & ~AGCATTACK0_MASK) | (releaseSpeed << 4);
+	config = (config & ~AGCDECAY0_MASK) | (releaseSpeed << 4);
 	AX5043WriteLongAddress(interfaceID, AGCGAIN0, &config, 1);
 }
 
@@ -537,7 +537,7 @@ void AX5043RXParamSetAGCReleaseSpeed0(uint8_t interfaceID, uint8_t releaseSpeed)
 uint8_t AX5043RXParamGetAGCReleaseSpeed0(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN0, &config, 1);
-	return ((config & AGCATTACK0_MASK) >> 4);
+	return ((config & AGCDECAY0_MASK) >> 4);
 }
 
 /**
@@ -573,7 +573,7 @@ uint8_t AX5043RXParamGetAGCAttackSpeed1(uint8_t interfaceID) {
 void AX5043RXParamSetAGCReleaseSpeed1(uint8_t interfaceID, uint8_t releaseSpeed) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN1, &config, 1);
-	config = (config & ~AGCATTACK1_MASK) | (releaseSpeed << 4);
+	config = (config & ~AGCDECAY1_MASK) | (releaseSpeed << 4);
 	AX5043WriteLongAddress(interfaceID, AGCGAIN1, &config, 1);
 }
 
@@ -585,7 +585,7 @@ void AX5043RXParamSetAGCReleaseSpeed1(uint8_t interfaceID, uint8_t releaseSpeed)
 uint8_t AX5043RXParamGetAGCReleaseSpeed1(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN1, &config, 1);
-	return ((config & AGCATTACK1_MASK) >> 4);
+	return ((config & AGCDECAY1_MASK) >> 4);
 }
 
 /**
@@ -621,7 +621,7 @@ uint8_t AX5043RXParamGetAGCAttackSpeed2(uint8_t interfaceID) {
 void AX5043RXParamSetAGCReleaseSpeed2(uint8_t interfaceID, uint8_t releaseSpeed) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN2, &config, 1);
-	config = (config & ~AGCATTACK2_MASK) | (releaseSpeed << 4);
+	config = (config & ~AGCDECAY2_MASK) | (releaseSpeed << 4);
 	AX5043WriteLongAddress(interfaceID, AGCGAIN2, &config, 1);
 }
 
@@ -633,7 +633,7 @@ void AX5043RXParamSetAGCReleaseSpeed2(uint8_t interfaceID, uint8_t releaseSpeed)
 uint8_t AX5043RXParamGetAGCReleaseSpeed2(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN2, &config, 1);
-	return ((config & AGCATTACK2_MASK) >> 4);
+	return ((config & AGCDECAY2_MASK) >> 4);
 }
 
 /**
@@ -669,7 +669,7 @@ uint8_t AX5043RXParamGetAGCAttackSpeed3(uint8_t interfaceID) {
 void AX5043RXParamSetAGCReleaseSpeed3(uint8_t interfaceID, uint8_t releaseSpeed) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN3, &config, 1);
-	config = (config & ~AGCATTACK3_MASK) | (releaseSpeed << 4);
+	config = (config & ~AGCDECAY3_MASK) | (releaseSpeed << 4);
 	AX5043WriteLongAddress(interfaceID, AGCGAIN3, &config, 1);
 }
 
@@ -681,7 +681,7 @@ void AX5043RXParamSetAGCReleaseSpeed3(uint8_t interfaceID, uint8_t releaseSpeed)
 uint8_t AX5043RXParamGetAGCReleaseSpeed3(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, AGCGAIN3, &config, 1);
-	return ((config & AGCATTACK3_MASK) >> 4);
+	return ((config & AGCDECAY3_MASK) >> 4);
 }
 
 /**
@@ -780,7 +780,7 @@ uint8_t AX5043RXParamGetAGCTargetAvgMagnitude3(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAGCTargetHysteresis0(uint8_t interfaceID, uint8_t hysteresis) {
 	uint8_t config = (hysteresis & AGCAHYST0_MASK);
-	AX5043WriteLongAddress(interfaceID, AGCTARGET0, &config, 1);
+	AX5043WriteLongAddress(interfaceID, AGCAHYST0, &config, 1);
 }
 
 /**
@@ -790,7 +790,7 @@ void AX5043RXParamSetAGCTargetHysteresis0(uint8_t interfaceID, uint8_t hysteresi
   */
 uint8_t AX5043RXParamGetAGCTargetHysteresis0(uint8_t interfaceID) {
 	uint8_t config;
-	AX5043ReadLongAddress(interfaceID, AGCTARGET0, &config, 1);
+	AX5043ReadLongAddress(interfaceID, AGCAHYST0, &config, 1);
 	return (config & AGCAHYST0_MASK);
 }
 
@@ -802,7 +802,7 @@ uint8_t AX5043RXParamGetAGCTargetHysteresis0(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAGCTargetHysteresis1(uint8_t interfaceID, uint8_t hysteresis) {
 	uint8_t config = (hysteresis & AGCAHYST1_MASK);
-	AX5043WriteLongAddress(interfaceID, AGCTARGET1, &config, 1);
+	AX5043WriteLongAddress(interfaceID, AGCAHYST1, &config, 1);
 }
 
 /**
@@ -812,7 +812,7 @@ void AX5043RXParamSetAGCTargetHysteresis1(uint8_t interfaceID, uint8_t hysteresi
   */
 uint8_t AX5043RXParamGetAGCTargetHysteresis1(uint8_t interfaceID) {
 	uint8_t config;
-	AX5043ReadLongAddress(interfaceID, AGCTARGET1, &config, 1);
+	AX5043ReadLongAddress(interfaceID, AGCAHYST1, &config, 1);
 	return (config & AGCAHYST1_MASK);
 }
 
@@ -824,7 +824,7 @@ uint8_t AX5043RXParamGetAGCTargetHysteresis1(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAGCTargetHysteresis2(uint8_t interfaceID, uint8_t hysteresis) {
 	uint8_t config = (hysteresis & AGCAHYST2_MASK);
-	AX5043WriteLongAddress(interfaceID, AGCTARGET2, &config, 1);
+	AX5043WriteLongAddress(interfaceID, AGCAHYST2, &config, 1);
 }
 
 /**
@@ -834,7 +834,7 @@ void AX5043RXParamSetAGCTargetHysteresis2(uint8_t interfaceID, uint8_t hysteresi
   */
 uint8_t AX5043RXParamGetAGCTargetHysteresis2(uint8_t interfaceID) {
 	uint8_t config;
-	AX5043ReadLongAddress(interfaceID, AGCTARGET2, &config, 1);
+	AX5043ReadLongAddress(interfaceID, AGCAHYST2, &config, 1);
 	return (config & AGCAHYST2_MASK);
 }
 
@@ -846,7 +846,7 @@ uint8_t AX5043RXParamGetAGCTargetHysteresis2(uint8_t interfaceID) {
   */
 void AX5043RXParamSetAGCTargetHysteresis3(uint8_t interfaceID, uint8_t hysteresis) {
 	uint8_t config = (hysteresis & AGCAHYST3_MASK);
-	AX5043WriteLongAddress(interfaceID, AGCTARGET3, &config, 1);
+	AX5043WriteLongAddress(interfaceID, AGCAHYST3, &config, 1);
 }
 
 /**
@@ -856,7 +856,7 @@ void AX5043RXParamSetAGCTargetHysteresis3(uint8_t interfaceID, uint8_t hysteresi
   */
 uint8_t AX5043RXParamGetAGCTargetHysteresis3(uint8_t interfaceID) {
 	uint8_t config;
-	AX5043ReadLongAddress(interfaceID, AGCTARGET3, &config, 1);
+	AX5043ReadLongAddress(interfaceID, AGCAHYST3, &config, 1);
 	return (config & AGCAHYST3_MASK);
 }
 

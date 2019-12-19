@@ -33,8 +33,6 @@ int main(void) {
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED5, 1);
 
-	volatile uint8_t diversity = AX5043GeneralGetAntennaDiversity(RADIO_UHF);
-
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
 
 	uint8_t rxTestData[300];
@@ -49,7 +47,9 @@ int main(void) {
 		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
 		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
 		uint16_t trackAmp = AX5043RXTrackingAmplitude(RADIO_UHF);
-		uint8_t len = sprintf(str, "Amp: %u; RSSI AGC: %u; RSSI: %u\n", trackAmp, rssiAGC, rssi);
+		uint8_t paramSet = 0;
+		AX5043ReadLongAddress(RADIO_UHF, RXPARAMCURSET, &paramSet, 1);
+		uint8_t len = sprintf(str, "Amp: %u; RSSI AGC: %u; RSSI: %u; Param Set: %u\n", trackAmp, rssiAGC, rssi, paramSet);
 		USBVCPWrite(str, len);
 
 		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
@@ -91,6 +91,13 @@ int main(void) {
 	testData[testDataLen++] = '8';
 	testData[testDataLen++] = '9';
 	testData[testDataLen++] = '\n';
+
+	//Random generator
+	uint8_t i;
+	for(i = 0; i < 200; i++) {
+		testData[i] = rand();
+	}
+	testDataLen = i;
 
 	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
