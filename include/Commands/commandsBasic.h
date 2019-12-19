@@ -1,10 +1,3 @@
-/*
- * commandsBasic.h
- *
- *  Created on: Nov 13, 2019
- *      Author: Fabian Naef
- */
-
 #ifndef COMMANDS_COMMANDSBASIC_H_
 #define COMMANDS_COMMANDSBASIC_H_
 
