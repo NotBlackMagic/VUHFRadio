@@ -39,24 +39,55 @@ int main(void) {
 	while(1) {
 		uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
 		if(fifoCnt > 0) {
-			AX5043FIFOGetFIFO(fifoCnt, rxTestData, fifoCnt);
-			USBVCPWrite(rxTestData, fifoCnt);
+			AX5043FIFOGetFIFO(RADIO_UHF, rxTestData, fifoCnt);
+
+			if(fifoCnt > 20) {
+				uint8_t sourceAddress[8];
+				sourceAddress[0] = rxTestData[3] >> 1;
+				sourceAddress[1] = rxTestData[4] >> 1;
+				sourceAddress[2] = rxTestData[5] >> 1;
+				sourceAddress[3] = rxTestData[6] >> 1;
+				sourceAddress[4] = rxTestData[7] >> 1;
+				sourceAddress[5] = rxTestData[8] >> 1;
+				sourceAddress[6] = rxTestData[9] >> 1;
+				sourceAddress[7] = '\0';
+
+				uint8_t destinationAddress[8];
+				destinationAddress[0] = rxTestData[10] >> 1;
+				destinationAddress[1] = rxTestData[11] >> 1;
+				destinationAddress[2] = rxTestData[12] >> 1;
+				destinationAddress[3] = rxTestData[13] >> 1;
+				destinationAddress[4] = rxTestData[14] >> 1;
+				destinationAddress[5] = rxTestData[15] >> 1;
+				destinationAddress[6] = rxTestData[16] >> 1;
+				destinationAddress[7] = '\0';
+
+				uint8_t ctrl = rxTestData[17];
+				uint8_t pid = rxTestData[18];
+
+				rxTestData[fifoCnt++] = '\0';
+
+				char str[200];
+				uint8_t len = sprintf(str, "From: %s; To: %s; Ctrl: %d; PID: %d; Payload: %s \n", sourceAddress, destinationAddress, ctrl, pid, &rxTestData[19]);
+
+				USBVCPWrite(str, len);
+			}
 		}
 
-		char str[200];
-		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
-		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
-		uint16_t trackAmp = AX5043RXTrackingAmplitude(RADIO_UHF);
-		uint8_t paramSet = 0;
-		AX5043ReadLongAddress(RADIO_UHF, RXPARAMCURSET, &paramSet, 1);
-		uint8_t len = sprintf(str, "Amp: %u; RSSI AGC: %u; RSSI: %u; Param Set: %u\n", trackAmp, rssiAGC, rssi, paramSet);
-		USBVCPWrite(str, len);
-
-		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
-		int32_t trackRFFreq = ((int32_t)AX5043RXTrackingGetRFFrequency(RADIO_UHF) << 12) >> 12;
-		uint32_t trackDatarate = AX5043RXTrackingDatarate(RADIO_UHF);
-		len = sprintf(str, "RFFreq: %d; Freq: %u; Datarate: %u\n", trackRFFreq, trackFreq, trackDatarate);
-		USBVCPWrite(str, len);
+//		char str[200];
+//		uint8_t rssiAGC = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
+//		uint8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+//		uint16_t trackAmp = AX5043RXTrackingAmplitude(RADIO_UHF);
+//		uint8_t paramSet = 0;
+//		AX5043ReadLongAddress(RADIO_UHF, RXPARAMCURSET, &paramSet, 1);
+//		uint8_t len = sprintf(str, "Amp: %u; RSSI AGC: %u; RSSI: %u; Param Set: %u\n", trackAmp, rssiAGC, rssi, paramSet);
+//		USBVCPWrite(str, len);
+//
+//		uint16_t trackFreq = AX5043RXTrackingGetFrequency(RADIO_UHF);
+//		int32_t trackRFFreq = ((int32_t)AX5043RXTrackingGetRFFrequency(RADIO_UHF) << 12) >> 12;
+//		uint32_t trackDatarate = AX5043RXTrackingDatarate(RADIO_UHF);
+//		len = sprintf(str, "RFFreq: %d; Freq: %u; Datarate: %u\n", trackRFFreq, trackFreq, trackDatarate);
+//		USBVCPWrite(str, len);
 
 		Delay(100);
 	}

@@ -162,7 +162,7 @@ void RadioUHFInit() {
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE68, &data, 1);	//F44
 	data = 0xE7;
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE95, &data, 1);	//F5F: MODCFGP ??
-	data = 0x06;
+	data = 0x00;	//Set to 0x06 if "Raw, Soft Bits"
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE114, &data, 1);	//F72
 
 	//Set Synth
@@ -282,20 +282,24 @@ void RadioUHFInit() {
 	AX5043PacketSetMSBFirst(RADIO_UHF, 0);
 	AX5043PacketEnableEncodeBitInversion(RADIO_UHF, 1);
 	AX5043PacketEnableEncodeDifferential(RADIO_UHF, 1);
-	AX5043PacketSetFrameMode(RADIO_UHF, FrmMode_Raw);
+	AX5043PacketSetFrameMode(RADIO_UHF, FrmMode_HDLC);
 	AX5043PacketSetCRCMode(RADIO_UHF, CRCMode_Off);
-//	AX5043PacketSetPacketChunkSize(RADIO_UHF, PacketChunkSize_240byte);
-	AX5043PacketSetMaxLength(RADIO_UHF, 0xC8);
+	AX5043PacketSetPacketChunkSize(RADIO_UHF, PacketChunkSize_240byte);
+	AX5043PacketSetLengthByteSignificantBits(RADIO_UHF, 0x0F);	//Enable arbitrary packet length
+	AX5043PacketSetMaxLength(RADIO_UHF, 0xFF);
+	AX5043PacketSetAcceptPacketsMultiChuck(RADIO_UHF, 1);
 
 	//Set Pattern Matching
 	AX5043PacketSetPaternLength0(RADIO_UHF, 0x00);
 	AX5043PacketSetPaternMatch0Min(RADIO_UHF, 0x00);
 	AX5043PacketSetPaternMatch0Max(RADIO_UHF, 0x1F);
-	AX5043PacketSetPaternMatch0(RADIO_UHF, 0xAAAAAAAA);
-	AX5043PacketSetPaternMatch0Min(RADIO_UHF, 0x00);
-	AX5043PacketSetPaternMatch0Max(RADIO_UHF, 0x0A);
-	AX5043PacketSetPaternLength1(RADIO_UHF, 0x8A);
-	AX5043PacketSetPaternMatch1(RADIO_UHF, 0x7E7E);
+	AX5043PacketSetPaternMatch0(RADIO_UHF, 0xAACCAACC);
+
+	AX5043PacketSetPaternMatch1Min(RADIO_UHF, 0x00);
+	AX5043PacketSetPaternMatch1Max(RADIO_UHF, 0x0A);
+	AX5043PacketSetPaternLength1(RADIO_UHF, 0x0A);
+	AX5043PacketSetPaternMatch1Raw(RADIO_UHF, 0x01);
+	AX5043PacketSetPaternMatch1(RADIO_UHF, 0xAAAA);
 
 	//Set packet control
 	AX5043PacketSetTXPLLBoostTime(RADIO_UHF, 0x02, 0x03);
