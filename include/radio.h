@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "math.h"
+
 #include "ax5043_baseband.h"
 #include "ax5043_fifo.h"
 #include "ax5043_general.h"
@@ -24,16 +26,40 @@ extern "C" {
 #define RADIO_UHF					0
 #define RADIO_VHF					1
 
+#define FXTAL						16000000	//Xtal Frequency in Hz
+
+#define RADIO_UHF_FREQ_MAX			437000000
+#define RADIO_UHF_FREQ_MIN			435000000
+
+#define RADIO_VHF_FREQ_MAX			147000000
+#define RADIO_VHF_FREQ_MIN			145000000
+
+typedef struct {
+	uint32_t frequency;
+	Modulations modulation;
+	uint32_t datarate;
+	uint32_t fskDeviation;
+	uint16_t afcRange;
+
+	//This are varibles filled out by Radio*HFConfig, don't need to be filled
+	uint16_t afskSpaceRX;
+	uint16_t afskMarkRX;
+	uint16_t afskSpaceTX;
+	uint16_t afskMarkTX;
+} RadioConfigStruct;
+
 void RadioInterfacesInit();
 void RadioVHFInit();
 void RadioUHFInit();
+uint8_t RadioVHFConfig(RadioConfigStruct configuration);
+uint8_t RadioUHFConfig(RadioConfigStruct configuration);
+
 void RadioVHFEnterTX();
 void RadioUHFEnterTX();
 
-void RadioUHFSetBandwidth(uint32_t bandwidth);
-void RadioUHFSetIF(uint32_t ifFreq);
-void RadioUHFSetRXBitrate(uint32_t bitrate);
+void RadioUHFEnterRX();
 
+void RadioVHFWritePreamble(uint8_t symbol, uint8_t length);
 void RadioUHFWritePreamble(uint8_t symbol, uint8_t length);
 void RadioVHFWriteFrame(uint8_t data[], uint8_t dataLength);
 void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength);

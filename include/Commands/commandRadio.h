@@ -9,6 +9,8 @@ extern "C" {
 #include "radio.h"
 
 uint8_t CommandRadioUHFModulation(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength);
+uint8_t CommandRadioUHFRFFrequency(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength);
+uint8_t CommandRadioUHFSend(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength);
 
 #ifdef __cplusplus
 }

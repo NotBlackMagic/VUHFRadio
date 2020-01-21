@@ -51,8 +51,8 @@ uint8_t AX5043GeneralXTALStatus(uint8_t interfaceID) {
   * @param	interfaceID: Which interface (chip) used
   * @return	RSSI Value in dB
   */
-uint8_t AX5043GeneralGetRSSI(uint8_t interfaceID) {
-	uint8_t rssi;
+int8_t AX5043GeneralGetRSSI(uint8_t interfaceID) {
+	int8_t rssi;
 	AX5043ReadShortAddress(interfaceID, RSSI, &rssi, 1);
 	return (rssi & RSSI_MASK);
 }

@@ -64,7 +64,7 @@ uint8_t AX5043GeneralRevision(uint8_t interfaceID);
 uint8_t AX5043GeneralScratch(uint8_t interfaceID);
 RadioState AX5043GeneralRadioState(uint8_t interfaceID);
 uint8_t AX5043GeneralXTALStatus(uint8_t interfaceID);
-uint8_t AX5043GeneralGetRSSI(uint8_t interfaceID);
+int8_t AX5043GeneralGetRSSI(uint8_t interfaceID);
 void AX5043GeneralSetBackgroundNoise(uint8_t interfaceID, uint8_t noise);
 uint8_t AX5043GeneralGetBackgroundNoise(uint8_t interfaceID);
 uint8_t AX5043GeneralGetAGCCurrentGain(uint8_t interfaceID);

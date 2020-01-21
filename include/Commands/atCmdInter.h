@@ -19,11 +19,11 @@ typedef struct {
 	uint8_t header[3];
 	uint8_t cmd[11];
 	ATCmdTypeEnum type;
-	uint8_t args[256];
+	uint8_t args[512];
 } ATCmdStruct;
 
-uint8_t ATCmdFraming(uint8_t data[], uint16_t dataLength, uint8_t** dataOut, uint8_t* dataOutLength);
-uint8_t ATCmdParse(uint8_t framed[], uint8_t framedLength, ATCmdStruct *atCmdStruct);
+uint8_t ATCmdFraming(uint8_t data[], uint16_t dataLength, uint8_t** dataOut, uint16_t* dataOutLength);
+uint8_t ATCmdParse(uint8_t framed[], uint16_t framedLength, ATCmdStruct *atCmdStruct);
 
 #ifdef __cplusplus
 }

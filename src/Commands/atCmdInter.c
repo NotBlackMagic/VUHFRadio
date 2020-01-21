@@ -1,8 +1,8 @@
 #include "atCmdInter.h"
 
 //Variables used for AT Framing, for when command spans more then one ATCmdFraming function call
-uint8_t framed[256];
-uint8_t framedLength = 0;
+uint8_t framed[512];
+uint16_t framedLength = 0;
 
 /**
   * @brief	This function extracts a AT Command Frame, delimited by "AT" and '\r', can span over multiple calls to this function
@@ -12,7 +12,7 @@ uint8_t framedLength = 0;
   * @param	dataOutLength: Length of the framed string, if not found yet is set to 0
   * @return	Return 0 if a AT command frame was found, 1 if not or error occurred
   */
-uint8_t ATCmdFraming(uint8_t data[], uint16_t dataLength, uint8_t** dataOut, uint8_t* dataOutLength) {
+uint8_t ATCmdFraming(uint8_t data[], uint16_t dataLength, uint8_t** dataOut, uint16_t* dataOutLength) {
 	*dataOut = NULL;
 	*dataOutLength = 0;
 
@@ -66,7 +66,7 @@ uint8_t ATCmdFraming(uint8_t data[], uint16_t dataLength, uint8_t** dataOut, uin
   * @param	ATCmdStruct: AT Command Struct to be filled with the parsed parameters
   * @return	Return 0 if a valid AT Command was found and successfully parsed, 1 if not or error occurred
   */
-uint8_t ATCmdParse(uint8_t framed[], uint8_t framedLength, ATCmdStruct *atCmdStruct) {
+uint8_t ATCmdParse(uint8_t framed[], uint16_t framedLength, ATCmdStruct *atCmdStruct) {
 	//First fill ATCmdStruct Header, is always the same "AT\0"
 	atCmdStruct->header[0] = 'A';
 	atCmdStruct->header[1] = 'T';
@@ -83,8 +83,8 @@ uint8_t ATCmdParse(uint8_t framed[], uint8_t framedLength, ATCmdStruct *atCmdStr
 	}
 
 	//Extract Command and Command Type
-	uint8_t j = 0;
-	uint8_t i;
+	uint16_t j = 0;
+	uint16_t i;
 	for(i = 3; i < framedLength; i++) {
 		if(framed[i] == '=' && framed[i+1] == '?') {
 			//This is a test command type
