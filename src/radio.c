@@ -118,9 +118,10 @@ void RadioVHFInit() {
 	//AX5043PLLParamSetPLLRangingClock(RADIO_VHF, PLLRangingClock_11);	//Default
 
 	//Set Modulation for TX Mode
-	AX5043GeneralSetModulation(RADIO_VHF, AFSK);
-	AX5043TXParamSetTXDatarate(RADIO_VHF, 0x04EB);	//Set datarate to 1200 bits/s
-	AX5043TXParamSetFSKFrequencyDeviation(RADIO_VHF, 0x0A8E);	//Set FSK deviation to 3000 Hz
+	AX5043GeneralSetModulation(RADIO_VHF, FSK);
+	AX5043TXParamSetTXDatarate(RADIO_VHF, 0x2752);	//AFSK: 0x04EB; Set datarate to 1200 bits/s
+	AX5043TXParamSetFSKFrequencyDeviation(RADIO_VHF, 0x09D5);	//AFSK: 0x0A8E; Set FSK deviation to 3000 Hz
+
 //	AX5043RXParamSetAFSKSpaceFrequency(RADIO_VHF, 0x13);		//Set TX AFSK Space freq. of 2200 Hz
 //	AX5043RXParamSetAFSKMarkFrequency(RADIO_VHF, 0x0A);			//Set TX AFSK Mark freq. of 1200 Hz
 
@@ -129,17 +130,17 @@ void RadioVHFInit() {
 //	RadioUHFSetBandwidth(125000);
 //	RadioUHFSetRXBitrate(1200);
 
-	AX5043RXParamSetIFFrequency(RADIO_VHF, 0x099A);		//~37498Hz
-	AX5043RXParamSetDecimation(RADIO_VHF, 0x04);		//~250kHz
-	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x0682AB);	//~1200 bits/s
+	AX5043RXParamSetIFFrequency(RADIO_VHF, 0x0666);		//AFSK: 0x099A; ~37498Hz
+	AX5043RXParamSetDecimation(RADIO_VHF, 0x05);		//AFSK: 0x04; ~250kHz
+	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x00A6AA);	//AFSK: 0x0682AB; ~1200 bits/s
 	AX5043RXParamSetRXMaximumDatarateOffset(RADIO_VHF, 0x00);
-	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0x28F6);	//Set to 10kHz
+	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0x0831);	//0x28F6: Set to 10kHz
 	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_VHF, 1);
 	AX5043RXParamSetAFSKSpaceFrequency(RADIO_VHF, 0x25);	//Set RX AFSK Space freq. of 2200 Hz
 	AX5043RXParamSetAFSKMarkFrequency(RADIO_VHF, 0x14);		//Set RX AFSK Mark freq. of 1200 Hz
 	AX5043RXParamSetAFSKDetBandwitdh(RADIO_VHF, 0x0E);
-	AX5043RXParamSetRXFSKMaxDeviation(RADIO_VHF, 0x43C0);
-	AX5043RXParamSetRXFSKMinDeviation(RADIO_VHF, 0xDC40);
+	AX5043RXParamSetRXFSKMaxDeviation(RADIO_VHF, 0x0395);		//AFSK: 0x43C0
+	AX5043RXParamSetRXFSKMinDeviation(RADIO_VHF, 0xFC6B);		//AFSK: 0xDC40
 	AX5043RXParamSetRXParameterNumber0(RADIO_VHF, 0);
 	AX5043RXParamSetRXParameterNumber1(RADIO_VHF, 1);
 	AX5043RXParamSetRXParameterNumber2(RADIO_VHF, 3);
@@ -151,8 +152,8 @@ void RadioVHFInit() {
 	AX5043RXParamSetAGCTargetHysteresis0(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMaximumReset0(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMinimumReset0(RADIO_VHF, 0x00);
-	AX5043PacketSetGainTimingRecovery0(RADIO_VHF, 0x0D, 0x0E);
-	AX5043PacketSetGainDatarateRecovery0(RADIO_VHF, 0x0D, 0x08);
+	AX5043PacketSetGainTimingRecovery0(RADIO_VHF, 0x0A, 0x0A);		//AFSK: 0x0D, 0x0E; FSK-9600: 0x0A, 0x0A
+	AX5043PacketSetGainDatarateRecovery0(RADIO_VHF, 0x0A, 0x04);	//AFSK: 0x0D, 0x08; FSK-9600: 0x0A, 0x04
 	AX5043RXParamSetRXPhaseGain0(RADIO_VHF, 0x03);
 	AX5043RXParamSetRXDecimationFilter0(RADIO_VHF, 0x01);
 	AX5043RXParamSetRXFrequencyGainA0(RADIO_VHF, 0x0F);
@@ -160,7 +161,7 @@ void RadioVHFInit() {
 	AX5043RXParamSetRXFrequencyGainC0(RADIO_VHF, 0x0A);
 	AX5043RXParamSetRXFrequencyGainD0(RADIO_VHF, 0x0A);
 	AX5043RXParamSetRXAmplitudeGain0(RADIO_VHF, 0x06);
-	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_VHF, 0x01);
+	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_VHF, 0x00);
 	AX5043RXParamSetRXFrequencyDeviation0(RADIO_VHF, 0x00);
 	AX5043RXParamSetDeviationDecay0(RADIO_VHF, 0x06);
 	AX5043RXParamEnableDeviationUpdate0(RADIO_VHF, 0x01);
@@ -173,8 +174,8 @@ void RadioVHFInit() {
 	AX5043RXParamSetAGCTargetHysteresis1(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMaximumReset1(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMinimumReset1(RADIO_VHF, 0x00);
-	AX5043PacketSetGainTimingRecovery1(RADIO_VHF, 0x0D, 0x0C);
-	AX5043PacketSetGainDatarateRecovery1(RADIO_VHF, 0x0D, 0x07);
+	AX5043PacketSetGainTimingRecovery1(RADIO_VHF, 0x0A, 0x08);		//AFSK: 0x0D, 0x0C; FSK-9600: 0x0A, 0x08
+	AX5043PacketSetGainDatarateRecovery1(RADIO_VHF, 0x0A, 0x03);	//AFSK: 0x0D, 0x07; FSK-9600: 0x0A, 0x03
 	AX5043RXParamSetRXPhaseGain1(RADIO_VHF, 0x03);
 	AX5043RXParamSetRXDecimationFilter1(RADIO_VHF, 0x01);
 	AX5043RXParamSetRXFrequencyGainA1(RADIO_VHF, 0x0F);
@@ -182,7 +183,8 @@ void RadioVHFInit() {
 	AX5043RXParamSetRXFrequencyGainC1(RADIO_VHF, 0x0A);
 	AX5043RXParamSetRXFrequencyGainD1(RADIO_VHF, 0x0A);
 	AX5043RXParamSetRXAmplitudeGain1(RADIO_VHF, 0x06);
-	AX5043RXParamSetRXFrequencyDeviation1(RADIO_VHF, 0x01C0);
+	AX5043RXParamSetRXAmplitudeAGCJump1(RADIO_VHF, 0x00);
+	AX5043RXParamSetRXFrequencyDeviation1(RADIO_VHF, 0x002D);	//AFSK: 0x01C0
 	AX5043RXParamSetDeviationDecay1(RADIO_VHF, 0x06);
 	AX5043RXParamEnableDeviationUpdate1(RADIO_VHF, 0x01);
 	AX5043RXParamSetBasebandGainBlockAOffsetCompRes1(RADIO_VHF, 0x00);
@@ -194,8 +196,8 @@ void RadioVHFInit() {
 	AX5043RXParamSetAGCTargetHysteresis3(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMaximumReset3(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMinimumReset3(RADIO_VHF, 0x00);
-	AX5043PacketSetGainTimingRecovery3(RADIO_VHF, 0x0D, 0x0B);
-	AX5043PacketSetGainDatarateRecovery3(RADIO_VHF, 0x0D, 0x06);
+	AX5043PacketSetGainTimingRecovery3(RADIO_VHF, 0x0A, 0x07);		//AFSK: 0x0D, 0x0B; FSK-9600: 0x0A, 0x07
+	AX5043PacketSetGainDatarateRecovery3(RADIO_VHF, 0x0A, 0x02);	//AFSK: 0x0D, 0x06; FSK-9600: 0x0A, 0x02
 	AX5043RXParamSetRXPhaseGain3(RADIO_VHF, 0x03);
 	AX5043RXParamSetRXDecimationFilter3(RADIO_VHF, 0x01);
 	AX5043RXParamSetRXFrequencyGainA3(RADIO_VHF, 0x0F);
@@ -203,7 +205,7 @@ void RadioVHFInit() {
 	AX5043RXParamSetRXFrequencyGainC3(RADIO_VHF, 0x0D);
 	AX5043RXParamSetRXFrequencyGainD3(RADIO_VHF, 0x0D);
 	AX5043RXParamSetRXAmplitudeGain3(RADIO_VHF, 0x06);
-	AX5043RXParamSetRXFrequencyDeviation3(RADIO_VHF, 0x01C0);
+	AX5043RXParamSetRXFrequencyDeviation3(RADIO_VHF, 0x002D);	//AFSK: 0x01C0
 	AX5043RXParamSetDeviationDecay3(RADIO_VHF, 0x06);
 	AX5043RXParamEnableDeviationUpdate3(RADIO_VHF, 0x01);
 	AX5043RXParamSetBasebandGainBlockAOffsetCompRes3(RADIO_VHF, 0x00);
@@ -213,6 +215,7 @@ void RadioVHFInit() {
 	AX5043PacketSetMSBFirst(RADIO_VHF, 0);
 	AX5043PacketEnableEncodeBitInversion(RADIO_VHF, 1);
 	AX5043PacketEnableEncodeDifferential(RADIO_VHF, 1);
+	AX5043PacketEnableEncodeScramble(RADIO_VHF, 1);
 	AX5043PacketSetFrameMode(RADIO_VHF, FrmMode_HDLC);
 	AX5043PacketSetCRCMode(RADIO_VHF, CRCMode_CCITT);
 	AX5043PacketSetPacketChunkSize(RADIO_VHF, PacketChunkSize_240byte);
@@ -222,16 +225,17 @@ void RadioVHFInit() {
 	AX5043PacketSetAcceptPacketsCRCFailed(RADIO_VHF, 1);
 
 	//Set Pattern Matching
+	AX5043PacketSetPaternMatch0(RADIO_VHF, 0xAACCAACC);
 	AX5043PacketSetPaternLength0(RADIO_VHF, 0x00);
+	AX5043PacketSetPaternMatch0Raw(RADIO_VHF, 0);
 	AX5043PacketSetPaternMatch0Min(RADIO_VHF, 0x00);
 	AX5043PacketSetPaternMatch0Max(RADIO_VHF, 0x1F);
-	AX5043PacketSetPaternMatch0(RADIO_VHF, 0xAACCAACC);
 
+	AX5043PacketSetPaternMatch1(RADIO_VHF, 0x5555);
+	AX5043PacketSetPaternLength1(RADIO_VHF, 0x0A);
+	AX5043PacketSetPaternMatch1Raw(RADIO_VHF, 0x00);
 	AX5043PacketSetPaternMatch1Min(RADIO_VHF, 0x00);
 	AX5043PacketSetPaternMatch1Max(RADIO_VHF, 0x0A);
-	AX5043PacketSetPaternLength1(RADIO_VHF, 0x0A);
-	AX5043PacketSetPaternMatch1Raw(RADIO_VHF, 0x01);
-	AX5043PacketSetPaternMatch1(RADIO_VHF, 0xAAAA);
 
 	//Set packet control
 	AX5043PacketSetTXPLLBoostTime(RADIO_VHF, 0x02, 0x03);
@@ -488,6 +492,9 @@ uint8_t RadioVHFConfig(RadioConfigStruct configuration) {
 	AX5043SynthStartAutoRangingA(RADIO_VHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
 
+	//Set Modulation/Demodulation
+	AX5043GeneralSetModulation(RADIO_VHF, vhfRadioConfiguration.modulation);
+
 	//Set RX Bandwidth and IF Frequency
 	uint32_t minBandwithAFC = vhfRadioConfiguration.afcRange * 4;
 	uint32_t minBandwithDeviation = vhfRadioConfiguration.fskDeviation * 2;
@@ -524,7 +531,7 @@ uint8_t RadioVHFConfig(RadioConfigStruct configuration) {
 		return 1;
 	}
 	if(vhfRadioConfiguration.modulation != AFSK) {
-		uint16_t df = (uint16_t)(((vhfRadioConfiguration.fskDeviation > 1) * (16777216.f / FXTAL)) + 0.5f);
+		uint16_t df = (uint16_t)(((vhfRadioConfiguration.fskDeviation >> 1) * (16777216.f / FXTAL)) + 0.5f);
 		AX5043TXParamSetFSKFrequencyDeviation(RADIO_VHF, df);
 	}
 	else {
@@ -562,6 +569,9 @@ uint8_t RadioUHFConfig(RadioConfigStruct configuration) {
 	AX5043SynthStartAutoRangingA(RADIO_UHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
 
+	//Set Modulation/Demodulation
+	AX5043GeneralSetModulation(RADIO_UHF, uhfRadioConfiguration.modulation);
+
 	//Set RX Bandwidth and IF Frequency
 	uint32_t minBandwithAFC = uhfRadioConfiguration.afcRange * 4;
 	uint32_t minBandwithDeviation = uhfRadioConfiguration.fskDeviation * 2;
@@ -598,7 +608,7 @@ uint8_t RadioUHFConfig(RadioConfigStruct configuration) {
 		return 1;
 	}
 	if(uhfRadioConfiguration.modulation != AFSK) {
-		uint16_t df = (uint16_t)(((uhfRadioConfiguration.fskDeviation > 1) * (16777216.f / FXTAL)) + 0.5f);
+		uint16_t df = (uint16_t)(((uhfRadioConfiguration.fskDeviation >> 1) * (16777216.f / FXTAL)) + 0.5f);
 		AX5043TXParamSetFSKFrequencyDeviation(RADIO_UHF, df);
 	}
 	else {
@@ -692,7 +702,7 @@ void RadioVHFWriteFrame(uint8_t data[], uint8_t dataLength) {
 
 	fifoData[i++] = 0xE1;		//FIFO Data command
 	fifoData[i++] = dataLength; //FIFO Data Length
-	fifoData[i++] = 0x2B;		//Bypass encoder and framing, bypass CRC, set as start and end packet
+	fifoData[i++] = 0x03;		//Set as start and end packet
 
 	//Copy to send data
 	uint8_t j;
@@ -709,7 +719,7 @@ void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength) {
 
 	fifoData[i++] = 0xE1;		//FIFO Data command
 	fifoData[i++] = dataLength + 1;	//FIFO Data Length + 1 (info/flag byte, the next byte)
-	fifoData[i++] = 0x03;		//Bypass encoder and framing, bypass CRC, set as start and end packet
+	fifoData[i++] = 0x03;		//Set as start and end packet
 
 	//Copy to send data
 	uint8_t j;

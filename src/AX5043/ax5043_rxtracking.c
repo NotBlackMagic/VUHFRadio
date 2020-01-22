@@ -68,16 +68,16 @@ void AX5043RXTrackingSetRFFrequency(uint8_t interfaceID, uint32_t trackRFFreq) {
   * @param	interfaceID: Which interface (chip) used
   * @return	Current RF frequency tracking value
   */
-uint32_t AX5043RXTrackingGetRFFrequency(uint8_t interfaceID) {
-	uint32_t frequency = 0;
+int32_t AX5043RXTrackingGetRFFrequency(uint8_t interfaceID) {
+	int32_t frequency = 0;
 	uint8_t config;
 	AX5043ReadShortAddress(interfaceID, TRKRFFREQ0, &config, 1);
-	frequency = (config & TRKRFFREQ0_MASK);
+	frequency = (config & TRKRFFREQ0_MASK) << 12;
 	AX5043ReadShortAddress(interfaceID, TRKRFFREQ1, &config, 1);
-	frequency += (config & TRKRFFREQ1_MASK) << 8;
+	frequency |= (config & TRKRFFREQ1_MASK) << 20;
 	AX5043ReadShortAddress(interfaceID, TRKRFFREQ2, &config, 1);
-	frequency += (config & TRKRFFREQ2_MASK) << 16;
-	return frequency;
+	frequency |= (config & TRKRFFREQ2_MASK) << 28;
+	return (frequency >> 12);
 }
 
 /**
@@ -99,8 +99,8 @@ void AX5043RXTrackingSetFrequency(uint8_t interfaceID, uint32_t trackFreq) {
   * @param	interfaceID: Which interface (chip) used
   * @return	Current frequency tracking value
   */
-uint16_t AX5043RXTrackingGetFrequency(uint8_t interfaceID) {
-	uint16_t frequency = 0;
+int16_t AX5043RXTrackingGetFrequency(uint8_t interfaceID) {
+	int16_t frequency = 0;
 	uint8_t config;
 	AX5043ReadShortAddress(interfaceID, TRKFREQ0, &config, 1);
 	frequency = (config & TRKFREQ0_MASK);

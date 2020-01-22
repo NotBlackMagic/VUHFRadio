@@ -31,14 +31,14 @@ int main(void) {
 	//Init VHF Radio
 	RadioVHFInit();
 
-	//Config UHF Radio
+	//Config VHF Radio
 	RadioConfigStruct radioVHFConfig;
-	radioVHFConfig.frequency = 145895000;
-	radioVHFConfig.datarate = 1200;
+	radioVHFConfig.frequency = 145895000 + 2000;
+	radioVHFConfig.datarate = 9600;
 	radioVHFConfig.afcRange = 10000;
-	radioVHFConfig.fskDeviation = 3000;
-	radioVHFConfig.modulation = AFSK;
-	RadioVHFConfig(radioVHFConfig);
+	radioVHFConfig.fskDeviation = 4800;
+	radioVHFConfig.modulation = FSK;
+//	RadioVHFConfig(radioVHFConfig);
 
 	//Init UHF Radio
 	RadioUHFInit();
@@ -87,7 +87,7 @@ int main(void) {
 				//First Connection, write welcome message
 				USBVCPWrite("Welcome to VUHFRadio V1! \n", 26);
 				USBVCPWrite("Hardware Version: 1.2, Nov 2019 \n", 33);
-				USBVCPWrite("Software Version: 0.1, Nov 2019 \n", 33);
+				USBVCPWrite("Software Version: 0.5, Jan 2020 \n", 33);
 				USBVCPWrite("This Module uses AT Commands, for more info write AT+LIST \n", 59);
 
 				isVCPConnected = 1;
@@ -103,9 +103,14 @@ int main(void) {
 
 			int8_t uhfRSSI = AX5043GeneralGetRSSI(RADIO_UHF);
 			int8_t vhfRSSI = AX5043GeneralGetRSSI(RADIO_VHF);
+			uint8_t vhfGain = AX5043GeneralGetAGCCurrentGain(RADIO_VHF);
 			char str[200];
-			uint8_t len = sprintf(str, "RSSI UHF: %4d; RSSI VHF: %4d \n", uhfRSSI, vhfRSSI);
+			uint8_t len = sprintf(str, "RSSI VHF: %4d; UHF: %4d; AGC: %3d \n", vhfRSSI, uhfRSSI, vhfGain);
+			USBVCPWrite(str, len);
 
+			int32_t vhfFreqRF = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
+			int32_t uhfFreqRF = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
+			len = sprintf(str, "RF Deviation VHF: %d; UHF: %d \n", vhfFreqRF, uhfFreqRF);
 			USBVCPWrite(str, len);
 		}
 
@@ -188,21 +193,21 @@ int main(void) {
 	//Random generator
 //	uint8_t i;
 //	for(i = 0; i < 200; i++) {
-//		testData[i] = rand();
+//		testData[i] = 0x00;
 //	}
 //	testDataLen = i;
 
-	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
-	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
-	RadioUHFEnterTX();
+	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
+	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_VHF);
+	RadioVHFEnterTX();
 	while(1) {
-		RadioUHFEnterTX();
-		RadioUHFWritePreamble(0x55, 10);
-		RadioUHFWriteFrame(testData, testDataLen);
-		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
+		RadioVHFEnterTX();
+		RadioVHFWritePreamble(0x55, 50);
+		RadioVHFWriteFrame(testData, testDataLen);
+		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
 
 		do {
-			radioState = AX5043GeneralRadioState(RADIO_UHF);
+			radioState = AX5043GeneralRadioState(RADIO_VHF);
 
 			if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
 				GPIOWrite(GPIO_OUT_LED0, 1);
@@ -213,7 +218,7 @@ int main(void) {
 
 		} while(radioState != RadioState_Idle);
 
-		AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_Powerdown);
+		AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_Powerdown);
 	}
 }
 
