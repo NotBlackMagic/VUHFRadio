@@ -38,9 +38,6 @@ void AX25Decode(uint8_t data[], uint16_t length, AX25Struct* ax25Struct) {
 		ax25Struct->payload[i] = data[index++];
 	}
 	ax25Struct->payload[i] = '\0';
-
-	//Get CRC Field
-	ax25Struct->crc = (data[index++] << 8) + data[index++];
 }
 
 void AX25Encode(uint8_t data[], uint16_t* length, AX25Struct ax25Struct) {
@@ -77,4 +74,37 @@ void AX25Encode(uint8_t data[], uint16_t* length, AX25Struct ax25Struct) {
 	}
 
 	*length = index;
+}
+
+uint8_t AX25Filter(AX25Struct ax25Struct, AX25FilterStruct ax25FilterStruct) {
+	if(ax25FilterStruct.onSourceAddress == 0x01) {
+		//Filter on Source Address
+		if(strcmp(ax25Struct.sourceAddress, ax25FilterStruct.sourceAddress) != 0x00) {
+			//Source Address mismatch
+			return 1;
+		}
+	}
+	if(ax25FilterStruct.onDestinationAddress == 0x01) {
+		//Filter on Destination Address
+		if(strcmp(ax25Struct.destinationAddress, ax25FilterStruct.destinationAddress) != 0x00) {
+			//Destination Address mismatch
+			return 1;
+		}
+	}
+	if(ax25FilterStruct.onControlField == 0x01) {
+		//Filter on Control Field
+		if(ax25Struct.control != ax25FilterStruct.control) {
+			//Control Field mismatch
+			return 1;
+		}
+	}
+	if(ax25FilterStruct.onPIDField == 0x01) {
+		//Filter on Control Field
+		if(ax25Struct.pid != ax25FilterStruct.pid) {
+			//Control Field mismatch
+			return 1;
+		}
+	}
+
+	return 0;
 }

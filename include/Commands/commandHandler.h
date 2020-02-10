@@ -7,11 +7,12 @@ extern "C" {
 
 #include "commands.h"
 
+#include "commandAX25.h"
 #include "commandsBasic.h"
 #include "commandRadio.h"
 
 //Number of Commands in command Array
-#define COMMAND_LENGTH						8
+#define COMMAND_LENGTH						15
 
 typedef struct {
 	uint16_t commandID;		//ID of the command

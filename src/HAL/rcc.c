@@ -68,6 +68,18 @@ uint32_t GetSysTick() {
 	return sysTickCnt;
 }
 
+void GetSysTickAsTime(uint8_t* hour, uint8_t* min, uint8_t* sec, uint16_t* ms) {
+	uint32_t tempSysTickCnt = GetSysTick();
+
+	*hour = (tempSysTickCnt / 3600000);
+	tempSysTickCnt -= (*hour) * 3600000;
+	*min = (tempSysTickCnt / 60000);
+	tempSysTickCnt -= (*min) * 60000;
+	*sec = (tempSysTickCnt / 1000);
+	tempSysTickCnt -= (*sec) * 1000;
+	*ms = tempSysTickCnt;
+}
+
 /**
   * @brief	ISR: Used for the delay function and other timed events, this interrupt occurs every 1 ms
   * @param	None

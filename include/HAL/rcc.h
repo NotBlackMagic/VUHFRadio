@@ -14,6 +14,7 @@ void SystemClockInit();
 void SystemTickInit();
 void Delay(uint32_t ms);
 uint32_t GetSysTick();
+void GetSysTickAsTime(uint8_t* hour, uint8_t* min, uint8_t* sec, uint16_t* ms);
 
 #ifdef __cplusplus
 }

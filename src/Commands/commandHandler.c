@@ -6,9 +6,16 @@ const CommandStruct commandArray[COMMAND_LENGTH] = {
 		{2, "PTT-U", "Get PTT UHF State \n", CommandBasicPTTU},
 		{3, "PTT-V", "Get PTT VHF State \n", CommandBasicPTTV},
 		{4, "CUR", "Get Currents \n", CommandBasicCurrent},
-		{5, "MOD-U", "UHF Radio Modulation \n", CommandRadioUHFModulation},
-		{6, "RFFREQ-U", "UHF RF Frequency \n", CommandRadioUHFRFFrequency},
-		{7, "SEND-U", "UHF Radio Transmission Start \n", CommandRadioUHFSend}
+		{5, "SEND-U", "UHF Radio Transmission Start \n", CommandRadioUHFSend},
+		{6, "SEND-V", "VHF Radio Transmission Start \n", CommandRadioVHFSend},
+		{7, "MOD-U", "UHF Radio Modulation Configuration \n", CommandRadioUHFModConfig},
+		{8, "MOD-V", "VHF Radio Modulation Configuration \n", CommandRadioVHFModConfig},
+		{9, "ENC-U", "UHF Radio Encoding Configuration \n", CommandRadioUHFEncConfig},
+		{10, "ENC-V", "VHF Radio Encoding Configuration \n", CommandRadioVHFEncConfig},
+		{11, "AX-ENFLT-U", "UHF AX25 Enabled Filters \n", CommandAX25EnabledFilterUHF},
+		{12, "AX-ENFLT-V", "VHF AX25 Enabled Filters \n", CommandAX25EnabledFilterVHF},
+		{13, "AX-FLT-U", "UHF AX25 Filter Values \n", CommandAX25FilterValuesUHF},
+		{14, "AX-FLT-V", "VHF AX25 Filter Values \n", CommandAX25FilterValuesVHF}
 };
 
 uint8_t CommandHandler(uint8_t* command, uint8_t* args, CommandTypeEnum commandType) {
@@ -25,6 +32,7 @@ uint8_t CommandHandler(uint8_t* command, uint8_t* args, CommandTypeEnum commandT
 			else {
 				USBVCPWrite("ERROR\n", 6);
 			}
+			return 0;
 		}
 	}
 
@@ -35,7 +43,7 @@ char testStringParam[200];
 uint8_t CommandTest(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
 	switch(commandType) {
 		case CommandType_Test: {
-			USBVCPWrite("+TEST:<string>\n", 15);
+			USBVCPWrite("+TEST=<string>\n", 15);
 			break;
 		}
 		case CommandType_Query: {
