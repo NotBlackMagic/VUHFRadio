@@ -10,7 +10,7 @@ Some characteristics of this firmware:
 -	Command interface is based on AT commands with a custom interpreter Library
 
 Current version is tested and works with:
--AX.25 Frames with HDLC and CRC handled in the radio.
--AFSK-1200: RX and TX compatible with HAM Radios using a TNC
--(G)MSK/(G)FSK: Both RX and TX, tested @ 9600 bits/s MSK and GMSK (with BT of 0.5 and 0.3)
--BPSK: Only RX working so far, TX has to high distortion currently
+- AX.25 Frames with HDLC and CRC handled in the radio.
+- AFSK-1200: RX and TX compatible with HAM Radios using a TNC
+- (G)MSK/(G)FSK: Both RX and TX, tested @ 9600 bits/s MSK and GMSK (with BT of 0.5 and 0.3)
+- BPSK: Only RX working so far, TX has to high distortion currently
