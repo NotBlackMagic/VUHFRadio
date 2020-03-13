@@ -354,7 +354,8 @@ void RadioUHFInit() {
 
 	//Set Modulation for TX Mode
 	AX5043GeneralSetModulation(RADIO_UHF, AFSK);
-	AX5043TXParamSetTXDatarate(RADIO_UHF, 0x04EB);	//Set datarate to 1200 bits/s
+//	AX5043TXParamSetFrequencyShape(RADIO_UHF, FreqShape_gausBT03);
+	AX5043TXParamSetTXDatarate(RADIO_UHF, 0x04EB);				//Set datarate to 1200 bits/s
 	AX5043TXParamSetFSKFrequencyDeviation(RADIO_UHF, 0x0A8E);	//Set FSK deviation to 3000 Hz
 
 //	AX5043RXParamSetAFSKSpaceFrequency(RADIO_UHF, 0x13);		//Set TX AFSK Space freq. of 2200 Hz

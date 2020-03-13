@@ -16,7 +16,7 @@ typedef enum {
 	FreqShape_invalid = 0,
 	FreqShape_extloopfilter = 1,
 	FreqShape_gausBT03 = 2,
-	FreqShape_gaus05 = 3
+	FreqShape_gausBT05 = 3
 } FreqShape;
 
 //Register Configuration of FSKDEV Register for (G)FSK and AFSK

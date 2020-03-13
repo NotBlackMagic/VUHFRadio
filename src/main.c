@@ -287,11 +287,17 @@ int main(void) {
 	testDataLen = i;
 
 	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
+<<<<<<< HEAD
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
 	RadioUHFEnterTX();
 	while(1) {
 		RadioUHFEnterTX();
 //		RadioUHFWritePreamble(0x55, 200);
+=======
+	while(1) {
+		RadioUHFEnterTX();
+//		RadioUHFWritePreamble(0x55, 20);
+>>>>>>> 9f74b69e9f1cd2293367f60158a7a850cfd3cb66
 		RadioUHFWriteFrame(testData, testDataLen);
 		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
 
