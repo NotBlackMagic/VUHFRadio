@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "math.h"
+#include "stdlib.h"
 
 #include "ax5043_baseband.h"
 #include "ax5043_fifo.h"
@@ -35,13 +36,14 @@ extern "C" {
 #define RADIO_VHF_FREQ_MIN			145000000
 
 typedef struct {
+	//Radio Modulation Configuration
 	uint32_t frequency;
 	Modulations modulation;
 	uint32_t datarate;
 	uint32_t fskDeviation;
 	uint16_t afcRange;
 
-	//This are varibles filled out by Radio*HFConfig, don't need to be filled
+	//This are variables filled out by Radio*HFConfig, don't need to be filled
 	uint16_t afskSpaceRX;
 	uint16_t afskMarkRX;
 	uint16_t afskSpaceTX;
@@ -51,8 +53,10 @@ typedef struct {
 void RadioInterfacesInit();
 void RadioVHFInit();
 void RadioUHFInit();
-uint8_t RadioVHFConfig(RadioConfigStruct configuration);
-uint8_t RadioUHFConfig(RadioConfigStruct configuration);
+uint8_t RadioVHFModConfig(RadioConfigStruct configuration);
+uint8_t RadioUHFModConfig(RadioConfigStruct configuration);
+RadioConfigStruct RadioVHFGetModConfig();
+RadioConfigStruct RadioUHFGetModConfig();
 
 void RadioVHFEnterTX();
 void RadioUHFEnterTX();

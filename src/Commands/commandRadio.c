@@ -1,129 +1,9 @@
 #include "commandRadio.h"
 
-uint8_t CommandRadioUHFModulation(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
-	switch(commandType) {
-		case CommandType_Test: {
-			USBVCPWrite("+MOD-U:<modulation>\n", 18);
-			break;
-		}
-		case CommandType_Query: {
-			Modulations modulation = AX5043GeneralGetModulation(RADIO_UHF);
-			switch(modulation) {
-				case ASK:
-					USBVCPWrite("ASK\n", 4);
-					break;
-				case ASK_Coherent:
-					USBVCPWrite("ASK Coherent\n", 13);
-					break;
-				case PSK:
-					USBVCPWrite("PSK\n", 4);
-					break;
-				case OQSK:
-					USBVCPWrite("OQSK\n", 5);
-					break;
-				case MSK:
-					USBVCPWrite("MSK\n", 4);
-					break;
-				case FSK:
-					USBVCPWrite("FSK\n", 4);
-					break;
-				case FSK4:
-					USBVCPWrite("FSK4\n", 5);
-					break;
-				case AFSK:
-					USBVCPWrite("AFSK\n", 5);
-					break;
-				case FM:
-					USBVCPWrite("FM\n", 3);
-					break;
-			}
-			break;
-		}
-		case CommandType_Set: {
-			if(strcmp(args, "ASK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, ASK);
-			}
-			else if(strcmp(args, "ASK Coherent") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, ASK_Coherent);
-			}
-			else if(strcmp(args, "PSK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, PSK);
-			}
-			else if(strcmp(args, "OQSK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, OQSK);
-			}
-			else if(strcmp(args, "MSK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, MSK);
-			}
-			else if(strcmp(args, "FSK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, FSK);
-			}
-			else if(strcmp(args, "FSK4") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, FSK4);
-			}
-			else if(strcmp(args, "AFSK") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, AFSK);
-			}
-			else if(strcmp(args, "FM") == 0) {
-				AX5043GeneralSetModulation(RADIO_UHF, FM);
-			}
-			else {
-				return 1;
-			}
-			break;
-		}
-		case CommandType_Execute: {
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-uint8_t CommandRadioUHFRFFrequency(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
-	switch(commandType) {
-		case CommandType_Test: {
-			USBVCPWrite("+RFFREQ-U:<frequency>\n", 22);
-			break;
-		}
-		case CommandType_Query: {
-			uint32_t freq = AX5043SynthGetFrequencyA(RADIO_UHF);
-			freq = (uint32_t)(((float)freq - 0.5f) * (FXTAL / 16777216.f));
-
-			char str[200];
-			uint8_t len = sprintf(str, "%d", freq);
-			USBVCPWrite(str, len);
-			break;
-		}
-		case CommandType_Set: {
-			uint32_t freq = 0;
-
-			sscanf(args, "%d", &freq);
-
-			//Set Central Frequency
-			if(freq > RADIO_UHF_FREQ_MAX || freq < RADIO_UHF_FREQ_MIN) {
-				return 1;
-			}
-			freq = (uint32_t)((freq * (16777216.f / FXTAL)) + 0.5f);
-			AX5043SynthSetFrequencyA(RADIO_UHF, freq);
-
-			//Perform auto ranging
-			AX5043SynthStartAutoRangingA(RADIO_VHF);
-			while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
-			break;
-		}
-		case CommandType_Execute: {
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
 uint8_t CommandRadioUHFSend(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
 	switch(commandType) {
 		case CommandType_Test: {
-			USBVCPWrite("+SEND-U:<length>\n", 17);
+			USBVCPWrite("+SEND-U=<length>\n", 17);
 			break;
 		}
 		case CommandType_Query: {
@@ -184,6 +64,294 @@ uint8_t CommandRadioUHFSend(CommandTypeEnum commandType, uint8_t* args, uint8_t 
 			//Enter RX mode
 			RadioUHFEnterRX();
 
+			break;
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioVHFSend(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+SEND-V=<length>\n", 17);
+			break;
+		}
+		case CommandType_Query: {
+			return 1;
+		}
+		case CommandType_Set: {
+			break;
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioUHFModConfig(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+MOD-U=<Frequency>,<Datarate>,<Modulation>,<Deviation>\n", 56);
+			break;
+		}
+		case CommandType_Query: {
+			RadioConfigStruct radioUHFConfig;
+
+			radioUHFConfig = RadioUHFGetModConfig();
+
+			char modulation[10];
+			switch(radioUHFConfig.modulation) {
+				case ASK:
+					sprintf(modulation, "ASK");
+					break;
+				case ASK_Coherent:
+					sprintf(modulation, "ASK_Coherent");
+					break;
+				case PSK:
+					sprintf(modulation, "PSK");
+					break;
+				case OQPSK:
+					sprintf(modulation, "OQPSK");
+					break;
+				case MSK:
+					sprintf(modulation, "MSK");
+					break;
+				case FSK:
+					sprintf(modulation, "FSK");
+					break;
+				case FSK4:
+					sprintf(modulation, "FSK4");
+					break;
+				case AFSK:
+					sprintf(modulation, "AFSK");
+					break;
+				case FM:
+					sprintf(modulation, "FM");
+					break;
+			}
+
+			char string[100];
+			uint8_t len = sprintf(string, "+MOD-U=%d,%d,%s,%d\n", radioUHFConfig.frequency, radioUHFConfig.datarate, modulation, radioUHFConfig.fskDeviation);
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			char modulation[10];
+			RadioConfigStruct radioUHFConfig;
+
+			if(sscanf(args, "%u,%u,%[^,],%u", &radioUHFConfig.frequency, &radioUHFConfig.datarate, modulation, &radioUHFConfig.fskDeviation) != 0x04) {
+				return 1;
+			}
+
+			if(strcmp(modulation, "ASK") == 0x00) {
+				radioUHFConfig.modulation = ASK;
+			}
+			else if(strcmp(modulation, "ASK_Coherent") == 0x00) {
+				radioUHFConfig.modulation = ASK_Coherent;
+			}
+			else if(strcmp(modulation, "PSK") == 0x00) {
+				radioUHFConfig.modulation = PSK;
+			}
+			else if(strcmp(modulation, "OQPSK") == 0x00) {
+				radioUHFConfig.modulation = OQPSK;
+			}
+			else if(strcmp(modulation, "MSK") == 0x00) {
+				radioUHFConfig.modulation = MSK;
+			}
+			else if(strcmp(modulation, "FSK") == 0x00) {
+				radioUHFConfig.modulation = FSK;
+			}
+			else if(strcmp(modulation, "FSK4") == 0x00) {
+				radioUHFConfig.modulation = FSK4;
+			}
+			else if(strcmp(modulation, "AFSK") == 0x00) {
+				radioUHFConfig.modulation = AFSK;
+			}
+			else if(strcmp(modulation, "FM") == 0x00) {
+				radioUHFConfig.modulation = FM;
+			}
+
+			return RadioUHFModConfig(radioUHFConfig);
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioVHFModConfig(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+MOD-V=<Frequency>,<Datarate>,<Modulation>,<Deviation>\n", 56);
+			break;
+		}
+		case CommandType_Query: {
+			RadioConfigStruct radioVHFConfig;
+
+			radioVHFConfig = RadioVHFGetModConfig();
+
+			char modulation[10];
+			switch(radioVHFConfig.modulation) {
+				case ASK:
+					sprintf(modulation, "ASK");
+					break;
+				case ASK_Coherent:
+					sprintf(modulation, "ASK_Coherent");
+					break;
+				case PSK:
+					sprintf(modulation, "PSK");
+					break;
+				case OQPSK:
+					sprintf(modulation, "OQPSK");
+					break;
+				case MSK:
+					sprintf(modulation, "MSK");
+					break;
+				case FSK:
+					sprintf(modulation, "FSK");
+					break;
+				case FSK4:
+					sprintf(modulation, "FSK4");
+					break;
+				case AFSK:
+					sprintf(modulation, "AFSK");
+					break;
+				case FM:
+					sprintf(modulation, "FM");
+					break;
+			}
+
+			char string[100];
+			uint8_t len = sprintf(string, "+MOD-V=%d,%d,%s,%d\n", radioVHFConfig.frequency, radioVHFConfig.datarate, modulation, radioVHFConfig.fskDeviation);
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			char modulation[10];
+			RadioConfigStruct radioVHFConfig;
+
+			if(sscanf(args, "%u,%u,%[^,],%u", &radioVHFConfig.frequency, &radioVHFConfig.datarate, modulation, &radioVHFConfig.fskDeviation) != 0x04) {
+				return 1;
+			}
+
+			if(strcmp(modulation, "ASK") == 0x00) {
+				radioVHFConfig.modulation = ASK;
+			}
+			else if(strcmp(modulation, "ASK_Coherent") == 0x00) {
+				radioVHFConfig.modulation = ASK_Coherent;
+			}
+			else if(strcmp(modulation, "PSK") == 0x00) {
+				radioVHFConfig.modulation = PSK;
+			}
+			else if(strcmp(modulation, "OQPSK") == 0x00) {
+				radioVHFConfig.modulation = OQPSK;
+			}
+			else if(strcmp(modulation, "MSK") == 0x00) {
+				radioVHFConfig.modulation = MSK;
+			}
+			else if(strcmp(modulation, "FSK") == 0x00) {
+				radioVHFConfig.modulation = FSK;
+			}
+			else if(strcmp(modulation, "FSK4") == 0x00) {
+				radioVHFConfig.modulation = FSK4;
+			}
+			else if(strcmp(modulation, "AFSK") == 0x00) {
+				radioVHFConfig.modulation = AFSK;
+			}
+			else if(strcmp(modulation, "FM") == 0x00) {
+				radioVHFConfig.modulation = FM;
+			}
+
+			return RadioVHFModConfig(radioVHFConfig);
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioUHFEncConfig(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+ENC-U=<MSB>,<Inversion>,<Differential>,<Scramble>\n", 51);
+			break;
+		}
+		case CommandType_Query: {
+			uint8_t enableMSB = AX5043PacketGetMSBFirst(RADIO_UHF);
+			uint8_t enableInversion = AX5043PacketIsEncodeBitInversionEnabled(RADIO_UHF);
+			uint8_t enableDifferential = AX5043PacketIsEncodeDifferentialEnabled(RADIO_UHF);
+			uint8_t enableScramble = AX5043PacketIsEncodeScrambleEnabled(RADIO_UHF);
+
+			char string[100];
+			uint8_t len = sprintf(string, "+ENC-U=%d,%d,%d,%d\n", enableMSB, enableInversion, enableDifferential, enableScramble);
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			int enableMSB = 0;
+			int enableInversion = 0;
+			int enableDifferential = 0;
+			int enableScramble = 0;
+
+			if(sscanf(args, "%d,%d,%d,%d", &enableMSB, &enableInversion, &enableDifferential, &enableScramble) != 0x04) {
+				return 1;
+			}
+
+			AX5043PacketSetMSBFirst(RADIO_UHF, (uint8_t)enableMSB);
+			AX5043PacketEnableEncodeBitInversion(RADIO_UHF, (uint8_t)enableInversion);
+			AX5043PacketEnableEncodeDifferential(RADIO_UHF, (uint8_t)enableDifferential);
+			AX5043PacketEnableEncodeScramble(RADIO_UHF, (uint8_t)enableScramble);
+			break;
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioVHFEncConfig(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+ENC-V=<MSB>,<Inversion>,<Differential>,<Scramble>\n", 51);
+			break;
+		}
+		case CommandType_Query: {
+			uint8_t enableMSB = AX5043PacketGetMSBFirst(RADIO_VHF);
+			uint8_t enableInversion = AX5043PacketIsEncodeBitInversionEnabled(RADIO_VHF);
+			uint8_t enableDifferential = AX5043PacketIsEncodeDifferentialEnabled(RADIO_VHF);
+			uint8_t enableScramble = AX5043PacketIsEncodeScrambleEnabled(RADIO_VHF);
+
+			char string[100];
+			uint8_t len = sprintf(string, "+ENC-V=%d,%d,%d,%d\n", enableMSB, enableInversion, enableDifferential, enableScramble);
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			int enableMSB = 0;
+			int enableInversion = 0;
+			int enableDifferential = 0;
+			int enableScramble = 0;
+
+			if(sscanf(args, "%d,%d,%d,%d", &enableMSB, &enableInversion, &enableDifferential, &enableScramble) != 0x04) {
+				return 1;
+			}
+
+			AX5043PacketSetMSBFirst(RADIO_VHF, (uint8_t)enableMSB);
+			AX5043PacketEnableEncodeBitInversion(RADIO_VHF, (uint8_t)enableInversion);
+			AX5043PacketEnableEncodeDifferential(RADIO_VHF, (uint8_t)enableDifferential);
+			AX5043PacketEnableEncodeScramble(RADIO_VHF, (uint8_t)enableScramble);
 			break;
 		}
 		case CommandType_Execute: {

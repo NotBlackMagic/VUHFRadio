@@ -52,7 +52,7 @@ typedef enum {
 	ASK = 0,
 	ASK_Coherent = 1,
 	PSK = 4,
-	OQSK = 6,
+	OQPSK = 6,
 	MSK = 7,
 	FSK = 8,
 	FSK4 = 9,
