@@ -4,6 +4,7 @@
 #include "usb_vcp.h"
 
 #include "ax25.h"
+#include "morse.h"
 #include "radio.h"
 
 #include "atCmdInter.h"
@@ -156,7 +157,7 @@ int main(void) {
 					//Add payload, on new line
 					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);
 					len += sprintf(&str[len], "RX UHF: %s \n", ax25Struct.payload);
-					USBVCPWrite(str, len);
+//					USBVCPWrite(str, len);
 				}
 			}
 			GPIOWrite(GPIO_OUT_LED1, 1);
@@ -222,7 +223,7 @@ int main(void) {
 					//Add payload, on new line
 					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);	//Add local Timestamp
 					len += sprintf(&str[len], "RX VHF: %s \n", ax25Struct.payload);
-					USBVCPWrite(str, len);
+//					USBVCPWrite(str, len);
 				}
 			}
 			GPIOWrite(GPIO_OUT_LED3, 1);
@@ -230,6 +231,9 @@ int main(void) {
 		else {
 			GPIOWrite(GPIO_OUT_LED3, 0);
 		}
+
+		//Morse Decoder Testing
+		MorseStateMachine();
 
 //		if(time + 1000 < GetSysTick()) {
 //			time = GetSysTick();
@@ -286,15 +290,15 @@ int main(void) {
 	}
 	testDataLen = i;
 
-	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
+	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
 	while(1) {
-		RadioUHFEnterTX();
+		RadioVHFEnterTX();
 //		RadioUHFWritePreamble(0x55, 20);
-		RadioUHFWriteFrame(testData, testDataLen);
-		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
+		RadioVHFWriteFrame(testData, testDataLen);
+		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
 
 		do {
-			radioState = AX5043GeneralRadioState(RADIO_UHF);
+			radioState = AX5043GeneralRadioState(RADIO_VHF);
 
 			if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
 				GPIOWrite(GPIO_OUT_LED0, 1);
@@ -305,7 +309,7 @@ int main(void) {
 
 		} while(radioState != RadioState_Idle);
 
-		AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_Powerdown);
+		AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_Powerdown);
 
 //		Delay(1000);
 	}

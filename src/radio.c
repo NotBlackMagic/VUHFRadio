@@ -37,7 +37,7 @@ void RadioVHFInit() {
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
 
 	//Set DAC
-	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_SampleRotI);
+	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_RSSI);
 	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0C);
 
 	//Set IRQ
@@ -97,7 +97,7 @@ void RadioVHFInit() {
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE114, &data, 1);	//F72
 
 	//Set Synth
-	AX5043SynthSetPLLLoopFilter(RADIO_VHF, PLLLoop_Filter500kHz);
+//	AX5043SynthSetPLLLoopFilter(RADIO_VHF, PLLLoop_Filter100kHz);
 //	AX5043SynthSetPLLChargePumpCurrent(RADIO_VHF, 0x10);
 	AX5043SynthSetPLLVCOSelection(RADIO_VHF, 1);	//Use VCO 2 with external inductor
 	AX5043SynthSetPLLVCO2Internal(RADIO_VHF, 1);	//Use VCO 2 with external inductor
@@ -147,9 +147,9 @@ void RadioVHFInit() {
 	AX5043RXParamSetRXFSKMaxDeviation(RADIO_VHF, 0x0395);		//AFSK: 0x43C0; Only used if in manual mode, currently all auto
 	AX5043RXParamSetRXFSKMinDeviation(RADIO_VHF, 0xFC6B);		//AFSK: 0xDC40; Only used if in manual mode, currently all auto
 	AX5043RXParamSetRXParameterNumber0(RADIO_VHF, 0);
-	AX5043RXParamSetRXParameterNumber1(RADIO_VHF, 1);
-	AX5043RXParamSetRXParameterNumber2(RADIO_VHF, 3);
-	AX5043RXParamSetRXParameterNumber3(RADIO_VHF, 3);
+	AX5043RXParamSetRXParameterNumber1(RADIO_VHF, 0);		//1
+	AX5043RXParamSetRXParameterNumber2(RADIO_VHF, 0);		//3
+	AX5043RXParamSetRXParameterNumber3(RADIO_VHF, 0);		//3
 	//RX Parameter 0
 	AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x07);				//Original: 0x0E; Calculated FSK-9600: 0x07
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x04);				//Original: 0x08; Calculated FSK-9600: 0x04
@@ -220,7 +220,7 @@ void RadioVHFInit() {
 	AX5043PacketSetMSBFirst(RADIO_VHF, 0);
 	AX5043PacketEnableEncodeBitInversion(RADIO_VHF, 1);
 	AX5043PacketEnableEncodeDifferential(RADIO_VHF, 1);
-	AX5043PacketEnableEncodeScramble(RADIO_VHF, 0);
+	AX5043PacketEnableEncodeScramble(RADIO_VHF, 1);
 	AX5043PacketSetFrameMode(RADIO_VHF, FrmMode_HDLC);
 	AX5043PacketSetCRCMode(RADIO_VHF, CRCMode_CCITT);
 	AX5043PacketSetPacketChunkSize(RADIO_VHF, PacketChunkSize_240byte);
@@ -249,7 +249,7 @@ void RadioVHFInit() {
 	AX5043PacketSetRXPLLSettlingTime(RADIO_VHF, 0x14, 0x00);
 	AX5043PacketSetRXDCOffsetAcquisitionTime(RADIO_VHF, 0x00, 0x00);
 	AX5043PacketSetRXCoarseAGCTime(RADIO_VHF, 0x13, 0x03);				//19*2^3 us = 152 us
-	AX5043PacketSetRXAGCSettlingTime(RADIO_VHF, 0x00, 0x00);			//
+	AX5043PacketSetRXAGCSettlingTime(RADIO_VHF, 0x00, 0x00);
 	AX5043PacketSetRXRSSISettlingTime(RADIO_VHF, 0x03, 0x00);
 	AX5043PacketSetRXPreamble1Timeout(RADIO_VHF, 0x00, 0x00);
 	AX5043PacketSetRXPreamble2Timeout(RADIO_VHF, 0x17, 0x00);
