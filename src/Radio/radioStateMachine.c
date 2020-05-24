@@ -97,13 +97,13 @@ void RadioStateMachine(uint8_t radio) {
 							uint16_t len = 0;
 							char str[400];
 
-							//Add Source, destination, control and PID only if not filtered on those!
-							if(uhfAX25FltStruct.onSourceAddress == 0x00) {
-								len += sprintf(&str[len], "%s; ", ax25Struct.sourceAddress);
-								dspInfo = 1;
-							}
+							//Add Destination, Source, Control and PID only if not filtered on those!
 							if(uhfAX25FltStruct.onDestinationAddress == 0x00) {
 								len += sprintf(&str[len], "%s;", ax25Struct.destinationAddress);
+								dspInfo = 1;
+							}
+							if(uhfAX25FltStruct.onSourceAddress == 0x00) {
+								len += sprintf(&str[len], "%s; ", ax25Struct.sourceAddress);
 								dspInfo = 1;
 							}
 							if(uhfAX25FltStruct.onControlField == 0x00) {
