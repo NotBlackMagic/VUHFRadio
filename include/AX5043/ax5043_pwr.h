@@ -31,14 +31,14 @@ typedef enum {
 //POWSTAT & POWSTICKYSTAT Bits
 typedef union {
 	struct {
-		uint8_t ssum : 1;				//(Sticky) Summary Ready Status (one when all unmasked POWIRQMASK power sources are ready)
-		uint8_t sref : 1;				//(Sticky) Reference Ready
-		uint8_t svref : 1;				//(Sticky) Reference Voltage Regulator Ready
-		uint8_t svana : 1;				//(Sticky) Analog Domain Voltage Regulator Ready
-		uint8_t svmodem : 1;			//(Sticky) Modem Domain Voltage Regulator Ready
-		uint8_t sbevana : 1;			//(Sticky) Analog Domain Voltage Brownout Error (Inverted; 0 = Brownout, 1 = Power OK)
-		uint8_t sbevmodem : 1;			//(Sticky) Modem Domain Voltage Brownout Error (Inverted; 0 = Brownout, 1 = Power OK)
 		uint8_t svio : 1;				//(Sticky) IO Voltage Large Enough (not Brownout)
+		uint8_t sbevmodem : 1;			//(Sticky) Modem Domain Voltage Brownout Error (Inverted; 0 = Brownout, 1 = Power OK)
+		uint8_t sbevana : 1;			//(Sticky) Analog Domain Voltage Brownout Error (Inverted; 0 = Brownout, 1 = Power OK)
+		uint8_t svmodem : 1;			//(Sticky) Modem Domain Voltage Regulator Ready
+		uint8_t svana : 1;				//(Sticky) Analog Domain Voltage Regulator Ready
+		uint8_t svref : 1;				//(Sticky) Reference Voltage Regulator Ready
+		uint8_t sref : 1;				//(Sticky) Reference Ready
+		uint8_t ssum : 1;				//(Sticky) Summary Ready Status (one when all unmasked POWIRQMASK power sources are ready)
 	};
 	uint8_t raw;
 } PwrStatus;
@@ -47,14 +47,14 @@ typedef union {
 //POWIRQMASK Bits
 typedef union {
 	struct {
-		uint8_t mpwrgood : 1;			//If 0, interrupt whenever one of the unmasked power sources fail (clear interrupt by reading POWSTICKYSTAT); if 1, interrupt when all unmasked power sources are good
-		uint8_t msref : 1;				//Reference Ready Interrupt Mask
-		uint8_t msvref : 1;				//Reference Voltage Regulator Ready Interrupt Mask
-		uint8_t msvana : 1;				//Analog Domain Voltage Regulator Ready Interrupt Mask
-		uint8_t msvmodem : 1;			//Modem Domain Voltage Regulator Ready Interrupt Mask
-		uint8_t msbevana : 1;			//Analog Domain Voltage Brownout Error Interrupt Mask
-		uint8_t msbevmodem : 1;			//Modem Domain Voltage Brownout Error Interrupt Mask
 		uint8_t msvio : 1;				//IO Voltage Large Enough (not Brownout) Interrupt Mask
+		uint8_t msbevmodem : 1;			//Modem Domain Voltage Brownout Error Interrupt Mask
+		uint8_t msbevana : 1;			//Analog Domain Voltage Brownout Error Interrupt Mask
+		uint8_t msvmodem : 1;			//Modem Domain Voltage Regulator Ready Interrupt Mask
+		uint8_t msvana : 1;				//Analog Domain Voltage Regulator Ready Interrupt Mask
+		uint8_t msvref : 1;				//Reference Voltage Regulator Ready Interrupt Mask
+		uint8_t msref : 1;				//Reference Ready Interrupt Mask
+		uint8_t mpwrgood : 1;			//If 0, interrupt whenever one of the unmasked power sources fail (clear interrupt by reading POWSTICKYSTAT); if 1, interrupt when all unmasked power sources are good
 	};
 	uint8_t raw;
 } PwrIRQMask;

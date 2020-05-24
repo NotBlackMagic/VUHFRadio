@@ -32,7 +32,7 @@ void RadioVHFInit() {
 	AX5043GPIOCnfgSysClk(RADIO_VHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_VHF, DCLK_Modem_Data_Clk_Output, 0, 0);
 	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_Modem_Data_Output, 0, 0);
-	//AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
+	AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_VHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
 
@@ -43,14 +43,13 @@ void RadioVHFInit() {
 	//Set IRQ
 	IrqMask irqMask;
 	irqMask.raw = 0x0000;
-	irqMask.irqmfifothrcnt = 1;
-	irqMask.irqmfifothrfree = 1;
+	irqMask.irqmfifonotempty = 1;
 	AX5043IrqSetIRQMask(RADIO_VHF, irqMask);
 
 	//Set Events
 	RadioEventMask radioEvenMask;
 	radioEvenMask.raw = 0x00;
-	radioEvenMask.revmdone = 1;
+//	radioEvenMask.revmdone = 1;
 	AX5043IrqSetRadioEventMask(RADIO_VHF, radioEvenMask);
 
 	//Set Performance Tuning Registers
@@ -267,7 +266,7 @@ void RadioUHFInit() {
 	AX5043GPIOCnfgSysClk(RADIO_UHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Modem_Data_Clk_Output, 0, 0);
 	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Modem_Data_Output, 0, 0);
-	//AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
+	AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
 
@@ -278,14 +277,13 @@ void RadioUHFInit() {
 	//Set IRQ
 	IrqMask irqMask;
 	irqMask.raw = 0x0000;
-	irqMask.irqmfifothrcnt = 1;
-	irqMask.irqmfifothrfree = 1;
+	irqMask.irqmfifonotempty = 1;
 	AX5043IrqSetIRQMask(RADIO_UHF, irqMask);
 
 	//Set Events
 	RadioEventMask radioEvenMask;
 	radioEvenMask.raw = 0x00;
-	radioEvenMask.revmdone = 1;
+//	radioEvenMask.revmdone = 1;
 	AX5043IrqSetRadioEventMask(RADIO_UHF, radioEvenMask);
 
 	//Set Performance Tuning Registers
@@ -383,9 +381,9 @@ void RadioUHFInit() {
 	AX5043RXParamSetRXFSKMaxDeviation(RADIO_UHF, 0x43C0);	//AFSK: 0x43C0; Only used if in manual mode, currently all auto
 	AX5043RXParamSetRXFSKMinDeviation(RADIO_UHF, 0xDC40);	//AFSK: 0x43C0; Only used if in manual mode, currently all auto
 	AX5043RXParamSetRXParameterNumber0(RADIO_UHF, 0);
-	AX5043RXParamSetRXParameterNumber1(RADIO_UHF, 1);
-	AX5043RXParamSetRXParameterNumber2(RADIO_UHF, 3);
-	AX5043RXParamSetRXParameterNumber3(RADIO_UHF, 3);
+	AX5043RXParamSetRXParameterNumber1(RADIO_UHF, 0);
+	AX5043RXParamSetRXParameterNumber2(RADIO_UHF, 0);
+	AX5043RXParamSetRXParameterNumber3(RADIO_UHF, 0);
 	//RX Parameter 0
 	AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x08);
@@ -463,6 +461,11 @@ void RadioUHFInit() {
 	AX5043PacketSetMaxLength(RADIO_UHF, 0xFF);
 	AX5043PacketSetAcceptPacketsMultiChuck(RADIO_UHF, 1);
 	AX5043PacketSetAcceptPacketsCRCFailed(RADIO_UHF, 1);
+
+	//Append RX tracking data in FIFO
+//	AX5043PacketEnableStoreRFFrequencyValue(RADIO_UHF, 0x01);	//Append/save RF frequency offset
+//	AX5043PacketEnableStoreDatarateValue(RADIO_UHF, 0x01);		//Append/save RX datarate
+	AX5043PacketEnableStoreRSSI(RADIO_UHF, 0x01);				//Append/save RSSI value
 
 	//Set Pattern Matching
 	AX5043PacketSetPaternMatch0(RADIO_UHF, 0x7E7E7E7E);

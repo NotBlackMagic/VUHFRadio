@@ -35,12 +35,15 @@ int main(void) {
 
 	//Config VHF Radio
 	RadioConfigStruct radioVHFConfig;
-	radioVHFConfig.frequency = 145895000;
+	radioVHFConfig.frequency = 145895000 + 1500;
 	radioVHFConfig.datarate = 1200;
 	radioVHFConfig.afcRange = 2000;
 	radioVHFConfig.fskDeviation = 3000;
 	radioVHFConfig.modulation = AFSK;
 	RadioVHFModConfig(radioVHFConfig);
+
+	//Set VHF Radio to RX Mode
+	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
 
 	//Init UHF Radio
 	RadioUHFInit();
@@ -54,13 +57,11 @@ int main(void) {
 	radioUHFConfig.modulation = AFSK;
 	RadioUHFModConfig(radioUHFConfig);
 
-	//Initializations done, VUHFRadio Powered Up
-	GPIOWrite(GPIO_OUT_LED5, 1);
-
-	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
+	//Set UHF Radio to RX Mode
 	AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_RXEN);
 
-	uint32_t time = GetSysTick();
+	//Initializations done, VUHFRadio Powered Up
+	GPIOWrite(GPIO_OUT_LED5, 1);
 
 	//Variables for USB/AT Commands
 	uint8_t isVCPConnected = 0;
@@ -69,9 +70,6 @@ int main(void) {
 	uint8_t* framed;
 	uint16_t framedLength;
 
-	//Variables for RX data
-	uint8_t rxTestData[300];
-	uint8_t rxAX25Data[300];
 	while(1) {
 		//USB/AT Command Interpreter
 		if(USBVCPRead(rxUSBData, &rxLength) == 1) {
@@ -88,8 +86,8 @@ int main(void) {
 			if(isVCPConnected == 0) {
 				//First Connection, write welcome message
 				USBVCPWrite("Welcome to VUHFRadio V1! \n", 26);
-				USBVCPWrite("Hardware Version: 1.2, Nov 2019 \n", 33);
-				USBVCPWrite("Software Version: 0.7, Jan 2020 \n", 33);
+				USBVCPWrite("Hardware Version: 1.3, May 2020 \n", 33);
+				USBVCPWrite("Software Version: 0.9, May 2020 \n", 33);
 				USBVCPWrite("This Module uses AT Commands, for more info write AT+LIST \n", 59);
 
 				isVCPConnected = 1;
@@ -100,136 +98,14 @@ int main(void) {
 		}
 		GPIOWrite(GPIO_OUT_LED4, USBVCPIsConnected());
 
-		uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
-		if(fifoCnt > 0) {
-			AX5043FIFOGetFIFO(RADIO_UHF, rxTestData, fifoCnt);
-			uint8_t fifoOpcode = rxTestData[0];
-			uint8_t fifoLength = rxTestData[1];
-			uint8_t fifoStatus = rxTestData[2];
-
-			uint8_t crc = (fifoStatus & DATA_CRCFAIL) >> 3;
-
-			if(fifoCnt > 20) {
-				AX25Struct ax25Struct;
-				ax25Struct.payload = rxAX25Data;
-
-				AX25Decode(&rxTestData[3], fifoCnt - 3, &ax25Struct);
-
-				//AX25 Filtering, except CRC (CRC is part of HDLC frame)
-				if(AX25Filter(ax25Struct, uhfAX25FltStruct) == 0x00) {
-					uint8_t dspInfo = 0;
-					uint16_t len = 0;
-					char str[400];
-
-					uint8_t hour, min, sec;
-					uint16_t ms;
-					GetSysTickAsTime(&hour, &min, &sec, &ms);
-					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);
-
-					len += sprintf(&str[len], "RX UHF: ");
-					//Add Source, destination, control and PID only if not filtered on those!
-					if(uhfAX25FltStruct.onSourceAddress == 0x00) {
-						len += sprintf(&str[len], "Src: %s; ", ax25Struct.sourceAddress);
-						dspInfo = 1;
-					}
-					if(uhfAX25FltStruct.onDestinationAddress == 0x00) {
-						len += sprintf(&str[len], "Dst: %s; ", ax25Struct.destinationAddress);
-						dspInfo = 1;
-					}
-					if(uhfAX25FltStruct.onControlField == 0x00) {
-						len += sprintf(&str[len], "Ctrl: %d; ", ax25Struct.control);
-						dspInfo = 1;
-					}
-					if(uhfAX25FltStruct.onPIDField == 0x00) {
-						len += sprintf(&str[len], "PID: %d; ", ax25Struct.pid);
-						dspInfo = 1;
-					}
-
-					//Check if any Info was added, to be displayed
-					if(dspInfo == 0x01) {
-						len += sprintf(&str[len], "\n");
-					}
-					else {
-						//No Info to display so reset len (string index counter)
-						len = 0;
-					}
-
-					//Add payload, on new line
-					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);
-					len += sprintf(&str[len], "RX UHF: %s \n", ax25Struct.payload);
-//					USBVCPWrite(str, len);
-				}
-			}
-			GPIOWrite(GPIO_OUT_LED1, 1);
-		}
-		else {
-			GPIOWrite(GPIO_OUT_LED1, 0);
+		//Check for UHF Activity
+		if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
+			RadioStateMachine(RADIO_UHF);
 		}
 
-		fifoCnt = AX5043FIFOGetFIFOCount(RADIO_VHF);
-		if(fifoCnt > 0) {
-			AX5043FIFOGetFIFO(RADIO_VHF, rxTestData, fifoCnt);
-			uint8_t fifoOpcode = rxTestData[0];
-			uint8_t fifoLength = rxTestData[1];
-			uint8_t fifoStatus = rxTestData[2];
-
-			uint8_t crc = (fifoStatus & DATA_CRCFAIL) >> 3;
-
-			if(fifoCnt > 20) {
-				AX25Struct ax25Struct;
-				ax25Struct.payload = rxAX25Data;
-
-				AX25Decode(&rxTestData[3], fifoCnt - 3, &ax25Struct);
-
-				//AX25 Filtering, except CRC (CRC is part of HDLC frame)
-				if(AX25Filter(ax25Struct, vhfAX25FltStruct) == 0x00) {
-					uint8_t dspInfo = 0;
-					uint16_t len = 0;
-					char str[400];
-
-					uint8_t hour, min, sec;
-					uint16_t ms;
-					GetSysTickAsTime(&hour, &min, &sec, &ms);		//Get Local Timestamp
-					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);	//Add local Timestamp
-
-					len += sprintf(&str[len], "RX VHF: ");
-					//Add Source, destination, control and PID only if not filtered on those!
-					if(vhfAX25FltStruct.onSourceAddress == 0x00) {
-						len += sprintf(&str[len], "Src: %s; ", ax25Struct.sourceAddress);
-						dspInfo = 1;
-					}
-					if(vhfAX25FltStruct.onDestinationAddress == 0x00) {
-						len += sprintf(&str[len], "Dst: %s; ", ax25Struct.destinationAddress);
-						dspInfo = 1;
-					}
-					if(vhfAX25FltStruct.onControlField == 0x00) {
-						len += sprintf(&str[len], "Ctrl: %d; ", ax25Struct.control);
-						dspInfo = 1;
-					}
-					if(vhfAX25FltStruct.onPIDField == 0x00) {
-						len += sprintf(&str[len], "PID: %d; ", ax25Struct.pid);
-						dspInfo = 1;
-					}
-
-					//Check if any Info was added, to be displayed
-					if(dspInfo == 0x01) {
-						len += sprintf(&str[len], "\n");
-					}
-					else {
-						//No Info to display so reset len (string index counter)
-						len = 0;
-					}
-
-					//Add payload, on new line
-					len += sprintf(&str[len], "%03d:%02d:%02d ", hour, min, sec);	//Add local Timestamp
-					len += sprintf(&str[len], "RX VHF: %s \n", ax25Struct.payload);
-//					USBVCPWrite(str, len);
-				}
-			}
-			GPIOWrite(GPIO_OUT_LED3, 1);
-		}
-		else {
-			GPIOWrite(GPIO_OUT_LED3, 0);
+		//Check for VHF Activity
+		if(GPIORead(GPIO_IN_IRQ_V) == 0x01) {
+			RadioStateMachine(RADIO_VHF);
 		}
 
 		//Morse Decoder Testing
@@ -291,16 +167,12 @@ int main(void) {
 	testDataLen = i;
 
 	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
-<<<<<<< HEAD
-	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
-	RadioUHFEnterTX();
+	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_VHF);
+	RadioVHFEnterTX();
+
 	while(1) {
 		RadioVHFEnterTX();
-//		RadioUHFWritePreamble(0x55, 200);
-=======
-	while(1) {
-		RadioUHFEnterTX();
-//		RadioUHFWritePreamble(0x55, 20);
+//		RadioVHFWritePreamble(0x55, 20);
 		RadioVHFWriteFrame(testData, testDataLen);
 		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
 

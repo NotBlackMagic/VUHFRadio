@@ -23,9 +23,9 @@ extern "C" {
 //LPOSCSTATUS Bits
 typedef union {
 	struct {
-		uint8_t lposcnone : 6;
-		uint8_t lposcirq : 1;		//Low Power Oscillator Interrupt Active
 		uint8_t lposcedge : 1;		//Enabled Low Power Oscillator Edge detected
+		uint8_t lposcirq : 1;		//Low Power Oscillator Interrupt Active
+		uint8_t lposcnone : 6;
 	};
 	uint8_t raw;
 } LPOscStatus;

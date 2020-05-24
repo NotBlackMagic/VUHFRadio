@@ -130,8 +130,10 @@ void MorseStateMachine() {
 			else if((GetSysTick() - morseLastStateTime) > 700 && morseSymbolIndex > 0) {
 				//Morse Timeout, use as end of frame
 				morseASCIIFrame[morseASCIIFrameIndex++] = MorseSymbolToASCII(morseSymbol);
-				morseASCIIFrame[morseASCIIFrameIndex++] = '\n';
+				morseASCIIFrame[morseASCIIFrameIndex++] = '\0';
 
+				char str[200];
+				uint8_t len = sprintf(str, "VHF:MORSE:%s\n", morseASCIIFrame);
 				USBVCPWrite(morseASCIIFrame, morseASCIIFrameIndex);
 
 				morseSymbol = 0;
