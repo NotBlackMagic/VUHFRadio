@@ -19,7 +19,7 @@ void MorseStateMachine() {
 		int8_t vhfRSSI = AX5043GeneralGetRSSI(RADIO_VHF);
 
 		if(vhfRSSI > MORSE_THRESHOLD_VHF) {
-			GPIOWrite(GPIO_OUT_LED2, 1);
+			GPIOWrite(GPIO_OUT_LED3, 1);
 
 			if(morseLastState == 0) {
 				morseDeltaTime = GetSysTick() - morseLastStateTime;
@@ -84,7 +84,7 @@ void MorseStateMachine() {
 			morseLastState = 1;
 		}
 		else {
-			GPIOWrite(GPIO_OUT_LED2, 0);
+			GPIOWrite(GPIO_OUT_LED3, 0);
 
 			if(morseLastState == 1) {
 				morseDeltaTime = GetSysTick() - morseLastStateTime;
@@ -130,9 +130,11 @@ void MorseStateMachine() {
 			else if((GetSysTick() - morseLastStateTime) > 700 && morseSymbolIndex > 0) {
 				//Morse Timeout, use as end of frame
 				morseASCIIFrame[morseASCIIFrameIndex++] = MorseSymbolToASCII(morseSymbol);
-				morseASCIIFrame[morseASCIIFrameIndex++] = '\n';
+				morseASCIIFrame[morseASCIIFrameIndex++] = '\0';
 
-				USBVCPWrite(morseASCIIFrame, morseASCIIFrameIndex);
+				char str[200];
+				uint8_t len = sprintf(str, "VHF+MORSE=%s\n", morseASCIIFrame);
+				USBVCPWrite(str, len);
 
 				morseSymbol = 0;
 				morseSymbolIndex = 0;

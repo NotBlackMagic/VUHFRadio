@@ -3,16 +3,6 @@
 void AX25Decode(uint8_t data[], uint16_t length, AX25Struct* ax25Struct) {
 	uint16_t index = 0;
 
-	//Get Source Address
-	ax25Struct->sourceAddress[0] = data[index++] >> 1;
-	ax25Struct->sourceAddress[1] = data[index++] >> 1;
-	ax25Struct->sourceAddress[2] = data[index++] >> 1;
-	ax25Struct->sourceAddress[3] = data[index++] >> 1;
-	ax25Struct->sourceAddress[4] = data[index++] >> 1;
-	ax25Struct->sourceAddress[5] = data[index++] >> 1;
-	ax25Struct->sourceAddress[6] = data[index++] >> 1;
-	ax25Struct->sourceAddress[7] = '\0';
-
 	//Get Destination Address
 	ax25Struct->destinationAddress[0] = data[index++] >> 1;
 	ax25Struct->destinationAddress[1] = data[index++] >> 1;
@@ -22,6 +12,16 @@ void AX25Decode(uint8_t data[], uint16_t length, AX25Struct* ax25Struct) {
 	ax25Struct->destinationAddress[5] = data[index++] >> 1;
 	ax25Struct->destinationAddress[6] = data[index++] >> 1;
 	ax25Struct->destinationAddress[7] = '\0';
+
+	//Get Source Address
+	ax25Struct->sourceAddress[0] = data[index++] >> 1;
+	ax25Struct->sourceAddress[1] = data[index++] >> 1;
+	ax25Struct->sourceAddress[2] = data[index++] >> 1;
+	ax25Struct->sourceAddress[3] = data[index++] >> 1;
+	ax25Struct->sourceAddress[4] = data[index++] >> 1;
+	ax25Struct->sourceAddress[5] = data[index++] >> 1;
+	ax25Struct->sourceAddress[6] = data[index++] >> 1;
+	ax25Struct->sourceAddress[7] = '\0';
 
 	//Get Control Field
 	ax25Struct->control = data[index++];

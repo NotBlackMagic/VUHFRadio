@@ -64,14 +64,14 @@ extern "C" {
 //FIFOSTAT Bits when Reading the register
 typedef union {
 	struct {
-		uint8_t fifoAutoCommit : 1;			//If one, FIFO write bytes are automatically committed on every write
-		uint8_t none : 1;					//No valid/used bits
-		uint8_t fifoFreeThreshold : 1;		//1 if the FIFO free space is > FIFOTHRESH
-		uint8_t fifoCountThreshold : 1;		//1 if the FIFO count is > FIFOTHRESH
-		uint8_t fifoOver : 1;				//FIFO overrun occurred since last read of FIFOSTAT when 1
-		uint8_t fifoUnder : 1;				//FIFO underrun occurred since last read of FIFOSTAT when 1
-		uint8_t fifoFull : 1;				//FIFO is full if 1
 		uint8_t fifoEmpty : 1;				//FIFO is empty if 1. This bit is dangerous to use when PWRMODE is set to Receiver Wake-on-Radio mode.
+		uint8_t fifoFull : 1;				//FIFO is full if 1
+		uint8_t fifoUnder : 1;				//FIFO underrun occurred since last read of FIFOSTAT when 1
+		uint8_t fifoOver : 1;				//FIFO overrun occurred since last read of FIFOSTAT when 1
+		uint8_t fifoCountThreshold : 1;		//1 if the FIFO count is > FIFOTHRESH
+		uint8_t fifoFreeThreshold : 1;		//1 if the FIFO free space is > FIFOTHRESH
+		uint8_t none : 1;					//No valid/used bits
+		uint8_t fifoAutoCommit : 1;			//If one, FIFO write bytes are automatically committed on every write
 	};
 	uint8_t raw;
 } FIFOStat;

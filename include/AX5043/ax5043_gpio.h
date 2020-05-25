@@ -10,13 +10,13 @@ extern "C" {
 
 typedef union {
 	struct {
-		uint8_t none : 2;
 		uint8_t sysClk : 1;
 		uint8_t dClk : 1;
 		uint8_t data : 1;
 		uint8_t irq : 1;
 		uint8_t antSel : 1;
 		uint8_t pwRamp : 1;
+		uint8_t none : 2;
 	};
 	uint8_t raw;
 } AX5043PinState;
