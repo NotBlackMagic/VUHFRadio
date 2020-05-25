@@ -290,22 +290,17 @@ int main(void) {
 	}
 	testDataLen = i;
 
-	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
-<<<<<<< HEAD
+	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
 	RadioUHFEnterTX();
 	while(1) {
-		RadioVHFEnterTX();
-//		RadioUHFWritePreamble(0x55, 200);
-=======
-	while(1) {
 		RadioUHFEnterTX();
-//		RadioUHFWritePreamble(0x55, 20);
-		RadioVHFWriteFrame(testData, testDataLen);
-		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
+		RadioUHFWritePreamble(0x55, 20);
+		RadioUHFWriteFrame(testData, testDataLen);
+		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
 
 		do {
-			radioState = AX5043GeneralRadioState(RADIO_VHF);
+			radioState = AX5043GeneralRadioState(RADIO_UHF);
 
 			if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
 				GPIOWrite(GPIO_OUT_LED0, 1);
@@ -316,7 +311,7 @@ int main(void) {
 
 		} while(radioState != RadioState_Idle);
 
-		AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_Powerdown);
+		AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_Powerdown);
 
 //		Delay(1000);
 	}
