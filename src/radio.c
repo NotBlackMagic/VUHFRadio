@@ -31,7 +31,7 @@ void RadioVHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_VHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_VHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_Modem_Data_Output, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_IO_Modem_Data, 0, 0);
 	AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_VHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -271,7 +271,7 @@ void RadioUHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_UHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Modem_Data_Output, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_IO_Modem_Data, 0, 0);
 	AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
