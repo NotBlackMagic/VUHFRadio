@@ -39,7 +39,9 @@ void RadioVHFInit() {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_RSSI);
 	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0C);
+	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
+
 
 	//Set IRQ
 	IrqMask irqMask;
@@ -279,6 +281,7 @@ void RadioUHFInit() {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_RSSI);
 	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
+	AX5043GPIOSetDACOutputMode(RADIO_UHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_UHF, 0x01);
 
 	//Set IRQ
