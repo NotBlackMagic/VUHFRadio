@@ -1,8 +1,81 @@
 #include "radioStateMachine.h"
 
+//BER Data variables
+uint32_t berTimestamp = 0;
+uint32_t errorBits = 0;
+uint32_t totalBits = 0;
+
+//Raw Radio Data interface (DATA) variables
+uint8_t rawByteReadyVHF = 0;
+uint8_t rawByteVHF = 0;
+uint8_t rawByteIndexVHF = 7;
+uint8_t rawByteReadyUHF = 0;
+uint8_t rawByteUHF = 0;
+uint8_t rawByteIndexUHF = 7;
+
 uint8_t fifoCnt;
 uint8_t rxRadioData[300];
-void RadioStateMachine(uint8_t radio) {
+void RadioStateMachine() {
+	if(moduleDataMode == BER_Mode) {
+		if(berTimestamp + 1000 <= GetSysTick()) {
+			uint8_t str[200];
+
+			uint16_t len = sprintf(str, "UHF+");
+
+			int8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+			len += sprintf(&str[len], "RSSI=%d\n", rssi);
+
+			len += sprintf(&str[len], "UHF+BER=%d;%d\n", errorBits, totalBits);
+
+			USBVCPWrite(str, len);
+
+			berTimestamp = GetSysTick();
+		}
+		return;
+	}
+
+	if(moduleDataMode == Raw_Bit_Mode) {
+		if(rawByteReadyVHF == 0x01) {
+			rawByteReadyVHF = 0;
+
+			uint8_t data[3];
+			data[0] = 'V';
+			data[1] = ':';
+			data[2] = rawByteReadyVHF;
+
+			USBVCPWrite(data, 3);
+		}
+		else if(rawByteReadyUHF == 0x01) {
+			rawByteReadyUHF = 0;
+
+			uint8_t data[3];
+			data[0] = 'U';
+			data[1] = ':';
+			data[2] = rawByteReadyUHF;
+
+			USBVCPWrite(data, 3);
+		}
+		return;
+	}
+
+	uint8_t radio = 0x02;
+	//Check for VHF and UHF Activity
+	if(GPIORead(GPIO_IN_IRQ_V) == 0x01) {
+		//Have VHF activity
+		radio = RADIO_VHF;
+	}
+	else if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
+		//Have UHF activity and no VHF
+		radio = RADIO_UHF;
+		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED of
+	}
+	else {
+		//No VHF or UHF Activity
+		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED of
+		GPIOWrite(GPIO_OUT_LED3, 0);	//Turn UHF RX LED of
+		return;
+	}
+
 	fifoCnt = AX5043FIFOGetFIFOCount(radio);
 
 	if(fifoCnt > 0) {
@@ -152,4 +225,38 @@ void RadioStateMachine(uint8_t radio) {
 			}
 		}
 	}
+}
+
+void RadioDCLKVHFHandler() {
+	uint8_t bit = GPIORead(GPIO_IN_DATA_V);
+
+	rawByteVHF += bit << rawByteIndexVHF;
+	if(rawByteIndexVHF == 0) {
+		rawByteReadyVHF = 1;
+		rawByteIndexVHF = 7;
+	}
+	else {
+		rawByteReadyVHF = 0;
+		rawByteIndexVHF -= 1;
+	}
+}
+
+void RadioDCLKUHFHandler() {
+	uint8_t bit = GPIORead(GPIO_IN_DATA_U);
+
+	if(bit != 0x00) {
+		errorBits += 1;
+	}
+
+	totalBits += 1;
+
+//	rawByteUHF += bit << rawByteIndexVHF;
+//	if(rawByteIndexVHF == 0) {
+//		rawByteReadyUHF = 1;
+//		rawByteIndexUHF = 7;
+//	}
+//	else {
+//		rawByteReadyUHF = 0;
+//		rawByteIndexUHF -= 1;
+//	}
 }

@@ -1205,7 +1205,7 @@ void AX5043PacketGetRXPreamble3Timeout(uint8_t interfaceID, uint8_t* mantissa, u
 /**
   * @brief	This function sets the RSSI Offset, added to the RSSI value. Used to Compensate for Board Effects
   * @param	interfaceID: Which interface (chip) used
-  * @param	offset: RSSI Offset Value
+  * @param	offset: RSSI Offset Value as int8_t
   * @return	None
   */
 void AX5043PacketSetRSSIOffset(uint8_t interfaceID, uint8_t offset) {

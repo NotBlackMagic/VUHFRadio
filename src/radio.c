@@ -31,7 +31,7 @@ void RadioVHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_VHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_VHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_IO_Modem_Data, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_Modem_Data_Output, 0, 0);			//DATA_IO_Modem_Data
 	AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_VHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -273,7 +273,7 @@ void RadioUHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_UHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_IO_Modem_Data, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Modem_Data_Output, 0, 0);			//DATA_IO_Modem_Data
 	AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -295,6 +295,9 @@ void RadioUHFInit() {
 	radioEvenMask.raw = 0x00;
 //	radioEvenMask.revmdone = 1;
 	AX5043IrqSetRadioEventMask(RADIO_UHF, radioEvenMask);
+
+	//Calibrate RSSI: Compensate for Board effects
+	AX5043PacketSetRSSIOffset(RADIO_UHF, 0xF5);		//Offset: -11dBm
 
 	//Set Performance Tuning Registers
 	uint8_t data = 0x0F;
@@ -462,7 +465,7 @@ void RadioUHFInit() {
 	AX5043PacketSetMSBFirst(RADIO_UHF, 0);
 	AX5043PacketEnableEncodeBitInversion(RADIO_UHF, 1);
 	AX5043PacketEnableEncodeDifferential(RADIO_UHF, 1);
-	AX5043PacketEnableEncodeScramble(RADIO_UHF, 0);
+	AX5043PacketEnableEncodeScramble(RADIO_UHF, 1);
 	AX5043PacketSetFrameMode(RADIO_UHF, FrmMode_HDLC);
 	AX5043PacketSetCRCMode(RADIO_UHF, CRCMode_CCITT);
 	AX5043PacketSetPacketChunkSize(RADIO_UHF, PacketChunkSize_240byte);

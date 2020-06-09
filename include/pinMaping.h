@@ -10,6 +10,10 @@ extern "C" {
 #define GPIO_IN_PTT_V						10		//Input PTT of VHF
 #define GPIO_IN_IRQ_U						16		//Input IRQ of UHF
 #define GPIO_IN_IRQ_V						17		//Input IRQ of VHF
+#define GPIO_IN_DCLK_U						27		//Input DCLK of UHF	PB11
+#define GPIO_IN_DCLK_V						8		//Input DCLK of VHF PA8
+#define GPIO_IN_DATA_U						26		//Input DATA of UHF PB10
+#define GPIO_IN_DATA_V						9		//Input DATA of VHF PA9
 
 //Output Pin Mapping
 #define GPIO_OUT_LED0						3		//Output LED 0

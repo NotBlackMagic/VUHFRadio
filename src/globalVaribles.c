@@ -1,5 +1,7 @@
 #include "globalVariables.h"
 
+ModuleDataMode moduleDataMode;		//Working Mode configuration for the Module
+
 AX25Struct uhfTXAX25Struct;			//Used to safe AX25 parameters to send
 AX25FilterStruct uhfAX25FltStruct;	//Used to safe AX25 parameters to filter received messages
 
@@ -7,6 +9,9 @@ AX25Struct vhfTXAX25Struct;			//Used to safe AX25 parameters to send
 AX25FilterStruct vhfAX25FltStruct;	//Used to safe AX25 parameters to filter received messages
 
 void GlobalVariablesInit() {
+	//Init Module Data Mode
+	moduleDataMode = BER_Mode;
+
 	//Init UHF TX AX25 Struct
 	uhfTXAX25Struct.sourceAddress[0] = 'A';
 	uhfTXAX25Struct.sourceAddress[1] = 'A';

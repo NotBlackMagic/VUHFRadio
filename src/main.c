@@ -86,6 +86,9 @@ int main(void) {
 		//This Sets the LED1 to the Virtual COM Connection state, LED is ON if connected
 		if(USBVCPIsConnected()) {
 			if(isVCPConnected == 0) {
+				errorBits = 0;
+				totalBits = 0;
+
 				//First Connection, write welcome message
 				USBVCPWrite("Welcome to VUHFRadio V1! \n", 26);
 				USBVCPWrite("Hardware Version: 1.3, May 2020 \n", 33);
@@ -100,21 +103,8 @@ int main(void) {
 		}
 		GPIOWrite(GPIO_OUT_LED4, USBVCPIsConnected());
 
-		//Check for UHF Activity
-		if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
-			RadioStateMachine(RADIO_UHF);
-		}
-		else {
-			GPIOWrite(GPIO_OUT_LED1, 0);
-		}
-
-		//Check for VHF Activity
-		if(GPIORead(GPIO_IN_IRQ_V) == 0x01) {
-			RadioStateMachine(RADIO_VHF);
-		}
-		else {
-			GPIOWrite(GPIO_OUT_LED3, 0);
-		}
+		//Radio State Machine
+		RadioStateMachine();
 
 		//Morse Decoder Testing
 		MorseStateMachine();

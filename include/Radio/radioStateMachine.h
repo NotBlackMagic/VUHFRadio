@@ -14,7 +14,13 @@ extern "C" {
 
 #include "globalVariables.h"
 
-void RadioStateMachine(uint8_t radio);
+extern uint32_t errorBits;
+extern uint32_t totalBits;
+
+void RadioStateMachine();
+
+void RadioDCLKVHFHandler();
+void RadioDCLKUHFHandler();
 
 #ifdef __cplusplus
 }

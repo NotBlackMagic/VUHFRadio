@@ -38,7 +38,7 @@ extern "C" {
 typedef struct {
 	//Radio Modulation Configuration
 	uint32_t frequency;
-	Modulations modulation;
+	uint8_t modulation;
 	uint32_t datarate;
 	uint32_t fskDeviation;
 	uint16_t afcRange;
