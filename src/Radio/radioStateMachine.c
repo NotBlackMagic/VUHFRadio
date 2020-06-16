@@ -230,15 +230,21 @@ void RadioStateMachine() {
 void RadioDCLKVHFHandler() {
 	uint8_t bit = GPIORead(GPIO_IN_DATA_V);
 
-	rawByteVHF += bit << rawByteIndexVHF;
-	if(rawByteIndexVHF == 0) {
-		rawByteReadyVHF = 1;
-		rawByteIndexVHF = 7;
-	}
-	else {
-		rawByteReadyVHF = 0;
-		rawByteIndexVHF -= 1;
-	}
+//	if(bit != 0x00) {
+//		errorBits += 1;
+//	}
+//
+//	totalBits += 1;
+
+//	rawByteVHF += bit << rawByteIndexVHF;
+//	if(rawByteIndexVHF == 0) {
+//		rawByteReadyVHF = 1;
+//		rawByteIndexVHF = 7;
+//	}
+//	else {
+//		rawByteReadyVHF = 0;
+//		rawByteIndexVHF -= 1;
+//	}
 }
 
 void RadioDCLKUHFHandler() {

@@ -10,7 +10,7 @@ AX25FilterStruct vhfAX25FltStruct;	//Used to safe AX25 parameters to filter rece
 
 void GlobalVariablesInit() {
 	//Init Module Data Mode
-	moduleDataMode = BER_Mode;
+	moduleDataMode = AX_25_Mode;
 
 	//Init UHF TX AX25 Struct
 	uhfTXAX25Struct.sourceAddress[0] = 'A';

@@ -42,7 +42,6 @@ void RadioVHFInit() {
 	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
 
-
 	//Set IRQ
 	IrqMask irqMask;
 	irqMask.raw = 0x0000;
@@ -54,6 +53,9 @@ void RadioVHFInit() {
 	radioEvenMask.raw = 0x00;
 //	radioEvenMask.revmdone = 1;
 	AX5043IrqSetRadioEventMask(RADIO_VHF, radioEvenMask);
+
+	//Calibrate RSSI: Compensate for Board effects
+	AX5043PacketSetRSSIOffset(RADIO_VHF, 0xF5);		//Offset: -11dBm
 
 	//Set Performance Tuning Registers
 	uint8_t data = 0x0F;
@@ -138,29 +140,29 @@ void RadioVHFInit() {
 //	RadioUHFSetRXBitrate(1200);
 
 	AX5043RXParamSetIFFrequency(RADIO_VHF, 0x0276);		//AFSK: 0x099A -> ~37498Hz; FSK-9600: 0x0276 -> ~9600Hz
-	AX5043RXParamSetDecimation(RADIO_VHF, 0x05);		//AFSK: 0x04 -> ~250kHz; FSK-9600: 0x05; Needs to be > 2 * Signal Bandwidth
-	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x00A6AA);	//AFSK: 0x0682AB -> ~1200 bits/s; FSK-9600: 0xA6AA
+	AX5043RXParamSetDecimation(RADIO_VHF, 0x04);		//AFSK: 0x04 -> ~250kHz; FSK-9600: 0x05; Needs to be > 2 * Signal Bandwidth
+	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x099A);		//AFSK: 0x0682AB -> ~1200 bits/s; FSK-9600: 0xA6AA
 	AX5043RXParamSetRXMaximumDatarateOffset(RADIO_VHF, 0x00);
-	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0x0831);	//0x28F6: Set to 10kHz; FSK-9600: 0x0831
+	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0xCCCC);	//0x28F6: Set to 10kHz; FSK-9600: 0x0831
 	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_VHF, 1);
 	AX5043RXParamSetAFSKSpaceFrequency(RADIO_VHF, 0x25);	//Set RX AFSK Space freq. of 2200 Hz
 	AX5043RXParamSetAFSKMarkFrequency(RADIO_VHF, 0x14);		//Set RX AFSK Mark freq. of 1200 Hz
 	AX5043RXParamSetAFSKDetBandwitdh(RADIO_VHF, 0x0E);
-	AX5043RXParamSetRXFSKMaxDeviation(RADIO_VHF, 0x0395);		//AFSK: 0x43C0; Only used if in manual mode, currently all auto
-	AX5043RXParamSetRXFSKMinDeviation(RADIO_VHF, 0xFC6B);		//AFSK: 0xDC40; Only used if in manual mode, currently all auto
+	AX5043RXParamSetRXFSKMaxDeviation(RADIO_VHF, 0x43C0);		//AFSK: 0x43C0; Only used if in manual mode, currently all auto
+	AX5043RXParamSetRXFSKMinDeviation(RADIO_VHF, 0xDC40);		//AFSK: 0xDC40; Only used if in manual mode, currently all auto
 	AX5043RXParamSetRXParameterNumber0(RADIO_VHF, 0);
 	AX5043RXParamSetRXParameterNumber1(RADIO_VHF, 0);		//1
 	AX5043RXParamSetRXParameterNumber2(RADIO_VHF, 0);		//3
 	AX5043RXParamSetRXParameterNumber3(RADIO_VHF, 0);		//3
 	//RX Parameter 0
-	AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x07);				//Original: 0x0E; Calculated FSK-9600: 0x07
-	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x04);				//Original: 0x08; Calculated FSK-9600: 0x04
+	AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x0E);				//Original: 0x0E; Calculated FSK-9600: 0x07
+	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x08);				//Original: 0x08; Calculated FSK-9600: 0x04
 	AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_VHF, 0x89);		//3/4 of maximum, which is 2^9 - 1 = 511
 	AX5043RXParamSetAGCTargetHysteresis0(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMaximumReset0(RADIO_VHF, 0x00);
 	AX5043RXParamSetAGCMinimumReset0(RADIO_VHF, 0x00);
-	AX5043PacketSetGainTimingRecovery0(RADIO_VHF, 0x0A, 0x0A);		//AFSK: 0x0D, 0x0E; FSK-9600: 0x0A, 0x0A
-	AX5043PacketSetGainDatarateRecovery0(RADIO_VHF, 0x0A, 0x06);	//AFSK: 0x0D, 0x08; FSK-9600: 0x0A, 0x04
+	AX5043PacketSetGainTimingRecovery0(RADIO_VHF, 0x0D, 0x0E);		//AFSK: 0x0D, 0x0E; FSK-9600: 0x0A, 0x0A
+	AX5043PacketSetGainDatarateRecovery0(RADIO_VHF, 0x0D, 0x08);	//AFSK: 0x0D, 0x08; FSK-9600: 0x0A, 0x04
 	AX5043RXParamSetRXPhaseGain0(RADIO_VHF, 0x03);
 	AX5043RXParamSetRXDecimationFilter0(RADIO_VHF, 0x03);
 	AX5043RXParamSetRXFrequencyGainA0(RADIO_VHF, 0x0F);
@@ -222,7 +224,7 @@ void RadioVHFInit() {
 	AX5043PacketSetMSBFirst(RADIO_VHF, 0);
 	AX5043PacketEnableEncodeBitInversion(RADIO_VHF, 1);
 	AX5043PacketEnableEncodeDifferential(RADIO_VHF, 1);
-	AX5043PacketEnableEncodeScramble(RADIO_VHF, 0);
+	AX5043PacketEnableEncodeScramble(RADIO_VHF, 1);
 	AX5043PacketSetFrameMode(RADIO_VHF, FrmMode_HDLC);
 	AX5043PacketSetCRCMode(RADIO_VHF, CRCMode_CCITT);
 	AX5043PacketSetPacketChunkSize(RADIO_VHF, PacketChunkSize_240byte);
