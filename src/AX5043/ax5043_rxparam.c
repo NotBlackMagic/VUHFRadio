@@ -52,7 +52,7 @@ uint8_t AX5043RXParamGetDecimation(uint8_t interfaceID) {
 }
 
 /**
-  * @brief	This function sets the RX Datarate, RXDATARATE = (2^7 * fxtal) / (fxtal * BITRATE * DECIMATION) + 1/2
+  * @brief	This function sets the RX Datarate, RXDATARATE = (2^7 * fxtal) / (fxtaldiv * BITRATE * DECIMATION) + 1/2
   * @param	interfaceID: Which interface (chip) used
   * @param	datarate: The RX Datarate
   * @return	None

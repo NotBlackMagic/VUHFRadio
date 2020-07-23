@@ -38,10 +38,10 @@ int main(void) {
 	//Config VHF Radio
 	RadioConfigStruct radioVHFConfig;
 	radioVHFConfig.frequency = 145895000 + 1500;
-	radioVHFConfig.datarate = 1200;
+	radioVHFConfig.datarate = 9600;
 	radioVHFConfig.afcRange = 2000;
-	radioVHFConfig.fskDeviation = 3000;
-	radioVHFConfig.modulation = AFSK;
+	radioVHFConfig.fskDeviation = 4800;
+	radioVHFConfig.modulation = FSK;
 	RadioVHFModConfig(radioVHFConfig);
 
 	//Set VHF Radio to RX Mode
@@ -57,7 +57,7 @@ int main(void) {
 	radioUHFConfig.afcRange = 2000;
 	radioUHFConfig.fskDeviation = 3000;
 	radioUHFConfig.modulation = AFSK;
-	RadioUHFModConfig(radioUHFConfig);
+//	RadioUHFModConfig(radioUHFConfig);
 
 	//Set UHF Radio to RX Mode
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
