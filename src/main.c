@@ -52,12 +52,13 @@ int main(void) {
 
 	//Config UHF Radio
 	RadioConfigStruct radioUHFConfig;
-	radioUHFConfig.frequency = 436450000 + 4600;
+	radioUHFConfig.frequency = 436450000 + 4300;
 	radioUHFConfig.datarate = 1200;
 	radioUHFConfig.afcRange = 2000;
 	radioUHFConfig.fskDeviation = 3000;
 	radioUHFConfig.modulation = AFSK;
 //	RadioUHFModConfig(radioUHFConfig);
+	RadioUHFEnterAMMode(radioUHFConfig.frequency);
 
 	//Set UHF Radio to RX Mode
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
@@ -164,17 +165,17 @@ int main(void) {
 	}
 	testDataLen = i;
 
-	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
-	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_VHF);
-	RadioVHFEnterTX();
+	RadioState radioState = AX5043GeneralRadioState(RADIO_UHF);
+	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_UHF);
+	RadioUHFEnterTX();
 	while(1) {
-		RadioVHFEnterTX();
-		RadioVHFWritePreamble(0x55, 20);
-		RadioVHFWriteFrame(testData, testDataLen);
-		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
+		RadioUHFEnterTX();
+		RadioUHFWritePreamble(0x55, 20);
+		RadioUHFWriteFrame(testData, testDataLen);
+		AX5043FIFOSetFIFOStatCommand(RADIO_UHF, FIFOStat_Commit);
 
 		do {
-			radioState = AX5043GeneralRadioState(RADIO_VHF);
+			radioState = AX5043GeneralRadioState(RADIO_UHF);
 
 			if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
 				GPIOWrite(GPIO_OUT_LED0, 1);
@@ -185,7 +186,7 @@ int main(void) {
 
 		} while(radioState != RadioState_Idle);
 
-		AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_Powerdown);
+		AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_Powerdown);
 
 //		Delay(1000);
 	}
