@@ -149,7 +149,7 @@ typedef enum {
 	DACInput_ValueR = 0,
 	DACInput_TRKAmplitude = 1,
 	DACInput_TRKRFFrequency = 2,
-	DACInput_TRFrequency = 3,
+	DACInput_TRKFrequency = 3,
 	DACInput_FSKDemodulator = 4,
 	DACInput_AFSKDemodulator = 5,
 	DACInput_RXSoftData = 6,

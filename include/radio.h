@@ -59,6 +59,7 @@ RadioConfigStruct RadioVHFGetModConfig();
 RadioConfigStruct RadioUHFGetModConfig();
 
 void RadioUHFEnterAMMode(uint32_t frequency);
+void RadioUHFEnterFMMode(uint32_t frequency);
 
 void RadioVHFEnterTX();
 void RadioUHFEnterTX();
