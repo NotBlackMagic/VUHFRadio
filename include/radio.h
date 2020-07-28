@@ -58,13 +58,17 @@ uint8_t RadioUHFModConfig(RadioConfigStruct configuration);
 RadioConfigStruct RadioVHFGetModConfig();
 RadioConfigStruct RadioUHFGetModConfig();
 
+uint8_t RadioUHFSetRFFrequency(uint32_t frequency);
+uint8_t RadioVHFSetRFFrequency(uint32_t frequency);
+
 void RadioUHFEnterAMMode(uint32_t frequency);
 void RadioUHFEnterFMMode(uint32_t frequency);
-
+void RadioVHFEnterAMMode(uint32_t frequency);
+void RadioVHFEnterFMMode(uint32_t frequency);
 void RadioVHFEnterTX();
 void RadioUHFEnterTX();
-
 void RadioUHFEnterRX();
+void RadioVHFEnterRX();
 
 void RadioVHFWritePreamble(uint8_t symbol, uint8_t length);
 void RadioUHFWritePreamble(uint8_t symbol, uint8_t length);

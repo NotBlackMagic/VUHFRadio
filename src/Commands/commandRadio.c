@@ -361,3 +361,147 @@ uint8_t CommandRadioVHFEncConfig(CommandTypeEnum commandType, uint8_t* args, uin
 
 	return 0;
 }
+
+uint8_t CommandRadioUHFAMMode(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+AM-U=<ON/OFF>,<Frequency>\n", 27);
+			break;
+		}
+		case CommandType_Query: {
+			char string[100];
+			uint8_t len = sprintf(string, "+AM-U=ON,145000000\n");
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			char modulation[10];
+			uint32_t frequency;
+
+			if(sscanf(args, "%[^,],%u", modulation, &frequency) != 0x02) {
+				return 1;
+			}
+
+			if(strcmp(modulation, "ON") == 0x00) {
+				RadioUHFEnterAMMode(frequency);
+			}
+			else if(strcmp(modulation, "OFF") == 0x00) {
+
+			}
+			else {
+				return 1;
+			}
+			break;
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioVHFAMMode(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	return 1;
+}
+
+uint8_t CommandRadioUHFFMMode(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	return 1;
+}
+
+uint8_t CommandRadioVHFFMMode(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+FM-V=<ON/OFF>,<Frequency>\n", 27);
+			break;
+		}
+		case CommandType_Query: {
+			char string[100];
+			uint8_t len = sprintf(string, "+FM-V=ON,100000000\n");
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			char modulation[10];
+			uint32_t frequency;
+
+			if(sscanf(args, "%[^,],%u", modulation, &frequency) != 0x02) {
+				return 1;
+			}
+
+			if(strcmp(modulation, "ON") == 0x00) {
+				RadioVHFEnterFMMode(frequency);
+			}
+			else if(strcmp(modulation, "OFF") == 0x00) {
+
+			}
+			else {
+				return 1;
+			}
+			break;
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioUHFRFFrequency(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+FREQ-U=<frequency>\n", 20);
+			break;
+		}
+		case CommandType_Query: {
+			char string[100];
+			uint8_t len = sprintf(string, "+FREQ-U=100000000\n");
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			uint32_t frequency = 0;
+			if(sscanf(args, "%u", &frequency) != 0x01) {
+				return 1;
+			}
+
+			//Set Central Frequency
+			return RadioUHFSetRFFrequency(frequency);
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+uint8_t CommandRadioVHFRFFrequency(CommandTypeEnum commandType, uint8_t* args, uint8_t argsLength) {
+	switch(commandType) {
+		case CommandType_Test: {
+			USBVCPWrite("+FREQ-V=<frequency>\n", 20);
+			break;
+		}
+		case CommandType_Query: {
+			char string[100];
+			uint8_t len = sprintf(string, "+FREQ-V=100000000\n");
+			USBVCPWrite(string, len);
+			break;
+		}
+		case CommandType_Set: {
+			uint32_t frequency = 0;
+			if(sscanf(args, "%u", &frequency) != 0x01) {
+				return 1;
+			}
+
+			//Set Central Frequency
+			return RadioVHFSetRFFrequency(frequency);
+		}
+		case CommandType_Execute: {
+			return 1;
+		}
+	}
+
+	return 0;
+}

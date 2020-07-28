@@ -105,8 +105,8 @@ void RadioVHFInit() {
 //	AX5043SynthSetPLLChargePumpCurrent(RADIO_VHF, 0x10);
 	AX5043SynthSetPLLVCOSelection(RADIO_VHF, 1);	//Use VCO 2 with external inductor
 	AX5043SynthSetPLLVCO2Internal(RADIO_VHF, 1);	//Use VCO 2 with external inductor
-//	AX5043SynthSetPLLVCOEnableRefDivider(RADIO_VHF, 1);
-	AX5043SynthSetFrequencyA(RADIO_VHF, (0x091E51EC));	//For 145.895MHz is 0x091E51EC calculated value
+	AX5043SynthSetPLLVCOEnableRefDivider(RADIO_VHF, 1);
+	AX5043SynthSetFrequencyA(RADIO_VHF, 0x06166667);	//For 145.895MHz is 0x091E51EC calculated value
 //	AX5043SynthSetFrequencyB(RADIO_VHF, 0x08B22E58);
 
 	//Perform auto ranging
@@ -817,6 +817,30 @@ RadioConfigStruct RadioUHFGetModConfig() {
 	return uhfRadioConfiguration;
 }
 
+uint8_t RadioUHFSetRFFrequency(uint32_t frequency) {
+	//Set Central Frequency
+	uint32_t freq = (uint32_t)((frequency * (16777216.f / FXTAL)) + 0.5f);
+	AX5043SynthSetFrequencyA(RADIO_UHF, freq);
+
+	//Perform auto ranging
+	AX5043SynthStartAutoRangingA(RADIO_UHF);
+	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
+
+	return 0;
+}
+
+uint8_t RadioVHFSetRFFrequency(uint32_t frequency) {
+	//Set Central Frequency
+	uint32_t freq = (uint32_t)((frequency * (16777216.f / FXTAL)) + 0.5f);
+	AX5043SynthSetFrequencyA(RADIO_VHF, freq);
+
+	//Perform auto ranging
+	AX5043SynthStartAutoRangingA(RADIO_VHF);
+	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
+
+	return 0;
+}
+
 void RadioUHFEnterAMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_TRKAmplitude);
@@ -831,12 +855,6 @@ void RadioUHFEnterAMMode(uint32_t frequency) {
 	//Perform auto ranging
 	AX5043SynthStartAutoRangingA(RADIO_UHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
-
-	//Set Central Frequency
-//    AX5043SynthSetFrequencyA(RADIO_UHF, 0x1B473334);	//Not calibrated center frequency ~436.45MHz
-//    //Perform auto ranging
-//	AX5043SynthStartAutoRangingA(RADIO_UHF);
-//	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
 
     //Set Demodulation for RX Mode
     AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0667);		//~25kHz
@@ -853,11 +871,41 @@ void RadioUHFEnterAMMode(uint32_t frequency) {
 	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_UHF, 0x00);
 }
 
+void RadioVHFEnterAMMode(uint32_t frequency) {
+	//Set DAC
+	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_TRKAmplitude);
+	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0C);
+	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
+	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
+
+	//Set Central Frequency
+	uint32_t freq = (uint32_t)((frequency * (16777216.f / FXTAL)) + 0.5f);
+	AX5043SynthSetFrequencyA(RADIO_VHF, freq);
+
+	//Perform auto ranging
+	AX5043SynthStartAutoRangingA(RADIO_VHF);
+	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
+
+    //Set Demodulation for RX Mode
+    AX5043RXParamSetIFFrequency(RADIO_VHF, 0x0667);		//~25kHz
+	AX5043RXParamSetDecimation(RADIO_VHF, 0x14);		//~50kHz (0x32)
+	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x0200);		//~200000 bits/s (0xCD)
+    AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0x00);	//Set to 0, no AFC
+
+    //RX Parameter 0
+    AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x0E);
+	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x0E);
+    AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_VHF, 0x79);	//Target: 192
+    AX5043RXParamSetRXAmplitudeGain0(RADIO_VHF, 0x04);
+	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_VHF, 0x00);
+	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_VHF, 0x00);
+}
+
 //Current settings are for Wide-Band FM
 void RadioUHFEnterFMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_TRKFrequency);
-	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
+	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0D);
 	AX5043GPIOSetDACOutputMode(RADIO_UHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_UHF, 0x01);
 
@@ -871,29 +919,62 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
 	AX5043SynthStartAutoRangingA(RADIO_UHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
 
-	//Set Central Frequency
-//    AX5043SynthSetFrequencyA(RADIO_UHF, 0x1B473334);	//Not calibrated center frequency ~436.45MHz
-//    //Perform auto ranging
-//	AX5043SynthStartAutoRangingA(RADIO_UHF);
-//	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
-
     //Set Demodulation for RX Mode
-    AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0666);		//~25 kHz
-	AX5043RXParamSetDecimation(RADIO_UHF, 0x05);		//~200 kHz
-	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x1000);		//~100 kbits/s
+    AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0290);		//~10 kHz
+	AX5043RXParamSetDecimation(RADIO_UHF, 0x02);		//~500 kHz
+	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x1400);		//~200 kbits/s
     AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0xCCCC);	//Set to 50kHz, no AFC
     AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 0x01);
 
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
-	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x0E);
+	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x0A);
+	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x80);
 	AX5043RXParamSetRXFrequencyGainA0(RADIO_UHF, 0x0F);
-	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x02);
+	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x04);
 	AX5043RXParamSetRXFrequencyGainC0(RADIO_UHF, 0x1F);
 	AX5043RXParamSetRXFrequencyGainD0(RADIO_UHF, 0x08);
-	AX5043RXParamSetRXFrequncyLeak(RADIO_UHF, 0x04);
+	AX5043RXParamSetRXFrequncyLeak(RADIO_UHF, 0x00);
 	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, 0x00, 0x00);
 	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, 0x00, 0x00);
+}
+
+//Current settings are for Wide-Band FM
+void RadioVHFEnterFMMode(uint32_t frequency) {
+	//Set DAC
+	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_TRKFrequency);
+	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0D);
+	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
+	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
+
+	AX5043GeneralSetModulation(RADIO_VHF, FM);
+
+	//Set Central Frequency
+	uint32_t freq = (uint32_t)((frequency * (16777216.f / FXTAL)) + 0.5f);
+	AX5043SynthSetFrequencyA(RADIO_VHF, freq);
+
+	//Perform auto ranging
+	AX5043SynthStartAutoRangingA(RADIO_VHF);
+	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
+
+    //Set Demodulation for RX Mode
+    AX5043RXParamSetIFFrequency(RADIO_VHF, 0x0290);		//~10 kHz
+	AX5043RXParamSetDecimation(RADIO_VHF, 0x02);		//~500 kHz
+	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x1400);		//~200 kbits/s
+    AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0xCCCC);	//Set to 50kHz, no AFC
+    AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_VHF, 0x01);
+
+    //RX Parameter 0
+    AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x0E);
+	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x0A);
+	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x80);
+	AX5043RXParamSetRXFrequencyGainA0(RADIO_VHF, 0x0F);
+	AX5043RXParamSetRXFrequencyGainB0(RADIO_VHF, 0x04);
+	AX5043RXParamSetRXFrequencyGainC0(RADIO_VHF, 0x1F);
+	AX5043RXParamSetRXFrequencyGainD0(RADIO_VHF, 0x08);
+	AX5043RXParamSetRXFrequncyLeak(RADIO_VHF, 0x00);
+	AX5043PacketSetGainTimingRecovery0(RADIO_VHF, 0x00, 0x00);
+	AX5043PacketSetGainDatarateRecovery0(RADIO_VHF, 0x00, 0x00);
 }
 
 void RadioVHFEnterTX() {
@@ -938,6 +1019,21 @@ void RadioUHFEnterRX() {
 	status = AX5043PwrStats(RADIO_UHF);
 	while(status.svmodem != 0x01) {
 		status = AX5043PwrStats(RADIO_UHF);
+	}
+}
+
+void RadioVHFEnterRX() {
+	//Set Radio Up for RX
+	if(vhfRadioConfiguration.modulation == AFSK) {
+		AX5043RXParamSetAFSKSpaceFrequency(RADIO_VHF, vhfRadioConfiguration.afskSpaceRX);
+		AX5043RXParamSetAFSKMarkFrequency(RADIO_VHF, vhfRadioConfiguration.afskMarkRX);
+	}
+
+	PwrStatus status = AX5043PwrStats(RADIO_VHF);
+	AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_RXEN);
+	status = AX5043PwrStats(RADIO_VHF);
+	while(status.svmodem != 0x01) {
+		status = AX5043PwrStats(RADIO_VHF);
 	}
 }
 

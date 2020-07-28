@@ -33,8 +33,7 @@ void RadioStateMachine() {
 		}
 		return;
 	}
-
-	if(moduleDataMode == Raw_Bit_Mode) {
+	else if(moduleDataMode == Raw_Bit_Mode) {
 		if(rawByteReadyVHF == 0x01) {
 			rawByteReadyVHF = 0;
 
@@ -73,8 +72,8 @@ void RadioStateMachine() {
 		//No VHF or UHF Activity
 		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED of
 		GPIOWrite(GPIO_OUT_LED3, 0);	//Turn UHF RX LED of
-		return;
 	}
+	return;
 
 	fifoCnt = AX5043FIFOGetFIFOCount(radio);
 

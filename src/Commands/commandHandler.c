@@ -15,7 +15,13 @@ const CommandStruct commandArray[COMMAND_LENGTH] = {
 		{11, "AX-ENFLT-U", "UHF AX25 Enabled Filters \n", CommandAX25EnabledFilterUHF},
 		{12, "AX-ENFLT-V", "VHF AX25 Enabled Filters \n", CommandAX25EnabledFilterVHF},
 		{13, "AX-FLT-U", "UHF AX25 Filter Values \n", CommandAX25FilterValuesUHF},
-		{14, "AX-FLT-V", "VHF AX25 Filter Values \n", CommandAX25FilterValuesVHF}
+		{14, "AX-FLT-V", "VHF AX25 Filter Values \n", CommandAX25FilterValuesVHF},
+		{15, "AM-U", "UHF AM Demodulation Enable \n", CommandRadioUHFAMMode},
+		{16, "AM-V", "VHF AM Demodulation Enable \n", CommandRadioVHFAMMode},
+		{17, "FM-U", "UHF FM Demodulation Enable \n", CommandRadioUHFFMMode},
+		{18, "FM-V", "VHF FM Demodulation Enable \n", CommandRadioVHFFMMode},
+		{19, "FREQ-U", "UHF RF Frequency \n", CommandRadioUHFRFFrequency},
+		{20, "FREQ-V", "VHF RF Frequency \n", CommandRadioVHFRFFrequency}
 };
 
 uint8_t CommandHandler(uint8_t* command, uint8_t* args, CommandTypeEnum commandType) {
