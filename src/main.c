@@ -59,7 +59,7 @@ int main(void) {
 	radioUHFConfig.fskDeviation = 3000;
 	radioUHFConfig.modulation = AFSK;
 //	RadioUHFModConfig(radioUHFConfig);
-	RadioUHFEnterFMMode(radioUHFConfig.frequency);
+	RadioUHFEnterAMMode(radioUHFConfig.frequency);
 
 	//Set UHF Radio to RX Mode
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);

@@ -844,9 +844,11 @@ uint8_t RadioVHFSetRFFrequency(uint32_t frequency) {
 void RadioUHFEnterAMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_TRKAmplitude);
-	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
+	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0B);
 	AX5043GPIOSetDACOutputMode(RADIO_UHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_UHF, 0x01);
+
+	AX5043GeneralSetModulation(RADIO_UHF, FM);
 
 	//Set Central Frequency
 	uint32_t freq = (uint32_t)((frequency * (16777216.f / FXTAL)) + 0.5f);
@@ -857,10 +859,11 @@ void RadioUHFEnterAMMode(uint32_t frequency) {
 	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
 
     //Set Demodulation for RX Mode
-    AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0667);		//~25kHz
-	AX5043RXParamSetDecimation(RADIO_UHF, 0x14);		//~50kHz (0x32)
-	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x0200);		//~200000 bits/s (0xCD)
-    AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0x00);	//Set to 0, no AFC
+    AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0290);		//~10 kHz
+	AX5043RXParamSetDecimation(RADIO_UHF, 0x02);		//~500 kHz
+	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x1400);		//~200 kbits/s
+	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0x00);	//Set to 50kHz, no AFC
+	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 0x01);
 
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
@@ -869,6 +872,13 @@ void RadioUHFEnterAMMode(uint32_t frequency) {
     AX5043RXParamSetRXAmplitudeGain0(RADIO_UHF, 0x04);
 	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_UHF, 0x00);
 	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_UHF, 0x00);
+//	AX5043RXParamSetRXFrequencyGainA0(RADIO_UHF, 0x02);
+//	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x1E);
+//	AX5043RXParamSetRXFrequencyGainC0(RADIO_UHF, 0x1F);
+//	AX5043RXParamSetRXFrequencyGainD0(RADIO_UHF, 0x1F);
+//	AX5043RXParamSetRXFrequncyLeak(RADIO_UHF, 0x00);
+	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, 0x00, 0x00);
+	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, 0x00, 0x00);
 }
 
 void RadioVHFEnterAMMode(uint32_t frequency) {
@@ -943,7 +953,7 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
 void RadioVHFEnterFMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_TRKFrequency);
-	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0D);
+	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0E);
 	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
 
