@@ -14,6 +14,7 @@ Current version is tested and works with:
 - AFSK-1200: RX and TX compatible with HAM Radios using a TNC
 - (G)MSK/(G)FSK: Both RX and TX, tested @ 9600 bits/s MSK and GMSK (with BT of 0.5 and 0.3)
 - BPSK: Only RX working so far, TX has to high distortion currently
-- AM Demodulation output by the DAC
+- Morse decoding using the RSSI tracking
+- AM and FM Demodulation output by the DAC
 
 Results like spectrums and input matching can be found on my website: www.notblackmagic.com/projects/vuhf-radio/
