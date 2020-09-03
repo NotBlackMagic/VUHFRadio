@@ -11,8 +11,9 @@
 #include "stm32f1xx_ll_usart.h"
 
 void UART1Init(void);
-void UART2Init(void);
-void UART1Write(uint8_t ch);
+void UART1SetBaudrate(uint32_t baudrate);
+uint8_t UART1Write(uint8_t* data, uint16_t length);
+uint8_t UART1Read(uint8_t* data, uint16_t* length);
 
 #ifdef __cplusplus
 }
