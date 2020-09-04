@@ -12,10 +12,10 @@ uint8_t uart1TXBuffer[UART_TX_BUFFER_SIZE];
 
 /**
   * @brief	This function initializes the UART1 interface, also sets the respective GPIO pins
-  * @param	None
+  * @param	baud: UART Baud rate to use
   * @return	None
   */
-void UART1Init(void) {
+void UART1Init(uint32_t baud) {
 	//Enable bus clocks
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
@@ -36,7 +36,7 @@ void UART1Init(void) {
 	LL_USART_SetTransferDirection(USART1, LL_USART_DIRECTION_TX_RX);
 	LL_USART_ConfigCharacter(USART1, LL_USART_DATAWIDTH_8B, LL_USART_PARITY_NONE, LL_USART_STOPBITS_1);
 	LL_USART_SetHWFlowCtrl(USART1, LL_USART_HWCONTROL_NONE);
-	LL_USART_SetBaudRate(USART1, SystemCoreClock, 115200);
+	LL_USART_SetBaudRate(USART1, SystemCoreClock, baud);
 
 	//Configure UART Interrupts
 	NVIC_SetPriority(USART1_IRQn, 0);
