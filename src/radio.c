@@ -939,7 +939,7 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x0A);
-	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x80);
+	AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_UHF, 0x80);
 	AX5043RXParamSetRXFrequencyGainA0(RADIO_UHF, 0x0F);
 	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x04);
 	AX5043RXParamSetRXFrequencyGainC0(RADIO_UHF, 0x1F);
@@ -977,7 +977,7 @@ void RadioVHFEnterFMMode(uint32_t frequency) {
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x0E);
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x0A);
-	AX5043RXParamSetAGCTargetAvgMagnitude3(RADIO_UHF, 0x80);
+	AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_UHF, 0x80);
 	AX5043RXParamSetRXFrequencyGainA0(RADIO_VHF, 0x0F);
 	AX5043RXParamSetRXFrequencyGainB0(RADIO_VHF, 0x04);
 	AX5043RXParamSetRXFrequencyGainC0(RADIO_VHF, 0x1F);
