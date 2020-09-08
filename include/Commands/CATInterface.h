@@ -8,7 +8,10 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength);
+#include "configs.h"
+#include "radioCommands.h"
+
+uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 
 #ifdef __cplusplus
 }

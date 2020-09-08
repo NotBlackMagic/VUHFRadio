@@ -71,8 +71,17 @@ int main(void) {
 	uint8_t isVCPConnected = 0;
 	uint8_t rxUSBData[512];
 	uint16_t rxLength;
+	uint8_t txUSBData[512];
+	uint16_t txLength;
 	uint8_t* framed;
 	uint16_t framedLength;
+
+	while(1) {
+		if(USBVCPRead(rxUSBData, &rxLength) == 1) {
+			CATInterfaceHandler(rxUSBData, rxLength, txUSBData, &txLength);
+			USBVCPWrite(txUSBData, txLength);
+		}
+	}
 
 	while(1) {
 		//USB/AT Command Interpreter
