@@ -57,8 +57,7 @@ typedef enum {
 	FSK = 8,
 	FSK4 = 9,
 	AFSK = 10,
-	FM = 11,
-	AM = 12			//Dummy holder for AM mode, not actual available modulation
+	FM = 11
 } Modulations;
 
 uint8_t AX5043GeneralRevision(uint8_t interfaceID);

@@ -18,7 +18,7 @@ extern "C" {
 typedef enum {
 	PwrMode_Powerdown = 0,				//Powerdown: All circuits powered down
 	PwrMode_DeepSleep = 1,				//Deep Sleep Mode: Chip is fully powered down until SEL is lowered again; looses all register contents
-	PwrMode_XOEN = 5,					//Crystal Oscillator enabled
+	PwrMode_Standby = 5,				//Crystal Oscillator enabled
 	PwrMode_FIFOEN = 7,					//FIFO enabled
 	PwrMode_SytnhRXEN = 8,				//Synthesizer running, Receive Mode
 	PwrMode_RXEN = 9,					//Receiver Running
