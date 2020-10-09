@@ -311,7 +311,7 @@ uint8_t RadioSetModulation(uint8_t radio, uint8_t modulation) {
 			//FM Modulation
 			//Set DAC
 			AX5043GPIOSetDACInput(radio, DACInput_TRKFrequency);
-			AX5043GPIOSetDACInputShift(radio, 0x0D);
+			AX5043GPIOSetDACInputShift(radio, 0x0C);
 			AX5043GPIOSetDACOutputMode(radio, 0x00);
 			AX5043GPIOSetDACClockDoubling(radio, 0x01);
 

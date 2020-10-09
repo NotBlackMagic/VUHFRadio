@@ -915,7 +915,7 @@ void RadioVHFEnterAMMode(uint32_t frequency) {
 void RadioUHFEnterFMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_UHF, DACInput_TRKFrequency);
-	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0D);
+	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
 	AX5043GPIOSetDACOutputMode(RADIO_UHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_UHF, 0x01);
 
@@ -953,7 +953,7 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
 void RadioVHFEnterFMMode(uint32_t frequency) {
 	//Set DAC
 	AX5043GPIOSetDACInput(RADIO_VHF, DACInput_TRKFrequency);
-	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0E);
+	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0D);
 	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
 
