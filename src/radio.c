@@ -89,7 +89,7 @@ void RadioVHFInit() {
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE50, &data, 1);	//F32
 	data = 0xF0;
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE51, &data, 1);	//F33
-	data = 0x08;	//Set to 0x28 if RFDIV is set, 0x08 otherwise
+	data = 0x28;	//Set to 0x28 if RFDIV is set, 0x08 otherwise
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE52, &data, 1);	//F34
 	data = 0x10;
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE53, &data, 1);	//F35
@@ -516,9 +516,9 @@ uint8_t RadioVHFModConfig(RadioConfigStruct configuration) {
 	vhfRadioConfiguration = configuration;
 
 	//Check if configurations are valid or not
-	if(vhfRadioConfiguration.frequency > RADIO_VHF_FREQ_MAX || vhfRadioConfiguration.frequency < RADIO_VHF_FREQ_MIN) {
-		return 1;
-	}
+//	if(vhfRadioConfiguration.frequency > RADIO_VHF_FREQ_MAX || vhfRadioConfiguration.frequency < RADIO_VHF_FREQ_MIN) {
+//		return 1;
+//	}
 	if(vhfRadioConfiguration.datarate > 250000 || vhfRadioConfiguration.datarate < 1000) {
 		return 1;
 	}
@@ -535,6 +535,9 @@ uint8_t RadioVHFModConfig(RadioConfigStruct configuration) {
 	//Perform auto ranging
 	AX5043SynthStartAutoRangingA(RADIO_VHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
+
+	volatile uint8_t rangeError = AX5043SynthGetAutoRangingErrorA(RADIO_VHF);
+	volatile uint8_t range = AX5043SynthGetVCORangeA(RADIO_VHF);
 
 	//Set Modulation/Demodulation
 	AX5043GeneralSetModulation(RADIO_VHF, vhfRadioConfiguration.modulation);
