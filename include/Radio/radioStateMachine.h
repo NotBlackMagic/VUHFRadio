@@ -19,6 +19,9 @@ extern uint32_t totalBits;
 
 void RadioStateMachine();
 
+void RadioIRQVHFHandler();
+void RadioIRQUHFHandler();
+void RadioTrackUpdateHandler();
 void RadioDCLKVHFHandler();
 void RadioDCLKUHFHandler();
 

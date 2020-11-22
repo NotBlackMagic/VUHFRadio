@@ -61,15 +61,28 @@ void GPIOInit() {
 	GPIOWrite(GPIO_OUT_CS_V, 1);
 
 	//Set Input Pins Interrupts
+	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE0);		//IRQ of UHF
+	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_0);
+	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_0);
+
+	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE1);		//IRQ of UHF
+	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_1);
+	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_1);
+
 	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE11);	//IRQ DCLK of UHF
-	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTA, LL_GPIO_AF_EXTI_LINE8);		//IRQ DCLK of VHF
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_11);
-	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_8);
 	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_11);
+
+	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTA, LL_GPIO_AF_EXTI_LINE8);		//IRQ DCLK of VHF
+	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_8);
 	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_8);
 
+	NVIC_EnableIRQ(EXTI0_IRQn);
+	NVIC_EnableIRQ(EXTI1_IRQn);
 	NVIC_EnableIRQ(EXTI15_10_IRQn);
 	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	NVIC_SetPriority(EXTI0_IRQn, 0);
+	NVIC_SetPriority(EXTI1_IRQn, 0);
 	NVIC_SetPriority(EXTI15_10_IRQn, 0);
 	NVIC_SetPriority(EXTI9_5_IRQn, 0);
 }
@@ -120,7 +133,13 @@ uint8_t GPIORead(uint8_t gpio) {
   * @return	None
   */
 void EXTI0_IRQHandler(void) {
+	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_0) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0) == 0x01) {
+		//Interrupt for IRQ of UHF
+		//Clear Interrupt Flag
+		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
 
+		RadioIRQUHFHandler();
+	}
 }
 
 /**
@@ -129,7 +148,13 @@ void EXTI0_IRQHandler(void) {
   * @return	None
   */
 void EXTI1_IRQHandler(void) {
+	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_1) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) == 0x01) {
+		//Interrupt for IRQ of VHF
+		//Clear Interrupt Flag
+		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
 
+		RadioIRQVHFHandler();
+	}
 }
 
 /**

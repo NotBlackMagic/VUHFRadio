@@ -1,6 +1,8 @@
 #include "gpio.h"
 #include "rcc.h"
 #include "spi.h"
+#include "timer.h"
+#include "uart.h"
 #include "usb_vcp.h"
 
 #include "ax25.h"
@@ -8,6 +10,9 @@
 #include "radio.h"
 
 #include "radioStateMachine.h"
+
+#include "CATInterface.h"
+#include "radioCommands.h"
 
 #include "atCmdInter.h"
 #include "commandHandler.h"
@@ -19,6 +24,7 @@ int main(void) {
 
 	//Initialize all configured peripherals
 	GPIOInit();
+	UART1Init(115200);
 	USBVCPInit();
 	ADC1Init();
 	SPI1Init();
@@ -32,22 +38,41 @@ int main(void) {
 	//Initialize the VHF and UHF Radio Interfaces, set the SPI and CS
 	RadioInterfacesInit();
 
-	//Init VHF Radio
+	//Init VHF Radio, base/general configurations
 	RadioVHFInit();
 
 	//Config VHF Radio
-	RadioConfigStruct radioVHFConfig;
-	radioVHFConfig.frequency = 118100000;	//145895000 + 1500;
-	radioVHFConfig.datarate = 9600;
-	radioVHFConfig.afcRange = 2000;
-	radioVHFConfig.fskDeviation = 4800;
-	radioVHFConfig.modulation = FSK;
-	RadioVHFModConfig(radioVHFConfig);
-//	RadioVHFEnterFMMode(93200000 + 50000);		//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
-	RadioVHFEnterAMMode(118100000 - 4000);
+	centerFrequencyB = 93200000 + 50000;			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
+	modulationB = RadioModulation_FM;
+	operationModeB = RadioMode_RX;
+	frequencyDeviationB = 65000;
+	bandwidthB = 100000;
+	ifFrequncyB = 10000;
+	rxDatarateB = 200000;
+	txDatarateB = 200000;
+	afcRangeB = 25000;
+	agcSpeedB = 9;
 
-	//Set VHF Radio to RX Mode
-	AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_RXEN);
+	RadioSetCenterFrequency(RADIO_B, centerFrequencyB);
+	RadioSetModulation(RADIO_B, modulationB);
+	RadioSetTXDeviation(RADIO_B, frequencyDeviationB);
+	RadioSetBandwidth(RADIO_B, bandwidthB);
+	RadioSetIF(RADIO_B, ifFrequncyB);
+	RadioSetRXDatarate(RADIO_B, rxDatarateB);
+	RadioSetTXDatarate(RADIO_B, txDatarateB);
+	RadioSetAFCRange(RADIO_B, afcRangeB);
+	RadioSetAGCSpeed(RADIO_B, agcSpeedB);
+	RadioSetOperationMode(RADIO_B, operationModeB);
+
+//	RadioConfigStruct radioVHFConfig;
+//	radioVHFConfig.frequency = 119100000;	//145895000 + 1500;
+//	radioVHFConfig.datarate = 9600;
+//	radioVHFConfig.afcRange = 2000;
+//	radioVHFConfig.fskDeviation = 4800;
+//	radioVHFConfig.modulation = FSK;
+//	RadioVHFModConfig(radioVHFConfig);
+//	RadioVHFEnterFMMode(93200000 + 50000);			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
+//	RadioVHFEnterAMMode(119160000 - 4000);
 
 	//Init UHF Radio
 	RadioUHFInit();
@@ -65,29 +90,41 @@ int main(void) {
 	//Set UHF Radio to RX Mode
 	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
 
+	//Start the Tracking/Status update Timer
+	TIM3Init();
+
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED5, 1);
 
 	//Variables for USB/AT Commands
 	uint8_t isVCPConnected = 0;
-	uint8_t rxUSBData[512];
+	uint8_t rxData[512];
 	uint16_t rxLength;
-	uint8_t txUSBData[512];
+	uint8_t txData[512];
 	uint16_t txLength;
 	uint8_t* framed;
 	uint16_t framedLength;
-
 	while(1) {
-		if(USBVCPRead(rxUSBData, &rxLength) == 1) {
-			CATInterfaceHandler(rxUSBData, rxLength, txUSBData, &txLength);
-			USBVCPWrite(txUSBData, txLength);
+		//USB Communication Check
+		if(USBVCPRead(rxData, &rxLength) == 0x01) {
+			CATInterfaceHandler(rxData, rxLength, txData, &txLength);
+			USBVCPWrite(txData, txLength);
+
+			//Forward received command over USB to UART, to the Radio Interface Module
+			UART1Write(rxData, rxLength);
+		}
+
+		//UART Communication Check
+		if(UART1Read(rxData, &rxLength) == 0x01) {
+			CATInterfaceHandler(rxData, rxLength, txData, &txLength);
+			UART1Write(txData, txLength);
 		}
 	}
 
 	while(1) {
 		//USB/AT Command Interpreter
-		if(USBVCPRead(rxUSBData, &rxLength) == 1) {
-			if(ATCmdFraming(rxUSBData, rxLength, &framed, &framedLength) == 0) {
+		if(USBVCPRead(rxData, &rxLength) == 1) {
+			if(ATCmdFraming(rxData, rxLength, &framed, &framedLength) == 0) {
 				ATCmdStruct atCmdstr;
 				if(ATCmdParse(framed, framedLength, &atCmdstr) == 0) {
 					CommandHandler(atCmdstr.cmd, atCmdstr.args, (CommandTypeEnum)atCmdstr.type);

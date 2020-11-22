@@ -21,7 +21,7 @@ extern "C" {
 #include "ax5043_timer.h"
 #include "ax5043_txparam.h"
 
-#include "configs.h"
+#include "radioConfigs.h"
 
 #define RADIO_A								0
 #define RADIO_B								1
@@ -38,16 +38,17 @@ extern "C" {
 uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range);
 uint8_t RadioSetAGCSpeed(uint8_t radio, uint8_t speed);
-uint8_t RadioSetCRCMode(uint8_t radio, uint8_t crcMode);
-uint8_t RadioSetEncodingMode(uint8_t radio, uint8_t encMode);
-uint8_t RadioSetFramingMode(uint8_t radio, uint8_t frmMode);
-uint8_t RadioSetModulation(uint8_t radio, uint8_t modulation);
-uint8_t RadioSetOperationMode(uint8_t radio, uint8_t opMode);
+uint8_t RadioSetCRCMode(uint8_t radio, RadioCRC crcMode);
+uint8_t RadioSetEncodingMode(uint8_t radio, RadioEncoder encMode);
+uint8_t RadioSetFramingMode(uint8_t radio, RadioFraming frmMode);
+uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation);
+uint8_t RadioSetOperationMode(uint8_t radio, RadioMode opMode);
 uint8_t RadioSetTXPower(uint8_t radio, int8_t power);
 uint8_t RadioSetBandwidth(uint8_t radio, uint32_t bandwidth);
 uint8_t RadioSetIF(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate);
 uint8_t RadioSetTXDatarate(uint8_t radio, uint32_t bitrate);
+uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation);
 
 
 #ifdef __cplusplus

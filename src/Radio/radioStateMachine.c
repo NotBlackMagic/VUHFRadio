@@ -1,4 +1,6 @@
+#include <radioConfigs.h>
 #include "radioStateMachine.h"
+
 
 //BER Data variables
 uint32_t berTimestamp = 0;
@@ -13,8 +15,6 @@ uint8_t rawByteReadyUHF = 0;
 uint8_t rawByteUHF = 0;
 uint8_t rawByteIndexUHF = 7;
 
-uint8_t fifoCnt;
-uint8_t rxRadioData[300];
 void RadioStateMachine() {
 	if(moduleDataMode == BER_Mode) {
 		if(berTimestamp + 1000 <= GetSysTick()) {
@@ -66,17 +66,18 @@ void RadioStateMachine() {
 	else if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
 		//Have UHF activity and no VHF
 		radio = RADIO_UHF;
-		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED of
+		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED off
 	}
 	else {
 		//No VHF or UHF Activity
-		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED of
-		GPIOWrite(GPIO_OUT_LED3, 0);	//Turn UHF RX LED of
+		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED off
+		GPIOWrite(GPIO_OUT_LED3, 0);	//Turn UHF RX LED off
 	}
 	return;
 
-	fifoCnt = AX5043FIFOGetFIFOCount(radio);
+	uint8_t fifoCnt = AX5043FIFOGetFIFOCount(radio);
 
+	uint8_t rxRadioData[300];
 	if(fifoCnt > 0) {
 		AX5043FIFOGetFIFO(radio, rxRadioData, fifoCnt);
 
@@ -223,6 +224,157 @@ void RadioStateMachine() {
 				}
 			}
 		}
+	}
+}
+
+void RadioIRQVHFHandler() {
+	uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_VHF);
+
+	if(fifoCnt > 0) {
+		uint8_t rxRadioData[255];
+		AX5043FIFOGetFIFO(RADIO_VHF, rxRadioData, fifoCnt);
+
+		uint8_t fifoIndex = 0;
+		while(fifoIndex < fifoCnt) {
+			uint8_t fifoOpcode = rxRadioData[fifoIndex++];
+			switch(fifoOpcode) {
+				case FIFO_RSSI: {
+					rssiTrackingB =  rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_FREQOFFS: {
+					int16_t trackFreq = (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_ANTRSSI2: {
+					rssiTrackingB = rxRadioData[fifoIndex++];
+					int8_t bRSSI = rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_TIMER: {
+					uint32_t timer = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_RFFREQOFFS: {
+					rfFrequencyTrackingB = ((rxRadioData[fifoIndex++] << 28) + (rxRadioData[fifoIndex++] << 20) + (rxRadioData[fifoIndex++] << 12)) >> 12;
+					break;
+				}
+				case FIFO_DATARATE: {
+					uint32_t trackDatarate = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_ANTRSSI3: {
+					rssiTrackingB = rxRadioData[fifoIndex++];
+					int8_t rssi2 = rxRadioData[fifoIndex++];
+					int8_t bRSSI = rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_DATA: {
+					uint8_t dataLength = rxRadioData[fifoIndex++] - 1;		//LENGTH Byte from the FIFO includes the status flags byte
+					uint8_t dataStatus = rxRadioData[fifoIndex++];
+					uint8_t* dataPayload = &rxRadioData[fifoIndex];
+
+
+					fifoIndex += dataLength;
+					break;
+				}
+				default: {
+					break;
+				}
+			}
+		}
+	}
+}
+
+void RadioIRQUHFHandler() {
+	uint8_t fifoCnt = AX5043FIFOGetFIFOCount(RADIO_UHF);
+
+	if(fifoCnt > 0) {
+		uint8_t rxRadioData[255];
+		AX5043FIFOGetFIFO(RADIO_UHF, rxRadioData, fifoCnt);
+
+		uint8_t fifoIndex = 0;
+		while(fifoIndex < fifoCnt) {
+			uint8_t fifoOpcode = rxRadioData[fifoIndex++];
+			switch(fifoOpcode) {
+				case FIFO_RSSI: {
+					rssiTrackingA =  rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_FREQOFFS: {
+					int16_t trackFreq = (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_ANTRSSI2: {
+					rssiTrackingA = rxRadioData[fifoIndex++];
+					int8_t bRSSI = rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_TIMER: {
+					uint32_t timer = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_RFFREQOFFS: {
+					rfFrequencyTrackingA = ((rxRadioData[fifoIndex++] << 28) + (rxRadioData[fifoIndex++] << 20) + (rxRadioData[fifoIndex++] << 12)) >> 12;
+					break;
+				}
+				case FIFO_DATARATE: {
+					uint32_t trackDatarate = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_ANTRSSI3: {
+					rssiTrackingA = rxRadioData[fifoIndex++];
+					int8_t rssi2 = rxRadioData[fifoIndex++];
+					int8_t bRSSI = rxRadioData[fifoIndex++];
+					break;
+				}
+				case FIFO_DATA: {
+					uint8_t dataLength = rxRadioData[fifoIndex++];
+					uint8_t dataStatus = rxRadioData[fifoIndex];
+
+//					AX25Struct ax25Struct;
+//					ax25Struct.payload = rxRadioData;
+//					AX25Decode(&rxRadioData[fifoIndex + 1], dataLength - 1, &ax25Struct);
+
+					fifoIndex += dataLength;
+					break;
+				}
+				default: {
+					break;
+				}
+			}
+		}
+	}
+}
+
+uint8_t fDivider = 0;
+void RadioTrackUpdaHFHandler() {
+	rssiTrackingA = AX5043GeneralGetRSSI(RADIO_UHF);
+	rssiTrackingB = AX5043GeneralGetRSSI(RADIO_VHF);
+
+	if(rssiTrackingA >= RADIO_RSSI_THRESHOLD) {
+		GPIOWrite(GPIO_OUT_LED1, 1);
+	}
+	else {
+		GPIOWrite(GPIO_OUT_LED1, 0);
+	}
+
+	if(rssiTrackingB >= RADIO_RSSI_THRESHOLD) {
+		GPIOWrite(GPIO_OUT_LED3, 1);
+	}
+	else {
+		GPIOWrite(GPIO_OUT_LED3, 0);
+	}
+
+	if(fDivider == 10) {
+		//Update RF Frequency Tracking less frequently
+		rfFrequencyTrackingA = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
+		rfFrequencyTrackingB = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
+
+		fDivider = 0;
+	}
+	else {
+		fDivider += 1;
 	}
 }
 

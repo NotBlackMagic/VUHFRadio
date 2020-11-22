@@ -189,7 +189,7 @@ uint8_t AX5043GPIOGetADCBusy(uint8_t interfaceID) {
   * @param	period: Sample Periode, fsr = fxtal / (32 * GPADCPERIOD)
   * @return	None
   */
-void AX5043GPIOSetADCtSamplingPeriod(uint8_t interfaceID, uint8_t period) {
+void AX5043GPIOSetADCSamplingPeriod(uint8_t interfaceID, uint8_t period) {
 	AX5043WriteLongAddress(interfaceID, GPADCPERIOD, &period, 1);
 }
 

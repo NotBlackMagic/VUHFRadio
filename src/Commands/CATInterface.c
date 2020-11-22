@@ -6,17 +6,21 @@ uint8_t CATASCIIToNumber(uint8_t* ascii, uint8_t asciiLength, int32_t* value);
 uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandCRC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandEncoding(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandDatarateRX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandDatarateTX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandCenterFequencyA(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandCenterFequencyB(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandBandwidth(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandRSSI(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandDeviation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 
 /**
   * @brief	This function handles all incoming data/commands
@@ -47,6 +51,14 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 	else if(data[0] == 'E' && data[1] == 'X') {
 		//Extended Menu
 	}
+	else if(data[0] == 'D' && data[1] == 'R') {
+		//Datarate RX
+		return CATCommandDatarateRX(data, dataLength, rData, rDataLength);
+	}
+	else if(data[0] == 'D' && data[1] == 'T') {
+		//Datarate TX
+		return CATCommandDatarateTX(data, dataLength, rData, rDataLength);
+	}
 	else if(data[0] == 'F' && data[1] == 'A') {
 		//Center Frequency of Radio A
 		return CATCommandCenterFequencyA(data, dataLength, rData, rDataLength);
@@ -70,6 +82,10 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 	else if(data[0] == 'G' && data[1] == 'T') {
 		//AGC Speed setting
 		return CATCommandAGCSpeed(data, dataLength, rData, rDataLength);
+	}
+	else if(data[0] == 'I' && data[1] == 'S') {
+		//IF Frequency setting
+		return CATCommandIFFrequency(data, dataLength, rData, rDataLength);
 	}
 	else if(data[0] == 'K' && data[1] == 'S') {
 		//CW/Morse Key Speed
@@ -101,9 +117,11 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 		//TNC Mode
 	}
 	else {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
+
+	return 0;
 }
 
 /**
@@ -117,9 +135,9 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
   * Example: Set: AFC1125000; Read: AFC1; Return: AFC1125000;
   */
 uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -127,15 +145,15 @@ uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "AF0%06d;\n", afcRangeA);
+			*rDataLength = sprintf(rData, "AF0%06d;", afcRangeA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "AF1%06d;\n", afcRangeB);
+			*rDataLength = sprintf(rData, "AF1%06d;", afcRangeB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -143,38 +161,34 @@ uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 6, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetAFCRange(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new AFC value
 			afcRangeA = value;
-			if(RadioSetAFCRange(RADIO_A, afcRangeA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new AFC value
 			afcRangeB = value;
-			if(RadioSetAFCRange(RADIO_B, afcRangeB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -189,9 +203,9 @@ uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData,
   * Example: Set: CT10; Read: CT1; Return: CT10;
   */
 uint8_t CATCommandCRC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -199,15 +213,15 @@ uint8_t CATCommandCRC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "CT0%01d;\n", crcA);
+			*rDataLength = sprintf(rData, "CT0%01d;", crcA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "CT1%01d;\n", crcB);
+			*rDataLength = sprintf(rData, "CT1%01d;", crcB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -215,38 +229,34 @@ uint8_t CATCommandCRC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetCRCMode(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new CRC Mode value
 			crcA = value;
-			if(RadioSetCRCMode(RADIO_A, crcA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new CRC Mode value
 			crcB = value;
-			if(RadioSetCRCMode(RADIO_B, crcB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -261,9 +271,9 @@ uint8_t CATCommandCRC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16
   * Example: Set: EM14; Read: EM1; Return: EM14;
   */
 uint8_t CATCommandEncoding(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -271,15 +281,15 @@ uint8_t CATCommandEncoding(uint8_t* data, uint16_t dataLength, uint8_t* rData, u
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "EM0%01d;\n", encoderA);
+			*rDataLength = sprintf(rData, "EM0%01d;", encoderA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "EM1%01d;\n", encoderB);
+			*rDataLength = sprintf(rData, "EM1%01d;", encoderB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -287,38 +297,170 @@ uint8_t CATCommandEncoding(uint8_t* data, uint16_t dataLength, uint8_t* rData, u
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetEncodingMode(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new Encoding Mode value
 			encoderA = value;
-			if(RadioSetEncodingMode(RADIO_A, encoderA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new Encoding Mode value
 			encoderB = value;
-			if(RadioSetEncodingMode(RADIO_B, encoderB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
+	return 0;
+}
+
+/**
+  * @brief	This function handles the Datarate RX CAT Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: DR1001200; Read: DR1; Return: DR1001200;
+  */
+uint8_t CATCommandDatarateRX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+			*rDataLength = sprintf(rData, "DR0%06d;", rxDatarateA);
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+			*rDataLength = sprintf(rData, "DR1%06d;", rxDatarateB);
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else if(data[9] == ';') {
+		//Write/Set Command
+		uint32_t value = 0;
+		if(CATASCIIToNumber(&data[3], 6, &value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		//Set RX Datarate
+		if(RadioSetRXDatarate(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio == RADIO_A) {
+			rxDatarateA = value;
+		}
+		else if(radio == RADIO_B) {
+			rxDatarateB = value;
+		}
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	*rDataLength = sprintf(rData, "OK;");
+	return 0;
+}
+
+/**
+  * @brief	This function handles the Datarate TX CAT Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: DT0250000; Read: DT0; Return: DT0250000;
+  */
+uint8_t CATCommandDatarateTX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+			*rDataLength = sprintf(rData, "DT0%06d;", txDatarateA);
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+			*rDataLength = sprintf(rData, "DT1%06d;", txDatarateB);
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else if(data[9] == ';') {
+		//Write/Set Command
+		uint32_t value = 0;
+		if(CATASCIIToNumber(&data[3], 6, &value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		//Set TX Datarate
+		if(RadioSetTXDatarate(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio == RADIO_A) {
+			txDatarateA = value;
+		}
+		else if(radio == RADIO_B) {
+			txDatarateB = value;
+		}
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -336,30 +478,30 @@ uint8_t CATCommandCenterFequencyA(uint8_t* data, uint16_t dataLength, uint8_t* r
 	//Check if is a Set or Read command
 	if(data[2] == ';') {
 		//Read Command
-		*rDataLength = sprintf(rData, "FA%09d;\n", centerFrequencyA);
+		*rDataLength = sprintf(rData, "FA%09d;", centerFrequencyA);
 		return 0;
 	}
 	else if(data[11] == ';') {
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[2], 9, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
-		centerFrequencyA = value;
 		if(RadioSetCenterFrequency(RADIO_A, centerFrequencyA) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
+		centerFrequencyA = value;
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -377,30 +519,30 @@ uint8_t CATCommandCenterFequencyB(uint8_t* data, uint16_t dataLength, uint8_t* r
 	//Check if is a Set or Read command
 	if(data[2] == ';') {
 		//Read Command
-		*rDataLength = sprintf(rData, "FB%09d;\n", centerFrequencyB);
+		*rDataLength = sprintf(rData, "FB%09d;", centerFrequencyB);
 		return 0;
 	}
 	else if(data[11] == ';') {
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[2], 9, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
-		centerFrequencyB = value;
 		if(RadioSetCenterFrequency(RADIO_B, centerFrequencyB) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
+		centerFrequencyB = value;
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -415,9 +557,9 @@ uint8_t CATCommandCenterFequencyB(uint8_t* data, uint16_t dataLength, uint8_t* r
   * Example: Set: FM02; Read: FM0; Return: FM02;
   */
 uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -425,15 +567,15 @@ uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "FM0%01d;\n", framingA);
+			*rDataLength = sprintf(rData, "FM0%01d;", framingA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "FM1%01d;\n", framingB);
+			*rDataLength = sprintf(rData, "FM1%01d;", framingB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -441,38 +583,34 @@ uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetFramingMode(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new Framing Mode value
 			framingA = value;
-			if(RadioSetFramingMode(RADIO_A, framingA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new Framing Mode value
 			framingB = value;
-			if(RadioSetFramingMode(RADIO_B, framingB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -487,9 +625,9 @@ uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
   * Example: Set: FR00; Read: FR0; Return: FR00;
   */
 uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -497,15 +635,29 @@ uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "FR0%01d;\n", operationModeA);
+			if(operationModeB == 0x01) {
+				//In RX Mode
+				*rDataLength = sprintf(rData, "FR01;");
+			}
+			else {
+				//Not in RX Mode
+				*rDataLength = sprintf(rData, "FR00;");
+			}
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "FR1%01d;\n", operationModeB);
+			if(operationModeB == 0x01) {
+				//In RX Mode
+				*rDataLength = sprintf(rData, "FR11;");
+			}
+			else {
+				//Not in RX Mode
+				*rDataLength = sprintf(rData, "FR10;");
+			}
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -513,50 +665,46 @@ uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetOperationMode(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new RX Mode
-			operationModeA = value;
 			if(value == 0x01) {
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
 				if(modulationA == 0x03) {
 
 				}
 			}
-			if(RadioSetOperationMode(RADIO_A, operationModeA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
+			operationModeA = value;
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new RX Mode
-			operationModeB = value;
 			if(value == 0x01) {
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
 				if(modulationB == 0x03) {
 
 				}
 			}
-			if(RadioSetOperationMode(RADIO_B, operationModeB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
+			operationModeB = value;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -571,9 +719,9 @@ uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
   * Example: Set: FT01; Read: FT0; Return: FT01;
   */
 uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -581,15 +729,29 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "FT0%01d;\n", operationModeA);
+			if(operationModeB == 0x02) {
+				//In TX Mode
+				*rDataLength = sprintf(rData, "FT01;");
+			}
+			else {
+				//Not in TX Mode
+				*rDataLength = sprintf(rData, "FT00;");
+			}
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "FT1%01d;\n", operationModeB);
+			if(operationModeB == 0x02) {
+				//In TX Mode
+				*rDataLength = sprintf(rData, "FT11;");
+			}
+			else {
+				//Not in TX Mode
+				*rDataLength = sprintf(rData, "FT10;");
+			}
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -597,12 +759,21 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetOperationMode(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new TX Mode
 			if(value == 0x00) {
 				operationModeA = 0x00;
 			}
@@ -617,13 +788,8 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 			else {
 				return 1;
 			}
-			if(RadioSetOperationMode(RADIO_A, operationModeA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new TX Mode
 			if(value == 0x00) {
 				operationModeB = 0x00;
 			}
@@ -638,23 +804,15 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 			else {
 				return 1;
 			}
-			if(RadioSetOperationMode(RADIO_B, operationModeB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -669,24 +827,24 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
   * Example: Set: GT001; Read: GT0; Return: GT001;
   */
 uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "GT0%02d;\n", (15-agcSpeedA));
+			*rDataLength = sprintf(rData, "GT0%02d;", (15-agcSpeedA));
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "GT1%02d;\n", (15-agcSpeedB));
+			*rDataLength = sprintf(rData, "GT1%02d;", (15-agcSpeedB));
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -694,36 +852,102 @@ uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, u
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 2, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetAGCSpeed(radio, (15 - value)) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
 			agcSpeedA = (15 - value);	//Inverted Logic: CAT 0-> OFF, Local 0-> Fastest
-			if(RadioSetAGCSpeed(RADIO_A, agcSpeedA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
 			agcSpeedB = (15 - value);	//Inverted Logic: CAT 0-> OFF, Local 0-> Fastest
-			if(RadioSetAGCSpeed(RADIO_B, agcSpeedB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
+	return 0;
+}
+
+/**
+  * @brief	This function handles the IF Frequency Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: IS1010000; Read: IS1; Return: IS1010000;
+  */
+uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+			*rDataLength = sprintf(rData, "IS0%06d;", ifFrequncyA);
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+			*rDataLength = sprintf(rData, "IS1%06d;", ifFrequncyB);
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else if(data[9] == ';') {
+		//Write/Set Command
+		uint32_t value = 0;
+		if(CATASCIIToNumber(&data[3], 6, &value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		//Set IF Frequency
+		if(RadioSetIF(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio == RADIO_A) {
+			ifFrequncyA = value;
+		}
+		else if(radio == RADIO_B) {
+			ifFrequncyB = value;
+		}
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -738,9 +962,9 @@ uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, u
   * Example: Set: MD01; Read: MD0; Return: MD01;
   */
 uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -748,15 +972,15 @@ uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "MD0%01d;\n", modulationA);
+			*rDataLength = sprintf(rData, "MD0%01d;", modulationA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "MD1%01d;\n", modulationB);
+			*rDataLength = sprintf(rData, "MD1%01d;", modulationB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -764,38 +988,34 @@ uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 1, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetModulation(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
-			//Save and program new Framing Mode value
 			modulationA = value;
-			if(RadioSetModulation(RADIO_A, modulationA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
-			//Save and program new Framing Mode value
 			modulationB = value;
-			if(RadioSetModulation(RADIO_B, modulationB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -810,24 +1030,24 @@ uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData,
   * Example: Set: PC110; Read: PC1; Return: PC110;
   */
 uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "PC0%02d;\n", outputPowerA);
+			*rDataLength = sprintf(rData, "PC0%02d;", outputPowerA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "PC1%02d;\n", outputPowerB);
+			*rDataLength = sprintf(rData, "PC1%02d;", outputPowerB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -835,36 +1055,34 @@ uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 2, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(RadioSetTXPower(radio, (value - 10)) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
 		if(radio == RADIO_A) {
 			outputPowerA = value;
-			if(RadioSetTXPower(RADIO_A, (outputPowerA - 10)) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
 		}
 		else if(radio == RADIO_B) {
 			outputPowerB = value;
-			if(RadioSetTXPower(RADIO_B, (outputPowerB - 10)) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -879,24 +1097,24 @@ uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
   * Example: Set: SH0250000; Read: SH0; Return: SH0250000;
   */
 uint8_t CATCommandBandwidth(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "SH0%06d;\n", bandwidthA);
+			*rDataLength = sprintf(rData, "SH0%06d;", bandwidthA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "SH1%06d;\n", bandwidthB);
+			*rDataLength = sprintf(rData, "SH1%06d;", bandwidthB);
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
@@ -904,56 +1122,49 @@ uint8_t CATCommandBandwidth(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 		//Write/Set Command
 		uint32_t value = 0;
 		if(CATASCIIToNumber(&data[3], 6, &value) != 0x00) {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		//Set RX Bandwidth
+		if(RadioSetBandwidth(radio, value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		//Should also reconfigure RX Datarate, depends on Decimation value
 		if(radio == RADIO_A) {
-			bandwidthA = value;
-			if(RadioSetBandwidth(RADIO_A, bandwidthA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-			//Also Set the IF frequency to center of BW
-			if(RadioSetBandwidth(RADIO_A, (bandwidthA >> 1)) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-			//Should also reconfigure RX Datarate, depends on Decimation value
-			if(RadioSetRXDatarate(RADIO_A, rxDatarateA) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
+			if(RadioSetRXDatarate(radio, rxDatarateA) != 0x00) {
+				*rDataLength = sprintf(rData, "?;");
 				return 1;
 			}
 		}
 		else if(radio == RADIO_B) {
-			bandwidthB = value;
-			if(RadioSetBandwidth(RADIO_B, bandwidthB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-			//Also Set the IF frequency to center of BW
-			if(RadioSetBandwidth(RADIO_B, (bandwidthB >> 1)) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
-				return 1;
-			}
-			//Should also reconfigure RX Datarate, depends on Decimation value
-			if(RadioSetRXDatarate(RADIO_B, rxDatarateB) != 0x00) {
-				*rDataLength = sprintf(rData, "?;\n");
+			if(RadioSetRXDatarate(radio, rxDatarateB) != 0x00) {
+				*rDataLength = sprintf(rData, "?;");
 				return 1;
 			}
 		}
-		else {
-			*rDataLength = sprintf(rData, "?;\n");
-			return 1;
+
+		if(radio == RADIO_A) {
+			bandwidthA = value;
+		}
+		else if(radio == RADIO_B) {
+			bandwidthB = value;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	*rDataLength = sprintf(rData, "OK;\n");
+	*rDataLength = sprintf(rData, "OK;");
 	return 0;
 }
 
@@ -968,15 +1179,15 @@ uint8_t CATCommandBandwidth(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
   * Example: Set: NA; Read: RM10; Return: RM10100;
   */
 uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
-	uint8_t meter = 0;
-	if(CATASCIIToNumber(&data[3], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+	uint32_t meter = 0;
+	if(CATASCIIToNumber(&data[3], 1, &meter) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
@@ -986,19 +1197,19 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 			switch(meter) {
 				case 0x00:
 					//Read RSSI Value
-					*rDataLength = sprintf(rData, "RM00%03d;\n", (-rssiTrackingA));
+					*rDataLength = sprintf(rData, "RM00%03d;", (-rssiTrackingA));
 					break;
 				case 0x01:
 					//Read RF Frequency Value
 					if(rfFrequencyTrackingA >= 0) {
-						*rDataLength = sprintf(rData, "RM01+%06d;\n", rfFrequencyTrackingA);
+						*rDataLength = sprintf(rData, "RM01+%06d;", rfFrequencyTrackingA);
 					}
 					else {
-						*rDataLength = sprintf(rData, "RM01-%06d;\n", (-rfFrequencyTrackingA));
+						*rDataLength = sprintf(rData, "RM01-%06d;", (-rfFrequencyTrackingA));
 					}
 					break;
 				default:
-					*rDataLength = sprintf(rData, "?;\n");
+					*rDataLength = sprintf(rData, "?;");
 					return 1;
 			}
 
@@ -1008,31 +1219,31 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 			switch(meter) {
 				case 0x00:
 					//Read RSSI Value
-					*rDataLength = sprintf(rData, "RM10%03d;\n", (-rssiTrackingB));
+					*rDataLength = sprintf(rData, "RM10%03d;", (-rssiTrackingB));
 					break;
 				case 0x01:
 					//Read RF Frequency Value
 					if(rfFrequencyTrackingB >= 0) {
-						*rDataLength = sprintf(rData, "RM11+%06d;\n", rfFrequencyTrackingB);
+						*rDataLength = sprintf(rData, "RM11+%06d;", rfFrequencyTrackingB);
 					}
 					else {
-						*rDataLength = sprintf(rData, "RM11-%06d;\n", (-rfFrequencyTrackingB));
+						*rDataLength = sprintf(rData, "RM11-%06d;", (-rfFrequencyTrackingB));
 					}
 					break;
 				default:
-					*rDataLength = sprintf(rData, "?;\n");
+					*rDataLength = sprintf(rData, "?;");
 					return 1;
 			}
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 }
@@ -1048,31 +1259,68 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
   * Example: Set: NA; Read: SM1; Return: SM1100;
   */
 uint8_t CATCommandRSSI(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	uint8_t radio = 0;
+	uint32_t radio = 0;
 	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
 
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "SM0%03d;\n", (-rssiTrackingA));
+			*rDataLength = sprintf(rData, "SM0%03d;", (-rssiTrackingA));
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "SM1%03d;\n", (-rssiTrackingB));
+			*rDataLength = sprintf(rData, "SM1%03d;", (-rssiTrackingB));
 			return 0;
 		}
 		else {
-			*rDataLength = sprintf(rData, "?;\n");
+			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
 	}
 	else {
 		//Syntax Error
-		*rDataLength = sprintf(rData, "?;\n");
+		*rDataLength = sprintf(rData, "?;");
 		return 1;
+	}
+}
+
+uint8_t CATCommandDeviation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[4] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+//			*rDataLength = sprintf(rData, "SM0%03d;", frequencyDeviationA);
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+//			*rDataLength = sprintf(rData, "SM1%03d;", frequencyDeviationB);
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else if(data[5] == ';') {
+		//Write/Set Command
+		uint32_t value = 0;
+		if(CATASCIIToNumber(&data[3], 2, &value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+
+		if(radio > 1) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
 	}
 }
 

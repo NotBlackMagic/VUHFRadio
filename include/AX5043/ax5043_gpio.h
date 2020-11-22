@@ -26,9 +26,9 @@ typedef union {
 #define PUSYSCLK_MASK						0x80	//SYSCLK weak Pullup enable Mask
 //PFSYSCLK Bits
 typedef enum {
-	SysClk_Low = 0,				//SYSCLK Output ‘0’
-	SysClk_High = 1,			//SYSCLK Output ‘1’
-	SysClk_HighZ = 2,			//SYSCLK Output ‘Z’
+	SysClk_Low = 0,				//SYSCLK Output '0'
+	SysClk_High = 1,			//SYSCLK Output '1'
+	SysClk_HighZ = 2,			//SYSCLK Output 'Z'
 	SysClk_Inv_fXtal = 3,		//SYSCLK Output inverted fXTAL
 	SysClk_fXtal_div1 = 4,		//SYSCLK Output fXTAL
 	SysClk_fXtal_div2 = 5,		//SYSCLK Output fXTAL/2
@@ -51,9 +51,9 @@ typedef enum {
 #define PUDCLK_MASK						0x80		//DCLK weak Pullup enable Mask
 //PFDCLK Bits
 typedef enum {
-	DCLK_Low = 0,						//DCLK Output ‘0’
-	DCLK_High = 1,						//DCLK Output ‘1’
-	DCLK_HighZ = 2,						//DCLK Output ‘Z’
+	DCLK_Low = 0,						//DCLK Output '0'
+	DCLK_High = 1,						//DCLK Output '1'
+	DCLK_HighZ = 2,						//DCLK Output 'Z'
 	DCLK_Modem_Data_Clk_Input = 3,		//DCLK Output Modem Data Clock Input; use when inputting/outputting framing data on DATA
 	DCLK_Modem_Data_Clk_Output = 4,		//DCLK Output Modem Data Clock Output; use when observing modem data on DATA
 	DCLK_Modem_Data_Clk_Output_2 = 5,	//DCLK Output Modem Data Clock Output; use when inputting/outputting framing data on DATA, and you do not want to generate a clock yourself
@@ -66,9 +66,9 @@ typedef enum {
 #define PUDATA_MASK						0x80		//DATA weak Pullup enable Mask
 //PFDATA Bits
 typedef enum {
-	DATA_Low = 0,					//DATA Output ‘0’
-	DATA_High = 1,					//DATA Output ‘1’
-	DATA_HighZ = 2,					//DATA Output ‘Z’
+	DATA_Low = 0,					//DATA Output '0'
+	DATA_High = 1,					//DATA Output '1'
+	DATA_HighZ = 2,					//DATA Output 'Z'
 	DATA_IO_Framing_Data = 3,		//DATA Input/Output Framing Data
 	DATA_IO_Modem_Data = 4,			//DATA Input/Output Modem Data
 	DATA_IO_Async_Modem_Data = 5,	//DATA Input/Output Async Modem Data
@@ -82,9 +82,9 @@ typedef enum {
 #define PUIRQ_MASK						0x80		//IRQ weak Pullup enable Mask
 //PFIRQ Bits
 typedef enum {
-	IRQ_Low = 0,					//IRQ Output ‘0’
-	IRQ_High = 1,					//IRQ Output ‘1’
-	IRQ_HighZ = 2,					//IRQ Output ‘Z’
+	IRQ_Low = 0,					//IRQ Output '0'
+	IRQ_High = 1,					//IRQ Output '1'
+	IRQ_HighZ = 2,					//IRQ Output 'Z'
 	IRQ_Int_Req = 3,				//IRQ Output Interrupt Request
 	IRQ_Test_Obs = 7				//IRQ Output Test Observation
 } PinFunctionsIRQ;
@@ -95,9 +95,9 @@ typedef enum {
 #define PUANTSEL_MASK						0x80	//ANTSEL weak Pullup enable Mask
 //PFIRQ Bits
 typedef enum {
-	AntSel_Low = 0,					//ANTSEL Output ‘0’
-	AntSel_High = 1,				//ANTSEL Output ‘1’
-	AntSel_HighZ = 2,				//ANTSEL Output ‘Z’
+	AntSel_Low = 0,					//ANTSEL Output '0'
+	AntSel_High = 1,				//ANTSEL Output '1'
+	AntSel_HighZ = 2,				//ANTSEL Output 'Z'
 	AntSel_Baseband_Tune_Clk = 3,	//ANTSEL Output Baseband Tune Clock
 	AntSel_Ext_TCXO_Enable = 4,		//ANTSEL Output External TCXO Enable
 	AntSel_DAC_Output = 5,			//ANTSEL Output DAC
@@ -111,9 +111,9 @@ typedef enum {
 #define PUPWRAMP_MASK						0x80	//PWRAMP weak Pullup enable Mask
 //PFIRQ Bits
 typedef enum {
-	PwrRamp_Low = 0,					//PWRAMP Output ‘0’
-	PwrRamp_High = 1,					//PWRAMP Output ‘1’
-	PwrRamp_HighZ = 2,					//PWRAMP Output ‘Z’
+	PwrRamp_Low = 0,					//PWRAMP Output '0'
+	PwrRamp_High = 1,					//PWRAMP Output '1'
+	PwrRamp_HighZ = 2,					//PWRAMP Output 'Z'
 	PwrRamp_DiBit_Sync_Input = 3,		//PWRAMP Input DiBit Synchronization (4-FSK); use when inputting/outputting 4-FSK framing data on DATA
 	PwrRamp_DiBit_Sync_Output = 4,		//PWRAMP Output DiBit Synchronization (4-FSK); use when observing 4-FSK modem data on DATA
 	PwrRamp_DAC_Output = 5,				//PWRAMP Output DAC
@@ -174,7 +174,7 @@ void AX5043GPIOSetEnableSamplingADCGPADC13(uint8_t interfaceID, uint8_t enSampli
 uint8_t AX5043GPIOGetSamplingADCGPADC13(uint8_t interfaceID);
 void AX5043GPIOADCTriggerConversion(uint8_t interfaceID);
 uint8_t AX5043GPIOGetADCBusy(uint8_t interfaceID);
-void AX5043GPIOSetADCtSamplingPeriod(uint8_t interfaceID, uint8_t period);
+void AX5043GPIOSetADCSamplingPeriod(uint8_t interfaceID, uint8_t period);
 uint8_t AX5043GPIOGetADCSamplingPeriod(uint8_t interfaceID);
 uint16_t AX5043GPIOGetADCGPADC13Value(uint8_t interfaceID);
 void AX5043GPIOSetDACValue(uint8_t interfaceID, uint16_t value);

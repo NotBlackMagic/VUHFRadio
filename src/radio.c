@@ -31,7 +31,7 @@ void RadioVHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_VHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_VHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_Modem_Data_Output, 0, 0);			//DATA_IO_Modem_Data
+	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_IO_Modem_Data, 0, 0);
 	AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_VHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -41,6 +41,11 @@ void RadioVHFInit() {
 	AX5043GPIOSetDACInputShift(RADIO_VHF, 0x0C);
 	AX5043GPIOSetDACOutputMode(RADIO_VHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_VHF, 0x01);
+
+	//Set ADC, set-up used for Analog-FM TX
+	AX5043GPIOSetADCSamplingPeriod(RADIO_VHF, 0x14);				//Set Sampling rate to 25kHz
+	AX5043GPIOSetEnableSamplingADCGPADC13(RADIO_VHF, 0x01);			//Enable GPADC1-3
+	AX5043GPIOSetEnableADCContinuousSampling(RADIO_VHF, 0x01);		//Continuous  sampling
 
 	//Set IRQ
 	IrqMask irqMask;
@@ -55,7 +60,7 @@ void RadioVHFInit() {
 	AX5043IrqSetRadioEventMask(RADIO_VHF, radioEvenMask);
 
 	//Calibrate RSSI: Compensate for Board effects
-	AX5043PacketSetRSSIOffset(RADIO_VHF, 0xF5);		//Offset: -11dBm
+	AX5043PacketSetRSSIOffset(RADIO_VHF, 0xF5);					//Offset: -11dBm
 
 	//Set Performance Tuning Registers
 	uint8_t data = 0x0F;
@@ -275,7 +280,7 @@ void RadioUHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_UHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Modem_Data_Output, 0, 0);			//DATA_IO_Modem_Data
+	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_IO_Modem_Data, 0, 0);
 	AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -285,6 +290,11 @@ void RadioUHFInit() {
 	AX5043GPIOSetDACInputShift(RADIO_UHF, 0x0C);
 	AX5043GPIOSetDACOutputMode(RADIO_UHF, 0x00);
 	AX5043GPIOSetDACClockDoubling(RADIO_UHF, 0x01);
+
+	//Set ADC, set-up used for Analog-FM TX
+	AX5043GPIOSetADCSamplingPeriod(RADIO_UHF, 0x14);				//Set Sampling rate to 25kHz
+	AX5043GPIOSetEnableSamplingADCGPADC13(RADIO_UHF, 0x01);			//Enable GPADC1-3
+	AX5043GPIOSetEnableADCContinuousSampling(RADIO_UHF, 0x01);		//Continuous  sampling
 
 	//Set IRQ
 	IrqMask irqMask;
@@ -299,7 +309,7 @@ void RadioUHFInit() {
 	AX5043IrqSetRadioEventMask(RADIO_UHF, radioEvenMask);
 
 	//Calibrate RSSI: Compensate for Board effects
-	AX5043PacketSetRSSIOffset(RADIO_UHF, 0xF5);		//Offset: -11dBm
+	AX5043PacketSetRSSIOffset(RADIO_UHF, 0xF5);					//Offset: -11dBm
 
 	//Set Performance Tuning Registers
 	uint8_t data = 0x0F;
@@ -932,6 +942,9 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
 	AX5043SynthStartAutoRangingA(RADIO_UHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_UHF));	//Wait for Auto Ranging Complete
 
+	//Set Modulation for TX Mode
+	AX5043TXParamSetFSKFrequencyDeviation(RADIO_UHF, 0x00C007);		//Set Fdev= +/- 65 kHz, w. sign extension and midcode subtraction from ADC
+
     //Set Demodulation for RX Mode
     AX5043RXParamSetIFFrequency(RADIO_UHF, 0x0290);		//~10 kHz
 	AX5043RXParamSetDecimation(RADIO_UHF, 0x02);		//~500 kHz
@@ -969,6 +982,9 @@ void RadioVHFEnterFMMode(uint32_t frequency) {
 	//Perform auto ranging
 	AX5043SynthStartAutoRangingA(RADIO_VHF);
 	while(AX5043SynthGetAutoRangingA(RADIO_VHF));	//Wait for Auto Ranging Complete
+
+	//Set Modulation for TX Mode
+	AX5043TXParamSetFSKFrequencyDeviation(RADIO_VHF, 0x00C007);		//Set Fdev= +/- 65 kHz, w. sign extension and midcode subtraction from ADC
 
     //Set Demodulation for RX Mode
     AX5043RXParamSetIFFrequency(RADIO_VHF, 0x0290);		//~10 kHz

@@ -7,11 +7,55 @@ extern "C" {
 
 #include <stdint.h>
 
+#define RADIO_RSSI_THRESHOLD						-90		//Radio RSSI activity threshold, above this level channel activity is assumed (for Morse and LED indication)
+
+typedef enum {
+	RadioMode_OFF = 0,
+	RadioMode_RX = 1,
+	RadioMode_TX = 2
+} RadioMode;
+
+typedef enum {
+	RadioModulation_AM = 1,
+	RadioModulation_FM = 2,
+	RadioModulation_AFSK = 3,
+	RadioModulation_ASK = 4,
+	RadioModulation_FSK = 5,
+	RadioModulation_GMSK = 6,
+	RadioModulation_4FSK = 7,
+	RadioModulation_BPSK = 8,
+	RadioModulation_QPSK = 9
+} RadioModulation;
+
+typedef enum {
+	RadioEncoder_NRZ = 0,
+	RadioEncoder_NRZ_S = 1,
+	RadioEncoder_NRZI = 2,
+	RadioEncoder_NRZI_S = 3,
+	RadioEncoder_FM1 = 4,
+	RadioEncoder_FM0 = 5,
+	RadioEncoder_Manchester = 6,
+} RadioEncoder;
+
+typedef enum {
+	RadioFraming_RAW = 0,
+	RadioFraming_HDLC = 1,
+	RadioFraming_WMBus = 2,
+} RadioFraming;
+
+typedef enum {
+	RadioCRC_OFF = 0,
+	RadioCRC_CCITT = 1,
+	RadioCRC_CRC16 = 2,
+	RadioCRC_DNP = 3,
+	RadioCRC_CRC32 = 4
+} RadioCRC;
+
 //Radio A (UHF) Configurations
 //Basic, shared for all modulations
-volatile uint8_t operationModeA;		//0-> Off, 1-> RX, 2-> TX
+volatile RadioMode operationModeA;		//0-> Off, 1-> RX, 2-> TX
 volatile uint32_t centerFrequencyA;		//Hz
-volatile uint8_t modulationA;			//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 8: BPSK; 9: QPSK;
+volatile RadioModulation modulationA;	//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 7: 4-FSK; 8: BPSK; 9: QPSK;
 volatile uint32_t ifFrequncyA;			//Hz
 volatile uint32_t bandwidthA;			//Hz
 volatile uint32_t txDatarateA;			//bit/s
@@ -32,9 +76,9 @@ volatile uint16_t afskDetectorBWA;		//Hz
 volatile uint8_t morseSpeedA;			//WPM (0-> Off)
 
 //Digital Packet Settings
-volatile uint8_t encoderA;				//0: NRZ; 1: NRZI-S; 2: NRZI; 3: NRZI-S; 4: FM1; 5: FM0; 6: Manchester
-volatile uint8_t framingA;				//0: RAW; 1: HDLC; 2: Wireless M-Bus
-volatile uint8_t crcA;					//0: OFF; 1: CCITT; 2: CRC16; 3: DNP; 4: CRC32
+volatile RadioEncoder encoderA;			//0: NRZ; 1: NRZ-S; 2: NRZI; 3: NRZI-S; 4: FM1; 5: FM0; 6: Manchester
+volatile RadioFraming framingA;			//0: RAW; 1: HDLC; 2: Wireless M-Bus
+volatile RadioCRC crcA;					//0: OFF; 1: CCITT; 2: CRC16; 3: DNP; 4: CRC32
 
 //Tracking Variables
 volatile int8_t rssiTrackingA;			//RSSI in signed format
@@ -42,9 +86,9 @@ volatile int32_t rfFrequencyTrackingA;	//Tracking in signed format and counts no
 
 //Radio B (UHF) Configurations
 //Basic, shared for all modulations
-volatile uint8_t operationModeB;		//0-> Off, 1-> RX, 2-> TX
+volatile RadioMode operationModeB;		//0-> Off, 1-> RX, 2-> TX
 volatile uint32_t centerFrequencyB;		//Hz
-volatile uint8_t modulationB;			//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 8: BPSK; 9: QPSK;
+volatile RadioModulation modulationB;	//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 8: BPSK; 9: QPSK;
 volatile uint32_t ifFrequncyB;			//Hz
 volatile uint32_t bandwidthB;			//Hz
 volatile uint32_t txDatarateB;			//bit/s
@@ -65,9 +109,9 @@ volatile uint16_t afskDetectorBWB;		//Hz
 volatile uint8_t morseSpeedB;			//WPM (0-> Off)
 
 //Digital Packet Settings
-volatile uint8_t encoderB;				//0: NRZ; 1: NRZI; 2: FM1; 3: FM0; 4: Manchester
-volatile uint8_t framingB;				//0: Raw; 1: HDLC; 3: WM-Bus
-volatile uint8_t crcB;					//0: Off; 1: CCITT; 2: CRC16; 3: DNP; 4: CRC32
+volatile RadioEncoder encoderB;			//0: NRZ; 1: NRZI; 2: FM1; 3: FM0; 4: Manchester
+volatile RadioFraming framingB;			//0: Raw; 1: HDLC; 3: WM-Bus
+volatile RadioCRC crcB;					//0: Off; 1: CCITT; 2: CRC16; 3: DNP; 4: CRC32
 
 //Tracking Variables
 volatile int8_t rssiTrackingB;			//RSSI in signed format
