@@ -17,8 +17,6 @@ extern "C" {
 extern uint32_t errorBits;
 extern uint32_t totalBits;
 
-void RadioStateMachine();
-
 void RadioIRQVHFHandler();
 void RadioIRQUHFHandler();
 void RadioTrackUpdateHandler();

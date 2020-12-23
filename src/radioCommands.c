@@ -156,6 +156,7 @@ uint8_t RadioSetEncodingMode(uint8_t radio, RadioEncoder encMode) {
 	}
 
 	//Set Encoding Mode
+	AX5043PacketSetMSBFirst(radio, 0);
 	switch(encMode) {
 		case RadioEncoder_NRZ:
 			//NRZ Mode
@@ -286,25 +287,9 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 			//Set Modulation
 			AX5043GeneralSetModulation(radio, FM);
 
-			//Set Demodulation for RX Mode
-//			AX5043RXParamSetIFFrequency(radio, 0x0290);		//~10 kHz
-//			AX5043RXParamSetDecimation(radio, 0x02);		//~500 kHz
-//			AX5043RXParamSetRXDatarate(radio, 0x1400);		//~200 kbits/s
-//			AX5043RXParamSetRXMaximumFrequencyOffset(radio, 0x00);	//Set to 0x00, no AFC
-//			AX5043RXParamSetCorrectFrequencyOffsetLO(radio, 0x01);
-
 		    //RX Parameter 0
-//		    AX5043RXParamSetAGCReleaseSpeed0(radio, 0x0E);
-//			AX5043RXParamSetAGCAttackSpeed0(radio, 0x0E);
 		    AX5043RXParamSetAGCTargetAvgMagnitude0(radio, 0x79);	//Target: 192
 		    AX5043RXParamSetRXAmplitudeGain0(radio, 0x04);
-			AX5043RXParamSetRXAmplitudeAGCJump0(radio, 0x00);
-			AX5043RXParamSetRXAmplitudeRecoveryByAverage0(radio, 0x00);
-		//	AX5043RXParamSetRXFrequencyGainA0(radio, 0x02);
-		//	AX5043RXParamSetRXFrequencyGainB0(radio, 0x1E);
-		//	AX5043RXParamSetRXFrequencyGainC0(radio, 0x1F);
-		//	AX5043RXParamSetRXFrequencyGainD0(radio, 0x1F);
-		//	AX5043RXParamSetRXFrequncyLeak(radio, 0x00);
 			AX5043PacketSetGainTimingRecovery0(radio, 0x00, 0x00);
 			AX5043PacketSetGainDatarateRecovery0(radio, 0x00, 0x00);
 			break;
@@ -319,21 +304,12 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 			//Set Modulation
 			AX5043GeneralSetModulation(radio, FM);
 
-			//Set Demodulation for RX Mode
-//			AX5043RXParamSetIFFrequency(radio, 0x0290);		//~10 kHz
-//			AX5043RXParamSetDecimation(radio, 0x02);		//~500 kHz
-//			AX5043RXParamSetRXDatarate(radio, 0x1400);		//~200 kbits/s
-//			AX5043RXParamSetRXMaximumFrequencyOffset(radio, 0xCCCC);	//Set to 50kHz
-//			AX5043RXParamSetCorrectFrequencyOffsetLO(radio, 0x01);
-
 			//RX Parameter 0
-//			AX5043RXParamSetAGCReleaseSpeed0(radio, 0x0E);
-//			AX5043RXParamSetAGCAttackSpeed0(radio, 0x0A);
 			AX5043RXParamSetAGCTargetAvgMagnitude0(radio, 0x80);
-			AX5043RXParamSetRXFrequencyGainA0(radio, 0x0F);
-			AX5043RXParamSetRXFrequencyGainB0(radio, 0x04);
-			AX5043RXParamSetRXFrequencyGainC0(radio, 0x1F);
-			AX5043RXParamSetRXFrequencyGainD0(radio, 0x08);
+			AX5043RXParamSetRXFrequencyGainA0(radio, 0x0F);			//OFF
+			AX5043RXParamSetRXFrequencyGainB0(radio, 0x04);			//Bandwidth of “inner” AFC loop used for FM demodulation. f_3dB = 0.115*BR
+			AX5043RXParamSetRXFrequencyGainC0(radio, 0x1F);			//OFF
+			AX5043RXParamSetRXFrequencyGainD0(radio, 0x08);			//bandwidth of “outer” AFC loop (tracking frequency mismatch), 78 Hz @ BR = 100 kbps, f_xtal = 16 MHz
 			AX5043PacketSetGainTimingRecovery0(radio, 0x00, 0x00);
 			AX5043PacketSetGainDatarateRecovery0(radio, 0x00, 0x00);
 			break;
@@ -369,6 +345,36 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 			return 1;
 	}
 
+	if(modulation != RadioModulation_AM && modulation != RadioModulation_FM) {
+		//RX Parameter 0, set to default in case was changed in FM or AM modulations
+		AX5043RXParamSetAGCTargetAvgMagnitude0(radio, 0x89);		//3/4 of maximum, which is 2^9 - 1 = 511
+		AX5043RXParamSetRXFrequencyGainA0(radio, 0x0F);
+		AX5043RXParamSetRXFrequencyGainB0(radio, 0x1F);
+		AX5043RXParamSetRXFrequencyGainC0(radio, 0x0A);
+		AX5043RXParamSetRXFrequencyGainD0(radio, 0x0A);
+
+		uint8_t dec = AX5043RXParamGetDecimation(radio);
+		uint32_t rxRate = AX5043RXParamGetRXDatarate(radio);
+		rxRate = (uint32_t)((FXTAL << 7) / (((float)rxRate - 0.5f) * dec));
+
+		uint8_t exp = floorf(log2f(((float)rxRate / 4.f) / 8.f));
+		uint8_t man = roundf(((float)rxRate / 4.f) / (1 << exp));
+		AX5043PacketSetGainTimingRecovery0(radio, man, exp);
+		AX5043PacketSetGainTimingRecovery1(radio, man, exp);
+		AX5043PacketSetGainTimingRecovery2(radio, man, exp);
+		AX5043PacketSetGainTimingRecovery3(radio, man, exp);
+
+		exp = floorf(log2f(((float)rxRate / 64.f) / 8.f));
+		man = roundf(((float)rxRate / 64.f) / (1 << exp));
+		AX5043PacketSetGainDatarateRecovery0(radio, man, exp);
+		AX5043PacketSetGainDatarateRecovery1(radio, man, exp);
+		AX5043PacketSetGainDatarateRecovery2(radio, man, exp);
+		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);
+
+		uint16_t afskBW = (uint16_t)(2.f * log2f((float)FXTAL / (32 * rxRate * dec)) + 1.5f);
+		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
+	}
+
 	return 0;
 }
 
@@ -388,7 +394,7 @@ uint8_t RadioSetOperationMode(uint8_t radio, RadioMode opMode) {
 		return 1;
 	}
 
-	//Set Framing Mode
+	//Set Operation Mode
 	switch(opMode) {
 		case RadioMode_OFF:
 			//OFF/Standby Mode
@@ -500,6 +506,25 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 	uint32_t rxDr = (RADIO_A_XTAL << 7) / (bitrate * decimation);
 	AX5043RXParamSetRXDatarate(radio, rxDr);
 
+	Modulations modulation = (Modulations)AX5043GeneralGetModulation(radio);
+	if(modulation != FM) {
+		//Set RX Datarate dependent parameters
+		uint8_t exp = floorf(log2f(((float)bitrate / 4.f) / 8.f));
+		uint8_t man = roundf(((float)bitrate / 4.f) / (1 << exp));
+		AX5043PacketSetGainTimingRecovery0(radio, man, exp);
+		AX5043PacketSetGainTimingRecovery1(radio, man, exp);
+		AX5043PacketSetGainTimingRecovery3(radio, man, exp);
+
+		exp = floorf(log2f(((float)bitrate / 64.f) / 8.f));
+		man = roundf(((float)bitrate / 64.f) / (1 << exp));
+		AX5043PacketSetGainDatarateRecovery0(radio, man, exp);
+		AX5043PacketSetGainDatarateRecovery1(radio, man, exp);
+		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);
+
+		uint16_t afskBW = (uint16_t)(2.f * log2f((float)FXTAL / (32 * bitrate * decimation)) + 1.5f);
+		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
+	}
+
 	return 0;
 }
 
@@ -559,6 +584,56 @@ uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation) {
 	}
 
 	AX5043TXParamSetFSKFrequencyDeviation(radio, fDev);
+
+	return 0;
+}
+
+/**
+  * @brief	This function sets the AFSK Space Frequency
+  * @param	radio: Selects the Radio
+  * @param	spaceFreq: AFSK Space Frequency in Hz
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq) {
+	uint16_t afskSpace = 0;
+
+	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(radio);
+	if(pwrMode == PwrMode_TXEN) {
+		//Configuration for AFSK TX
+		afskSpace = (uint16_t)(spaceFreq * (262144.f / FXTAL) + 0.5f);
+	}
+	else {
+		//Configuration for AFSK RX
+		uint8_t decimation = AX5043RXParamGetDecimation(radio);
+		afskSpace = (uint16_t)((spaceFreq * decimation << 16) / (float)FXTAL + 0.5f);
+	}
+
+	AX5043RXParamSetAFSKSpaceFrequency(radio, afskSpace);		//Set RX AFSK Space Frequency
+
+	return 0;
+}
+
+/**
+  * @brief	This function sets the AFSK Mark Frequency
+  * @param	radio: Selects the Radio
+  * @param	spaceFreq: AFSK Mark Frequency in Hz
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq) {
+	uint16_t afskMark = 0;
+
+	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(radio);
+	if(pwrMode == PwrMode_TXEN) {
+		//Configuration for AFSK TX
+		afskMark = (uint16_t)(markFreq * (262144.f / FXTAL) + 0.5f);
+	}
+	else {
+		//Configuration for AFSK RX
+		uint8_t decimation = AX5043RXParamGetDecimation(radio);
+		afskMark = (uint16_t)((markFreq * decimation << 16) / (float)FXTAL + 0.5f);
+	}
+
+	AX5043RXParamSetAFSKMarkFrequency(radio, afskMark);		//Set RX AFSK Space Frequency
 
 	return 0;
 }

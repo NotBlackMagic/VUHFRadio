@@ -49,6 +49,8 @@ uint8_t RadioSetIF(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate);
 uint8_t RadioSetTXDatarate(uint8_t radio, uint32_t bitrate);
 uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation);
+uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq);
+uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq);
 
 
 #ifdef __cplusplus

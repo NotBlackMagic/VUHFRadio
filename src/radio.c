@@ -176,6 +176,7 @@ void RadioVHFInit() {
 	AX5043RXParamSetRXFrequencyGainD0(RADIO_VHF, 0x0A);
 	AX5043RXParamSetRXAmplitudeGain0(RADIO_VHF, 0x06);
 	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_VHF, 0x00);
+	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_VHF, 0x00);
 	AX5043RXParamSetRXFrequencyDeviation0(RADIO_VHF, 0x00);
 	AX5043RXParamSetDeviationDecay0(RADIO_VHF, 0x06);
 	AX5043RXParamEnableDeviationUpdate0(RADIO_VHF, 0x01);
@@ -241,7 +242,7 @@ void RadioVHFInit() {
 	//Append RX tracking data in FIFO
 //	AX5043PacketEnableStoreRFFrequencyValue(RADIO_VHF, 0x01);	//Append/save RF frequency offset
 //	AX5043PacketEnableStoreDatarateValue(RADIO_VHF, 0x01);		//Append/save RX datarate
-	AX5043PacketEnableStoreRSSI(RADIO_VHF, 0x01);				//Append/save RSSI value
+//	AX5043PacketEnableStoreRSSI(RADIO_VHF, 0x01);				//Append/save RSSI value
 
 	//Set Pattern Matching
 	AX5043PacketSetPaternMatch0(RADIO_VHF, 0x7E7E7E7E);
@@ -490,7 +491,7 @@ void RadioUHFInit() {
 	//Append RX tracking data in FIFO
 //	AX5043PacketEnableStoreRFFrequencyValue(RADIO_UHF, 0x01);	//Append/save RF frequency offset
 //	AX5043PacketEnableStoreDatarateValue(RADIO_UHF, 0x01);		//Append/save RX datarate
-	AX5043PacketEnableStoreRSSI(RADIO_UHF, 0x01);				//Append/save RSSI value
+//	AX5043PacketEnableStoreRSSI(RADIO_UHF, 0x01);				//Append/save RSSI value
 
 	//Set Pattern Matching
 	AX5043PacketSetPaternMatch0(RADIO_UHF, 0x7E7E7E7E);
@@ -601,9 +602,9 @@ uint8_t RadioVHFModConfig(RadioConfigStruct configuration) {
 	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, afc);
 
 	//Set Datarates
-	uint32_t rxDr = (FXTAL << 7) / (vhfRadioConfiguration.datarate * decimation);
+	uint32_t rxDr = (uint32_t)((float)(FXTAL << 7) / (vhfRadioConfiguration.datarate * decimation) + 0.5f);
 	AX5043RXParamSetRXDatarate(RADIO_VHF, rxDr);
-	uint32_t txDr = (uint16_t)((vhfRadioConfiguration.datarate * (16777216.f / FXTAL)) + 0.5f);
+	uint32_t txDr = (uint32_t)((vhfRadioConfiguration.datarate * (16777216.f / FXTAL)) + 0.5f);
 	AX5043TXParamSetTXDatarate(RADIO_VHF, txDr);
 
 	//Adjust RX Parameters that depend on datarate, AGC Attack and Settling as well as timing and datarate recovery
@@ -793,11 +794,13 @@ uint8_t RadioUHFModConfig(RadioConfigStruct configuration) {
 	uint8_t man = roundf(((float)rxDr / 4.f) / (1 << exp));
 	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, man, exp);
 	AX5043PacketSetGainTimingRecovery1(RADIO_UHF, man, exp);
+	AX5043PacketSetGainTimingRecovery2(RADIO_UHF, man, exp);
 	AX5043PacketSetGainTimingRecovery3(RADIO_UHF, man, exp);
 
 	exp = floorf(log2f(((float)rxDr / 64.f) / 8.f));
 	man = roundf(((float)rxDr / 64.f) / (1 << exp));
 	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, man, exp);
+	AX5043PacketSetGainDatarateRecovery1(RADIO_UHF, man, exp);
 	AX5043PacketSetGainDatarateRecovery1(RADIO_UHF, man, exp);
 	AX5043PacketSetGainDatarateRecovery3(RADIO_UHF, man, exp);
 
@@ -876,20 +879,12 @@ void RadioUHFEnterAMMode(uint32_t frequency) {
 	AX5043RXParamSetDecimation(RADIO_UHF, 0x02);		//~500 kHz
 	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x1400);		//~200 kbits/s
 	AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0x00);	//Set to 50kHz, no AFC
-	AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 0x01);
 
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_UHF, 0x0E);
     AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_UHF, 0x79);	//Target: 192
     AX5043RXParamSetRXAmplitudeGain0(RADIO_UHF, 0x04);
-	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_UHF, 0x00);
-	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_UHF, 0x00);
-//	AX5043RXParamSetRXFrequencyGainA0(RADIO_UHF, 0x02);
-//	AX5043RXParamSetRXFrequencyGainB0(RADIO_UHF, 0x1E);
-//	AX5043RXParamSetRXFrequencyGainC0(RADIO_UHF, 0x1F);
-//	AX5043RXParamSetRXFrequencyGainD0(RADIO_UHF, 0x1F);
-//	AX5043RXParamSetRXFrequncyLeak(RADIO_UHF, 0x00);
 	AX5043PacketSetGainTimingRecovery0(RADIO_UHF, 0x00, 0x00);
 	AX5043PacketSetGainDatarateRecovery0(RADIO_UHF, 0x00, 0x00);
 }
@@ -920,8 +915,6 @@ void RadioVHFEnterAMMode(uint32_t frequency) {
 	AX5043RXParamSetAGCAttackSpeed0(RADIO_VHF, 0x0E);
     AX5043RXParamSetAGCTargetAvgMagnitude0(RADIO_VHF, 0x79);	//Target: 192
     AX5043RXParamSetRXAmplitudeGain0(RADIO_VHF, 0x04);
-	AX5043RXParamSetRXAmplitudeAGCJump0(RADIO_VHF, 0x00);
-	AX5043RXParamSetRXAmplitudeRecoveryByAverage0(RADIO_VHF, 0x00);
 }
 
 //Current settings are for Wide-Band FM
@@ -950,7 +943,6 @@ void RadioUHFEnterFMMode(uint32_t frequency) {
 	AX5043RXParamSetDecimation(RADIO_UHF, 0x02);		//~500 kHz
 	AX5043RXParamSetRXDatarate(RADIO_UHF, 0x1400);		//~200 kbits/s
     AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_UHF, 0xCCCC);	//Set to 50kHz, no AFC
-    AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_UHF, 0x01);
 
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_UHF, 0x0E);
@@ -991,7 +983,6 @@ void RadioVHFEnterFMMode(uint32_t frequency) {
 	AX5043RXParamSetDecimation(RADIO_VHF, 0x02);		//~500 kHz
 	AX5043RXParamSetRXDatarate(RADIO_VHF, 0x1400);		//~200 kbits/s
     AX5043RXParamSetRXMaximumFrequencyOffset(RADIO_VHF, 0xCCCC);	//Set to 50kHz, no AFC
-    AX5043RXParamSetCorrectFrequencyOffsetLO(RADIO_VHF, 0x01);
 
     //RX Parameter 0
     AX5043RXParamSetAGCReleaseSpeed0(RADIO_VHF, 0x0E);

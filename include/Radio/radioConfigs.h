@@ -56,7 +56,7 @@ typedef enum {
 volatile RadioMode operationModeA;		//0-> Off, 1-> RX, 2-> TX
 volatile uint32_t centerFrequencyA;		//Hz
 volatile RadioModulation modulationA;	//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 7: 4-FSK; 8: BPSK; 9: QPSK;
-volatile uint32_t ifFrequncyA;			//Hz
+volatile uint32_t ifFrequencyA;			//Hz
 volatile uint32_t bandwidthA;			//Hz
 volatile uint32_t txDatarateA;			//bit/s
 volatile uint32_t rxDatarateA;			//bit/s
@@ -89,7 +89,7 @@ volatile int32_t rfFrequencyTrackingA;	//Tracking in signed format and counts no
 volatile RadioMode operationModeB;		//0-> Off, 1-> RX, 2-> TX
 volatile uint32_t centerFrequencyB;		//Hz
 volatile RadioModulation modulationB;	//1: AM; 2: FM; 3: AFSK; 4: ASK; 5: FSK; 6: GMSK; 8: BPSK; 9: QPSK;
-volatile uint32_t ifFrequncyB;			//Hz
+volatile uint32_t ifFrequencyB;			//Hz
 volatile uint32_t bandwidthB;			//Hz
 volatile uint32_t txDatarateB;			//bit/s
 volatile uint32_t rxDatarateB;			//bit/s

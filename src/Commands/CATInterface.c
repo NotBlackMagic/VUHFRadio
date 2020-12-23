@@ -37,7 +37,7 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 		//AFC Control
 		return CATCommandAFCControl(data, dataLength, rData, rDataLength);
 	}
-	else if(data[0] == 'C' && data[1] == 'R') {
+	else if(data[0] == 'C' && data[1] == 'T') {
 		//CRC/CCITT Control
 		return CATCommandCRC(data, dataLength, rData, rDataLength);
 	}
@@ -489,7 +489,7 @@ uint8_t CATCommandCenterFequencyA(uint8_t* data, uint16_t dataLength, uint8_t* r
 			return 1;
 		}
 
-		if(RadioSetCenterFrequency(RADIO_A, centerFrequencyA) != 0x00) {
+		if(RadioSetCenterFrequency(RADIO_A, value) != 0x00) {
 			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
@@ -530,7 +530,7 @@ uint8_t CATCommandCenterFequencyB(uint8_t* data, uint16_t dataLength, uint8_t* r
 			return 1;
 		}
 
-		if(RadioSetCenterFrequency(RADIO_B, centerFrequencyB) != 0x00) {
+		if(RadioSetCenterFrequency(RADIO_B, value) != 0x00) {
 			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
@@ -683,7 +683,8 @@ uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 			if(value == 0x01) {
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
 				if(modulationA == 0x03) {
-
+					RadioSetAFSKSpaceFreq(radio, afskSpaceA);
+					RadioSetAFSKMarkFreq(radio, afskMarkA);
 				}
 			}
 			operationModeA = value;
@@ -692,7 +693,8 @@ uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 			if(value == 0x01) {
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
 				if(modulationB == 0x03) {
-
+					RadioSetAFSKSpaceFreq(radio, afskSpaceB);
+					RadioSetAFSKMarkFreq(radio, afskMarkB);
 				}
 			}
 			operationModeB = value;
@@ -782,7 +784,8 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
 				if(modulationA == 0x03) {
-
+					RadioSetAFSKSpaceFreq(radio, afskSpaceA);
+					RadioSetAFSKMarkFreq(radio, afskMarkA);
 				}
 			}
 			else {
@@ -797,8 +800,9 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 				operationModeB = 0x02;
 
 				//Check if is AFSK mode, if yes change AFSK register because have different meaning in RX or TX
-				if(modulationA == 0x04) {
-
+				if(modulationB == 0x04) {
+					RadioSetAFSKSpaceFreq(radio, afskSpaceB);
+					RadioSetAFSKMarkFreq(radio, afskMarkB);
 				}
 			}
 			else {
@@ -903,11 +907,11 @@ uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData
 	if(data[3] == ';') {
 		//Read Command
 		if(radio == RADIO_A) {
-			*rDataLength = sprintf(rData, "IS0%06d;", ifFrequncyA);
+			*rDataLength = sprintf(rData, "IS0%06d;", ifFrequencyA);
 			return 0;
 		}
 		else if(radio == RADIO_B) {
-			*rDataLength = sprintf(rData, "IS1%06d;", ifFrequncyB);
+			*rDataLength = sprintf(rData, "IS1%06d;", ifFrequencyB);
 			return 0;
 		}
 		else {
@@ -935,10 +939,10 @@ uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData
 		}
 
 		if(radio == RADIO_A) {
-			ifFrequncyA = value;
+			ifFrequencyA = value;
 		}
 		else if(radio == RADIO_B) {
-			ifFrequncyB = value;
+			ifFrequencyB = value;
 		}
 	}
 	else {

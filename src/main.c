@@ -40,6 +40,8 @@ int main(void) {
 
 	//Init VHF Radio, base/general configurations
 	RadioVHFInit();
+	RadioVHFEnterFMMode(93200000 + 50000);			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
+	RadioSetOperationMode(RADIO_B, RadioMode_RX);
 
 	//Config VHF Radio
 	centerFrequencyB = 93200000 + 50000;			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
@@ -47,22 +49,37 @@ int main(void) {
 	operationModeB = RadioMode_RX;
 	frequencyDeviationB = 65000;
 	bandwidthB = 100000;
-	ifFrequncyB = 10000;
+	ifFrequencyB = 10000;
 	rxDatarateB = 200000;
 	txDatarateB = 200000;
+	outputPowerB = 26;
 	afcRangeB = 25000;
 	agcSpeedB = 9;
+
+	afskSpaceB = 2200;
+	afskMarkB = 1200;
+
+	encoderB = RadioEncoder_NRZI;
+	framingB = RadioFraming_HDLC;
+	crcB = RadioCRC_CCITT;
 
 	RadioSetCenterFrequency(RADIO_B, centerFrequencyB);
 	RadioSetModulation(RADIO_B, modulationB);
 	RadioSetTXDeviation(RADIO_B, frequencyDeviationB);
 	RadioSetBandwidth(RADIO_B, bandwidthB);
-	RadioSetIF(RADIO_B, ifFrequncyB);
+	RadioSetIF(RADIO_B, ifFrequencyB);
 	RadioSetRXDatarate(RADIO_B, rxDatarateB);
 	RadioSetTXDatarate(RADIO_B, txDatarateB);
+	RadioSetAFSKSpaceFreq(RADIO_B, afskSpaceB);
+	RadioSetAFSKMarkFreq(RADIO_B, afskMarkB);
+	RadioSetTXPower(RADIO_B, outputPowerB);
 	RadioSetAFCRange(RADIO_B, afcRangeB);
 	RadioSetAGCSpeed(RADIO_B, agcSpeedB);
 	RadioSetOperationMode(RADIO_B, operationModeB);
+
+	RadioSetEncodingMode(RADIO_B, encoderB);
+	RadioSetFramingMode(RADIO_B, framingB);
+	RadioSetCRCMode(RADIO_B, crcB);
 
 //	RadioConfigStruct radioVHFConfig;
 //	radioVHFConfig.frequency = 119100000;	//145895000 + 1500;
@@ -74,21 +91,55 @@ int main(void) {
 //	RadioVHFEnterFMMode(93200000 + 50000);			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
 //	RadioVHFEnterAMMode(119160000 - 4000);
 
-	//Init UHF Radio
+	//Init UHF Radio, base/general configurations
 	RadioUHFInit();
 
 	//Config UHF Radio
-	RadioConfigStruct radioUHFConfig;
-	radioUHFConfig.frequency = 436450000 + 4300;
-	radioUHFConfig.datarate = 1200;
-	radioUHFConfig.afcRange = 2000;
-	radioUHFConfig.fskDeviation = 3000;
-	radioUHFConfig.modulation = AFSK;
-//	RadioUHFModConfig(radioUHFConfig);
-	RadioUHFEnterFMMode(radioUHFConfig.frequency);
+	centerFrequencyA = 436450000 + 4300;
+	modulationA = RadioModulation_AFSK;
+	operationModeA = RadioMode_RX;
+	frequencyDeviationA = 3000;
+	bandwidthA = 15000;
+	ifFrequencyA = 7500;
+	rxDatarateA = 1200;
+	txDatarateA = 1200;
+	outputPowerA = 26;
+	afcRangeA = 3750;
+	agcSpeedA = 7;
 
-	//Set UHF Radio to RX Mode
-	AX5043PwrSetPowerMode(RADIO_UHF, PwrMode_RXEN);
+	afskSpaceA = 2200;
+	afskMarkA = 1200;
+
+	encoderA = RadioEncoder_NRZI;
+	framingA = RadioFraming_HDLC;
+	crcA = RadioCRC_CCITT;
+
+	RadioSetCenterFrequency(RADIO_A, centerFrequencyA);
+	RadioSetModulation(RADIO_A, modulationA);
+	RadioSetTXDeviation(RADIO_A, frequencyDeviationA);
+	RadioSetBandwidth(RADIO_A, bandwidthA);
+	RadioSetIF(RADIO_A, ifFrequencyA);
+	RadioSetRXDatarate(RADIO_A, rxDatarateA);
+	RadioSetTXDatarate(RADIO_A, txDatarateA);
+	RadioSetAFSKSpaceFreq(RADIO_A, afskSpaceA);
+	RadioSetAFSKMarkFreq(RADIO_A, afskMarkA);
+	RadioSetTXPower(RADIO_A, outputPowerA);
+	RadioSetAFCRange(RADIO_A, afcRangeA);
+	RadioSetAGCSpeed(RADIO_A, agcSpeedA);
+	RadioSetOperationMode(RADIO_A, operationModeA);
+
+	RadioSetEncodingMode(RADIO_A, encoderA);
+	RadioSetFramingMode(RADIO_A, framingA);
+	RadioSetCRCMode(RADIO_A, crcA);
+
+//	RadioConfigStruct radioUHFConfig;
+//	radioUHFConfig.frequency = 436450000 + 4300;
+//	radioUHFConfig.datarate = 1200;
+//	radioUHFConfig.afcRange = 2000;
+//	radioUHFConfig.fskDeviation = 3000;
+//	radioUHFConfig.modulation = AFSK;
+//	RadioUHFModConfig(radioUHFConfig);
+//	RadioUHFEnterFMMode(radioUHFConfig.frequency);
 
 	//Start the Tracking/Status update Timer
 	TIM3Init();
@@ -119,60 +170,6 @@ int main(void) {
 			CATInterfaceHandler(rxData, rxLength, txData, &txLength);
 			UART1Write(txData, txLength);
 		}
-	}
-
-	while(1) {
-		//USB/AT Command Interpreter
-		if(USBVCPRead(rxData, &rxLength) == 1) {
-			if(ATCmdFraming(rxData, rxLength, &framed, &framedLength) == 0) {
-				ATCmdStruct atCmdstr;
-				if(ATCmdParse(framed, framedLength, &atCmdstr) == 0) {
-					CommandHandler(atCmdstr.cmd, atCmdstr.args, (CommandTypeEnum)atCmdstr.type);
-				}
-			}
-		}
-
-		//This Sets the LED1 to the Virtual COM Connection state, LED is ON if connected
-		if(USBVCPIsConnected()) {
-			if(isVCPConnected == 0) {
-				errorBits = 0;
-				totalBits = 0;
-
-				//First Connection, write welcome message
-				USBVCPWrite("Welcome to VUHFRadio V1! \n", 26);
-				USBVCPWrite("Hardware Version: 1.3, May 2020 \n", 33);
-				USBVCPWrite("Software Version: 0.9, May 2020 \n", 33);
-				USBVCPWrite("This Module uses AT Commands, for more info write AT+LIST \n", 59);
-
-				isVCPConnected = 1;
-			}
-		}
-		else {
-			isVCPConnected = 0;
-		}
-		GPIOWrite(GPIO_OUT_LED4, USBVCPIsConnected());
-
-		//Radio State Machine
-		RadioStateMachine();
-
-		//Morse Decoder Testing
-		MorseStateMachine();
-
-//		if(time + 1000 < GetSysTick()) {
-//			time = GetSysTick();
-//
-//			int8_t uhfRSSI = AX5043GeneralGetRSSI(RADIO_UHF);
-//			int8_t vhfRSSI = AX5043GeneralGetRSSI(RADIO_VHF);
-//			uint8_t vhfGain = AX5043GeneralGetAGCCurrentGain(RADIO_VHF);
-//			char str[200];
-//			uint8_t len = sprintf(str, "RSSI VHF: %4d; UHF: %4d; AGC: %3d \n", vhfRSSI, uhfRSSI, vhfGain);
-//			USBVCPWrite(str, len);
-//
-//			int32_t vhfFreqRF = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
-//			int32_t uhfFreqRF = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
-//			len = sprintf(str, "RF Deviation VHF: %d; UHF: %d \n", vhfFreqRF, uhfFreqRF);
-//			USBVCPWrite(str, len);
-//		}
 	}
 
 	//Send Test Frame
