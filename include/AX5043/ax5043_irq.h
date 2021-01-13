@@ -112,9 +112,13 @@ typedef union {
 	uint16_t raw;
 } RadioEventRequest;
 
-void AX5043IrqSetIRQMask(uint8_t interfaceID, IrqMask irqMask);
+//void AX5043IrqSetIRQMask(uint8_t interfaceID, IrqMask irqMask);
+void AX5043IrqEnableIRQs(uint8_t interfaceID, IrqMask irqMask);
+void AX5043IrqDisableIRQs(uint8_t interfaceID, IrqMask irqMask);
 IrqMask AX5043IrqGetIRQMask(uint8_t interfaceID);
-void AX5043IrqSetRadioEventMask(uint8_t interfaceID, RadioEventMask radioEventMask);
+//void AX5043IrqSetRadioEventMask(uint8_t interfaceID, RadioEventMask radioEventMask);
+void AX5043IrqEnableRadioEvents(uint8_t interfaceID, RadioEventMask radioEventMask);
+void AX5043IrqDisableRadioEvents(uint8_t interfaceID, RadioEventMask radioEventMask);
 RadioEventMask AX5043IrqGetRadioEventMask(uint8_t interfaceID);
 void AX5043IrqSetIRQInversion(uint8_t interfaceID, IrqInversion irqInversion);
 IrqInversion AX5043IrqGetIRQInversion(uint8_t interfaceID);

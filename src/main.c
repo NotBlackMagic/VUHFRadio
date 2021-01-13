@@ -1,3 +1,4 @@
+#include "adc.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "spi.h"
@@ -6,6 +7,7 @@
 #include "usb_vcp.h"
 
 #include "ax25.h"
+#include "tnc.h"
 #include "morse.h"
 #include "radio.h"
 
@@ -14,8 +16,9 @@
 #include "CATInterface.h"
 #include "radioCommands.h"
 
-#include "atCmdInter.h"
-#include "commandHandler.h"
+#include "memoryChannelConfigs.h"
+
+uint8_t RadioWritePacket(uint8_t radio, uint8_t data[], uint8_t dataLength);
 
 int main(void) {
 	//Configure the system clock
@@ -29,57 +32,64 @@ int main(void) {
 	ADC1Init();
 	SPI1Init();
 	SPI2Init();
-//	PWM1Init();
-//	PWM2Init();
-
-	//Initialize Global Variables
-	GlobalVariablesInit();
+//	PWM1Init();		//DCLK for Radio B, VHF
+//	PWM2Init();		//DCLK for Radio A, UHF
 
 	//Initialize the VHF and UHF Radio Interfaces, set the SPI and CS
 	RadioInterfacesInit();
 
 	//Init VHF Radio, base/general configurations
-	RadioVHFInit();
-	RadioVHFEnterFMMode(93200000 + 50000);			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
-	RadioSetOperationMode(RADIO_B, RadioMode_RX);
+	RadioInitBaseConfiguration(RADIO_B);
+//	RadioVHFInit();
 
 	//Config VHF Radio
-	centerFrequencyB = 93200000 + 50000;			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
-	modulationB = RadioModulation_FM;
-	operationModeB = RadioMode_RX;
-	frequencyDeviationB = 65000;
-	bandwidthB = 100000;
-	ifFrequencyB = 10000;
-	rxDatarateB = 200000;
-	txDatarateB = 200000;
-	outputPowerB = 26;
-	afcRangeB = 25000;
-	agcSpeedB = 9;
+	radioBBaseConfigs.radio = RADIO_B;
+	radioBBaseConfigs.radioXTAL = RADIO_B_XTAL;
+	radioBBaseConfigs.radioCenterFrequencyMin = RADIO_B_FREQ_MIN;
+	radioBBaseConfigs.radioCenterFrequencyMax = RADIO_B_FREQ_MAX;
+	radioBBaseConfigs.radioRSSIOffset = -11;
+//	radioBConfig.centerFrequency = 93200000 + 50000;			//Comercial: 97400000; RFM: 93200000; Mega Hits: 92400000
+//	radioBConfig.modulation = RadioModulation_FM;
+//	radioBConfig.operationMode = RadioMode_RX;
+//	radioBConfig.frequencyDeviation = 65000;
+//	radioBConfig.bandwidth = 100000;
+//	radioBConfig.ifFrequency = 10000;
+//	radioBConfig.rxDatarate = 200000;
+//	radioBConfig.txDatarate = 200000;
+//	radioBConfig.outputPower = 16;
+//	radioBConfig.afcRange = 25000;
+//	radioBConfig.agcSpeed = 9;
+//
+//	radioBConfig.afskSpace = 2200;
+//	radioBConfig.afskMark = 1200;
+//
+//	radioBConfig.tncMode = RadioTNCMode_OFF;
+//	radioBConfig.encoder = RadioEncoder_NRZI;
+//	radioBConfig.framing = RadioFraming_HDLC;
+//	radioBConfig.crc = RadioCRC_CCITT;
+//	radioBConfig.preambleSymbol = 0x55;
+//	radioBConfig.preambleLength = 20;
 
-	afskSpaceB = 2200;
-	afskMarkB = 1200;
+	radioBConfig = memoryChannelsFixed[Memory_FM_WB];
+	RadioSetFullConfiguration(RADIO_B, radioBConfig);
 
-	encoderB = RadioEncoder_NRZI;
-	framingB = RadioFraming_HDLC;
-	crcB = RadioCRC_CCITT;
-
-	RadioSetCenterFrequency(RADIO_B, centerFrequencyB);
-	RadioSetModulation(RADIO_B, modulationB);
-	RadioSetTXDeviation(RADIO_B, frequencyDeviationB);
-	RadioSetBandwidth(RADIO_B, bandwidthB);
-	RadioSetIF(RADIO_B, ifFrequencyB);
-	RadioSetRXDatarate(RADIO_B, rxDatarateB);
-	RadioSetTXDatarate(RADIO_B, txDatarateB);
-	RadioSetAFSKSpaceFreq(RADIO_B, afskSpaceB);
-	RadioSetAFSKMarkFreq(RADIO_B, afskMarkB);
-	RadioSetTXPower(RADIO_B, outputPowerB);
-	RadioSetAFCRange(RADIO_B, afcRangeB);
-	RadioSetAGCSpeed(RADIO_B, agcSpeedB);
-	RadioSetOperationMode(RADIO_B, operationModeB);
-
-	RadioSetEncodingMode(RADIO_B, encoderB);
-	RadioSetFramingMode(RADIO_B, framingB);
-	RadioSetCRCMode(RADIO_B, crcB);
+//	RadioSetCenterFrequency(RADIO_B, radioBConfig.centerFrequency);
+//	RadioSetModulation(RADIO_B, radioBConfig.modulation);
+//	RadioSetTXDeviation(RADIO_B, radioBConfig.frequencyDeviation);
+//	RadioSetBandwidth(RADIO_B, radioBConfig.bandwidth);
+//	RadioSetIF(RADIO_B, radioBConfig.ifFrequency);
+//	RadioSetRXDatarate(RADIO_B, radioBConfig.rxDatarate);
+//	RadioSetTXDatarate(RADIO_B, radioBConfig.txDatarate);
+//	RadioSetTXPower(RADIO_B, radioBConfig.outputPower);
+//	RadioSetAFCRange(RADIO_B, radioBConfig.afcRange);
+//	RadioSetAGCSpeed(RADIO_B, radioBConfig.agcSpeed);
+//	RadioSetOperationMode(RADIO_B, radioBConfig.operationMode);
+//	RadioSetAFSKSpaceFreq(RADIO_B, radioBConfig.afskSpace);			//Have to be done AFTER operation mode is set, depends on operationMode
+//	RadioSetAFSKMarkFreq(RADIO_B, radioBConfig.afskMark);
+//
+//	RadioSetEncodingMode(RADIO_B, radioBConfig.encoder);
+//	RadioSetFramingMode(RADIO_B, radioBConfig.framing);
+//	RadioSetCRCMode(RADIO_B, radioBConfig.crc);
 
 //	RadioConfigStruct radioVHFConfig;
 //	radioVHFConfig.frequency = 119100000;	//145895000 + 1500;
@@ -92,45 +102,58 @@ int main(void) {
 //	RadioVHFEnterAMMode(119160000 - 4000);
 
 	//Init UHF Radio, base/general configurations
-	RadioUHFInit();
+	RadioInitBaseConfiguration(RADIO_A);
+//	RadioUHFInit();
 
 	//Config UHF Radio
-	centerFrequencyA = 436450000 + 4300;
-	modulationA = RadioModulation_AFSK;
-	operationModeA = RadioMode_RX;
-	frequencyDeviationA = 3000;
-	bandwidthA = 15000;
-	ifFrequencyA = 7500;
-	rxDatarateA = 1200;
-	txDatarateA = 1200;
-	outputPowerA = 26;
-	afcRangeA = 3750;
-	agcSpeedA = 7;
+	radioABaseConfigs.radio = RADIO_A;
+	radioABaseConfigs.radioXTAL = RADIO_A_XTAL;
+	radioABaseConfigs.radioCenterFrequencyMin = RADIO_A_FREQ_MIN;
+	radioABaseConfigs.radioCenterFrequencyMax = RADIO_A_FREQ_MAX;
+//	radioAConfig.operationMode = RadioMode_RX;
+//	radioAConfig.centerFrequency = 436450000 + 4300;
+//	radioAConfig.modulation = RadioModulation_AFSK;
+//	radioAConfig.frequencyDeviation = 3000;
+//	radioAConfig.bandwidth = 15000;
+//	radioAConfig.ifFrequency = 7500;
+//	radioAConfig.rxDatarate = 1200;
+//	radioAConfig.txDatarate = 1200;
+//	radioAConfig.outputPower = 16;
+//	radioAConfig.afcRange = 3750;
+//	radioAConfig.agcSpeed = 7;
+//
+//	radioAConfig.afskSpace = 2200;
+//	radioAConfig.afskMark = 1200;
+//
+//	radioAConfig.tncMode = RadioTNCMode_KISS;
+//	radioAConfig.encoder = RadioEncoder_NRZI;
+//	radioAConfig.framing = RadioFraming_HDLC;
+//	radioAConfig.crc = RadioCRC_CCITT;
+//	radioAConfig.preambleSymbol = 0x55;
+//	radioAConfig.preambleLength = 20;
 
-	afskSpaceA = 2200;
-	afskMarkA = 1200;
+	radioAConfig = memoryChannelsFixed[Memory_AFSK_1200];
+	RadioSetFullConfiguration(RADIO_A, radioAConfig);
 
-	encoderA = RadioEncoder_NRZI;
-	framingA = RadioFraming_HDLC;
-	crcA = RadioCRC_CCITT;
-
-	RadioSetCenterFrequency(RADIO_A, centerFrequencyA);
-	RadioSetModulation(RADIO_A, modulationA);
-	RadioSetTXDeviation(RADIO_A, frequencyDeviationA);
-	RadioSetBandwidth(RADIO_A, bandwidthA);
-	RadioSetIF(RADIO_A, ifFrequencyA);
-	RadioSetRXDatarate(RADIO_A, rxDatarateA);
-	RadioSetTXDatarate(RADIO_A, txDatarateA);
-	RadioSetAFSKSpaceFreq(RADIO_A, afskSpaceA);
-	RadioSetAFSKMarkFreq(RADIO_A, afskMarkA);
-	RadioSetTXPower(RADIO_A, outputPowerA);
-	RadioSetAFCRange(RADIO_A, afcRangeA);
-	RadioSetAGCSpeed(RADIO_A, agcSpeedA);
-	RadioSetOperationMode(RADIO_A, operationModeA);
-
-	RadioSetEncodingMode(RADIO_A, encoderA);
-	RadioSetFramingMode(RADIO_A, framingA);
-	RadioSetCRCMode(RADIO_A, crcA);
+//	RadioSetCenterFrequency(RADIO_A, radioAConfig.centerFrequency);
+//	RadioSetModulation(RADIO_A, radioAConfig.modulation);
+//	RadioSetTXDeviation(RADIO_A, radioAConfig.frequencyDeviation);
+//	RadioSetBandwidth(RADIO_A, radioAConfig.bandwidth);
+//	RadioSetIF(RADIO_A, radioAConfig.ifFrequency);
+//	RadioSetRXDatarate(RADIO_A, radioAConfig.rxDatarate);
+//	RadioSetTXDatarate(RADIO_A, radioAConfig.txDatarate);
+//	RadioSetAFSKSpaceFreq(RADIO_A, radioAConfig.afskSpace);
+//	RadioSetAFSKMarkFreq(RADIO_A, radioAConfig.afskMark);
+//	RadioSetTXPower(RADIO_A, radioAConfig.outputPower);
+//	RadioSetAFCRange(RADIO_A, radioAConfig.afcRange);
+//	RadioSetAGCSpeed(RADIO_A, radioAConfig.agcSpeed);
+//	RadioSetOperationMode(RADIO_A, radioAConfig.operationMode);
+//	RadioSetAFSKSpaceFreq(RADIO_A, radioAConfig.afskSpace);			//Have to be done AFTER operation mode is set, depends on operationMode
+//	RadioSetAFSKMarkFreq(RADIO_A, radioAConfig.afskMark);
+//
+//	RadioSetEncodingMode(RADIO_A, radioAConfig.encoder);
+//	RadioSetFramingMode(RADIO_A, radioAConfig.framing);
+//	RadioSetCRCMode(RADIO_A, radioAConfig.crc);
 
 //	RadioConfigStruct radioUHFConfig;
 //	radioUHFConfig.frequency = 436450000 + 4300;
@@ -142,99 +165,298 @@ int main(void) {
 //	RadioUHFEnterFMMode(radioUHFConfig.frequency);
 
 	//Start the Tracking/Status update Timer
-	TIM3Init();
+	uint32_t trackingUpdateTimer = GetSysTick();
+//	TIM3Init();
 
 	//Initializations done, VUHFRadio Powered Up
 	GPIOWrite(GPIO_OUT_LED5, 1);
 
 	//Variables for USB/AT Commands
-	uint8_t isVCPConnected = 0;
 	uint8_t rxData[512];
 	uint16_t rxLength;
 	uint8_t txData[512];
 	uint16_t txLength;
-	uint8_t* framed;
-	uint16_t framedLength;
 	while(1) {
 		//USB Communication Check
 		if(USBVCPRead(rxData, &rxLength) == 0x01) {
-			CATInterfaceHandler(rxData, rxLength, txData, &txLength);
-			USBVCPWrite(txData, txLength);
+			//Check if is a KISS packet/frame/command, always start with FEND (0xC0)
+			if(rxData[0] == FEND) {
+				//This is a KISS packet
+				KissCmd kissCmd = rxData[1] & KISS_COMMAND_MASK;		//Extract the Command bits
+				uint8_t kissPort = (rxData[1] & KISS_PORT_MASK) >> 4;	//Extract the Port bits
 
-			//Forward received command over USB to UART, to the Radio Interface Module
-			UART1Write(rxData, rxLength);
+				if(kissCmd == DataFrame) {
+					//This is a KISS data frame
+					uint8_t txRadioDataLength = 0;
+					uint8_t txRadioData[255];
+
+					//Extract the KISS Frame to send over Radio
+					uint8_t i = 2;
+					while(i < rxLength) {
+						if(rxData[i] == FEND) {
+							//Frame end
+							break;
+						}
+						txRadioData[txRadioDataLength++] = rxData[i++];
+					}
+
+					if(kissPort == RADIO_A && radioAConfig.tncMode == RadioTNCMode_KISS) {
+						//Send Frame over radio
+						RadioWritePacket(RADIO_A, txRadioData, txRadioDataLength);
+					}
+					else if(kissPort == RADIO_B && radioBConfig.tncMode == RadioTNCMode_KISS) {
+						//Send Frame over radio
+						RadioWritePacket(RADIO_B, txRadioData, txRadioDataLength);
+					}
+				}
+			}
+			else {
+				//Not a KISS packet so check as CAT command
+				CATInterfaceHandler(rxData, rxLength, txData, &txLength);
+				USBVCPWrite(txData, txLength);
+
+				//Forward received command over USB to UART, to the Radio Interface Module
+				UART1Write(rxData, rxLength);
+			}
 		}
 
 		//UART Communication Check
 		if(UART1Read(rxData, &rxLength) == 0x01) {
-			CATInterfaceHandler(rxData, rxLength, txData, &txLength);
-			UART1Write(txData, txLength);
-		}
-	}
+			//Check if is a KISS packet/frame/command, always start with FEND (0xC0)
+			if(rxData[0] == FEND) {
+				//This is a KISS packet
+				KissCmd kissCmd = rxData[1] & KISS_COMMAND_MASK;		//Extract the Command bits
+				uint8_t kissPort = (rxData[1] & KISS_PORT_MASK) >> 4;	//Extract the Port bits
 
-	//Send Test Frame
-	uint8_t testData[200];
-	uint8_t testDataLen = 0;
-	testData[testDataLen++] = 'I' << 1;
-	testData[testDataLen++] = 'S' << 1;
-	testData[testDataLen++] = 'T' << 1;
-	testData[testDataLen++] = 'S' << 1;
-	testData[testDataLen++] = 'A' << 1;
-	testData[testDataLen++] = 'T' << 1;
-	testData[testDataLen++] = '1' << 1;
-	testData[testDataLen++] = 'C' << 1;
-	testData[testDataLen++] = 'S' << 1;
-	testData[testDataLen++] = '5' << 1;
-	testData[testDataLen++] = 'C' << 1;
-	testData[testDataLen++] = 'E' << 1;
-	testData[testDataLen++] = 'P' << 1;
-	testData[testDataLen++] = ('1' << 1) | 0x01;
-	testData[testDataLen++] = 0x03;
-	testData[testDataLen++] = 0x00;
-	testData[testDataLen++] = '0';
-	testData[testDataLen++] = '1';
-	testData[testDataLen++] = '2';
-	testData[testDataLen++] = '3';
-	testData[testDataLen++] = '4';
-	testData[testDataLen++] = '5';
-	testData[testDataLen++] = '6';
-	testData[testDataLen++] = '7';
-	testData[testDataLen++] = '8';
-	testData[testDataLen++] = '9';
-	testData[testDataLen++] = '\n';
+				if(kissCmd == DataFrame) {
+					//This is a KISS data frame
+					uint8_t txRadioDataLength = 0;
+					uint8_t txRadioData[255];
 
-	//Random generator
-	uint8_t i;
-	for(i = 0; i < 200; i++) {
-		testData[i] = rand();
-	}
-	testDataLen = i;
+					//Extract the KISS Frame to send over Radio
+					uint8_t i = 2;
+					while(i < rxLength) {
+						if(rxData[i] == FEND) {
+							//Frame end
+							break;
+						}
+						txRadioData[txRadioDataLength++] = rxData[i++];
+					}
 
-	RadioState radioState = AX5043GeneralRadioState(RADIO_VHF);
-	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(RADIO_VHF);
-	RadioVHFEnterTX();
-	while(1) {
-		RadioVHFEnterTX();
-		RadioVHFWritePreamble(0x55, 20);
-		RadioVHFWriteFrame(testData, testDataLen);
-		AX5043FIFOSetFIFOStatCommand(RADIO_VHF, FIFOStat_Commit);
+					if(kissPort == RADIO_A && radioAConfig.tncMode == RadioTNCMode_KISS) {
+						txRadioDataLength = 0;
+						txRadioData[txRadioDataLength++] = 'N' << 1;
+						txRadioData[txRadioDataLength++] = 'B' << 1;
+						txRadioData[txRadioDataLength++] = 'M' << 1;
+						txRadioData[txRadioDataLength++] = 'W' << 1;
+						txRadioData[txRadioDataLength++] = 'I' << 1;
+						txRadioData[txRadioDataLength++] = 'N' << 1;
+						txRadioData[txRadioDataLength++] = '1' << 1;
 
-		do {
-			radioState = AX5043GeneralRadioState(RADIO_VHF);
+						txRadioData[txRadioDataLength++] = 'V' << 1;
+						txRadioData[txRadioDataLength++] = 'U' << 1;
+						txRadioData[txRadioDataLength++] = 'H' << 1;
+						txRadioData[txRadioDataLength++] = 'F' << 1;
+						txRadioData[txRadioDataLength++] = 'T' << 1;
+						txRadioData[txRadioDataLength++] = 'X' << 1;
+						txRadioData[txRadioDataLength++] = ('1' << 1) | 0x01;
 
-			if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
-				GPIOWrite(GPIO_OUT_LED0, 1);
+						txRadioData[txRadioDataLength++] = 0x03;
+						txRadioData[txRadioDataLength++] = 0x00;
+						txRadioData[txRadioDataLength++] = 'T';
+						txRadioData[txRadioDataLength++] = 'H';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'Q';
+						txRadioData[txRadioDataLength++] = 'I';
+						txRadioData[txRadioDataLength++] = 'C';
+						txRadioData[txRadioDataLength++] = 'K';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'B';
+						txRadioData[txRadioDataLength++] = 'R';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'W';
+						txRadioData[txRadioDataLength++] = 'N';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'F';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'X';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'J';
+						txRadioData[txRadioDataLength++] = 'U';
+						txRadioData[txRadioDataLength++] = 'M';
+						txRadioData[txRadioDataLength++] = 'P';
+						txRadioData[txRadioDataLength++] = 'S';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'V';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = 'R';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'T';
+						txRadioData[txRadioDataLength++] = 'H';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'L';
+						txRadioData[txRadioDataLength++] = 'A';
+						txRadioData[txRadioDataLength++] = 'Z';
+						txRadioData[txRadioDataLength++] = 'Y';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'D';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'G';
+
+						//Send Frame over radio
+						RadioWritePacket(RADIO_A, txRadioData, txRadioDataLength);
+					}
+					else if(kissPort == RADIO_B && radioBConfig.tncMode == RadioTNCMode_KISS) {
+						//Send Frame over radio
+						RadioWritePacket(RADIO_B, txRadioData, txRadioDataLength);
+					}
+				}
 			}
 			else {
-				GPIOWrite(GPIO_OUT_LED0, 0);
+				//Not a KISS packet so check as CAT command
+				CATInterfaceHandler(rxData, rxLength, txData, &txLength);
+				UART1Write(txData, txLength);
+			}
+		}
+
+		if(radioAConfig.tncMode == RadioTNCMode_KISS && newFIFODataPacketA == 0x01) {
+			if(radioAConfig.framing == RadioFraming_HDLC) {
+				//In HDLC mode the CRC is appended at the end of the data frame, remove that
+				fifoDataPacketLengthA -= 2;
 			}
 
-		} while(radioState != RadioState_Idle);
+			uint8_t len = 0;
+			char str[255];
+			str[len++] = FEND;
+			str[len++] = ((RADIO_A << 4) & KISS_PORT_MASK) + (DataFrame & KISS_COMMAND_MASK);
 
-		AX5043PwrSetPowerMode(RADIO_VHF, PwrMode_Powerdown);
+			uint8_t i;
+			for(i = 0; i < fifoDataPacketLengthA; i++) {
+				str[len++] = fifoDataPacketA[i];
+			}
 
-//		Delay(1000);
+			str[len++] = FEND;
+
+			USBVCPWrite(str, len);
+			UART1Write(str, len);
+
+			newFIFODataPacketA = 0x00;
+		}
+
+		if(radioBConfig.tncMode == RadioTNCMode_KISS && newFIFODataPacketB == 0x01) {
+			if(radioBConfig.framing == RadioFraming_HDLC) {
+				//In HDLC mode the CRC is appended at the end of the data frame, remove that
+				fifoDataPacketLengthB -= 2;
+			}
+
+			uint8_t len = 0;
+			char str[255];
+			str[len++] = FEND;
+			str[len++] = ((RADIO_B << 4) & KISS_PORT_MASK) + (DataFrame & KISS_COMMAND_MASK);
+
+			uint8_t i;
+			for(i = 0; i < fifoDataPacketLengthB; i++) {
+				str[len++] = fifoDataPacketB[i];
+			}
+
+			str[len++] = FEND;
+
+			USBVCPWrite(str, len);
+			UART1Write(str, len);
+
+			newFIFODataPacketB = 0x00;
+		}
+
+		//Radio Tracking Update every ~20ms (50 Hz)
+		if((trackingUpdateTimer + 20) < GetSysTick()) {
+			RadioTrackingUpdateHandler();
+
+			trackingUpdateTimer = GetSysTick();
+		}
+
 	}
+}
+
+/**
+  * @brief	This function sends packet, handles all settings and transitions
+  * @param	radio: Selects the Radio
+  * @param	data: The Packet to be sent
+  * @param	dataLength: Length of the Packet to be sent
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioWritePacket(uint8_t radio, uint8_t data[], uint8_t dataLength) {
+	//Send Frame over radio
+	//First: Disable "FIFO Empty" Interrupt
+	IrqMask irqMask;
+	irqMask.raw = 0x0000;
+	irqMask.irqmfifonotempty = 1;
+	AX5043IrqDisableIRQs(radio, irqMask);
+
+	//Second: Clear FIFO and enter TX Mode
+	AX5043FIFOSetFIFOStatCommand(radio, FIFOStat_ClearFIFO);		//FIFO has to be empty to switch to "Standby" mode, intermediate mode needed to switch from RX to TX mode
+	RadioSetOperationMode(radio, RadioMode_TX);
+	if(radio == RADIO_A && radioAConfig.modulation == RadioModulation_AFSK) {
+		RadioSetAFSKSpaceFreq(RADIO_A, radioAConfig.afskSpace);
+		RadioSetAFSKMarkFreq(RADIO_A, radioAConfig.afskMark);
+	}
+	else if(radio == RADIO_B && radioBConfig.modulation == RadioModulation_AFSK) {
+		RadioSetAFSKSpaceFreq(RADIO_B, radioBConfig.afskSpace);
+		RadioSetAFSKMarkFreq(RADIO_B, radioBConfig.afskMark);
+	}
+
+	//Third: Send Data to Radio FIFO
+	if(radio == RADIO_A) {
+		if(RadioWriteFIFORepeatData(RADIO_A, radioAConfig.preambleSymbol, radioAConfig.preambleLength) != 0x00) {
+			//Error writing the preamble to the FIFO
+			return 0x01;
+		}
+	}
+	else if(radio == RADIO_B) {
+		if(RadioWriteFIFORepeatData(RADIO_B, radioBConfig.preambleSymbol, radioBConfig.preambleLength) != 0x00) {
+			//Error writing the preamble to the FIFO
+			return 0x01;
+		}
+	}
+	if(RadioWriteFIFOData(radio, data, dataLength) != 0x00) {
+		//Error writing the Packet to the FIFO
+		return 0x01;
+	}
+
+	//Forth: Commit FIFO Data, this actually sends the frame
+	AX5043FIFOSetFIFOStatCommand(radio, FIFOStat_Commit);
+
+	//Fifth: Wait for Transmission Complete
+	RadioState radioState;
+	do {
+		radioState = AX5043GeneralRadioState(radio);
+		if(radioState == RadioState_TX || radioState == RadioState_TXTail) {
+			GPIOWrite(GPIO_OUT_LED0, 1);
+		}
+		else {
+			GPIOWrite(GPIO_OUT_LED0, 0);
+		}
+		Delay(5);
+	} while(radioState != RadioState_Idle);
+
+	//Sixth: Switch back to RX Mode
+	AX5043FIFOSetFIFOStatCommand(radio, FIFOStat_ClearFIFO);		//FIFO has to be empty to switch to "Standby" mode, intermediate mode needed to switch from TX to RX mode
+	RadioSetOperationMode(radio, RadioMode_RX);
+	if(radio == RADIO_A && radioAConfig.modulation == RadioModulation_AFSK) {
+		RadioSetAFSKSpaceFreq(RADIO_A, radioAConfig.afskSpace);
+		RadioSetAFSKMarkFreq(RADIO_A, radioAConfig.afskMark);
+	}
+	else if(radio == RADIO_B && radioBConfig.modulation == RadioModulation_AFSK) {
+		RadioSetAFSKSpaceFreq(RADIO_B, radioBConfig.afskSpace);
+		RadioSetAFSKMarkFreq(RADIO_B, radioBConfig.afskMark);
+	}
+
+	//Seventh: Re-enable "FIFO Empty" Interrupt
+	AX5043IrqEnableIRQs(radio, irqMask);
+
+	return 0;
 }
 
 void Error_Handler(void) {

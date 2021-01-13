@@ -31,7 +31,7 @@ void RadioVHFInit() {
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_VHF, SysClk_Low, 0);
 	AX5043GPIOCnfgDCLK(RADIO_VHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_IO_Modem_Data, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_VHF, DATA_IO_Modem_Data, 0, 0);	//DATA_Modem_Data_Output
 	AX5043GPIOCnfgIRQ(RADIO_VHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_VHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_VHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -51,13 +51,13 @@ void RadioVHFInit() {
 	IrqMask irqMask;
 	irqMask.raw = 0x0000;
 	irqMask.irqmfifonotempty = 1;
-	AX5043IrqSetIRQMask(RADIO_VHF, irqMask);
+	AX5043IrqEnableIRQs(RADIO_VHF, irqMask);
 
 	//Set Events
 	RadioEventMask radioEvenMask;
 	radioEvenMask.raw = 0x00;
 //	radioEvenMask.revmdone = 1;
-	AX5043IrqSetRadioEventMask(RADIO_VHF, radioEvenMask);
+	AX5043IrqEnableRadioEvents(RADIO_VHF, radioEvenMask);
 
 	//Calibrate RSSI: Compensate for Board effects
 	AX5043PacketSetRSSIOffset(RADIO_VHF, 0xF5);					//Offset: -11dBm
@@ -73,8 +73,8 @@ void RadioVHFInit() {
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE16, &data, 1);	//F10: XTALOSC ??
 	data = 0x00;
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE17, &data, 1);	//F11: XTALAMPL ??
-//	data = 0x06;	//For TX
-	data = 0x02;	//For RX
+	data = 0x06;	//For TX
+//	data = 0x02;	//For RX
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE24, &data, 1);	//F18
 	data = 0x07;
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE28, &data, 1);	//F1C
@@ -101,7 +101,7 @@ void RadioVHFInit() {
 	data = 0x25;
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE68, &data, 1);	//F44
 	data = 0xE7;
-	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE95, &data, 1);	//F5F: MODCFGP ??
+	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE95, &data, 1);	//F5F: MODCFGP (PSK: 0xE1)
 	data = 0x00;	//Set to 0x06 if "Raw, Soft Bits"
 	AX5043WriteLongAddress(RADIO_VHF, PERFTUNE114, &data, 1);	//F72
 
@@ -236,7 +236,7 @@ void RadioVHFInit() {
 	AX5043PacketSetPacketChunkSize(RADIO_VHF, PacketChunkSize_240byte);
 	AX5043PacketSetLengthByteSignificantBits(RADIO_VHF, 0x0F);	//Enable arbitrary packet length
 	AX5043PacketSetMaxLength(RADIO_VHF, 0xFF);
-	AX5043PacketSetAcceptPacketsMultiChuck(RADIO_VHF, 1);
+	AX5043PacketSetAcceptPacketsMultiChuck(RADIO_VHF, 0);
 	AX5043PacketSetAcceptPacketsCRCFailed(RADIO_VHF, 1);
 
 	//Append RX tracking data in FIFO
@@ -280,8 +280,8 @@ void RadioUHFInit() {
 
 	//Set GPIOs
 	AX5043GPIOCnfgSysClk(RADIO_UHF, SysClk_Low, 0);
-	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Modem_Data_Clk_Output, 0, 0);
-	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_IO_Modem_Data, 0, 0);
+	AX5043GPIOCnfgDCLK(RADIO_UHF, DCLK_Low, 0, 0);
+	AX5043GPIOCnfgDATA(RADIO_UHF, DATA_Low, 0, 0);
 	AX5043GPIOCnfgIRQ(RADIO_UHF, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(RADIO_UHF, AntSel_Low, 0, 0);
 	AX5043GPIOCnfgPwrRamp(RADIO_UHF, PwrRamp_DAC_Output, 0, 0);	//Default
@@ -295,19 +295,19 @@ void RadioUHFInit() {
 	//Set ADC, set-up used for Analog-FM TX
 	AX5043GPIOSetADCSamplingPeriod(RADIO_UHF, 0x14);				//Set Sampling rate to 25kHz
 	AX5043GPIOSetEnableSamplingADCGPADC13(RADIO_UHF, 0x01);			//Enable GPADC1-3
-	AX5043GPIOSetEnableADCContinuousSampling(RADIO_UHF, 0x01);		//Continuous  sampling
+	AX5043GPIOSetEnableADCContinuousSampling(RADIO_UHF, 0x01);		//Continuous sampling
 
 	//Set IRQ
 	IrqMask irqMask;
 	irqMask.raw = 0x0000;
 	irqMask.irqmfifonotempty = 1;
-	AX5043IrqSetIRQMask(RADIO_UHF, irqMask);
+	AX5043IrqEnableIRQs(RADIO_UHF, irqMask);
 
 	//Set Events
 	RadioEventMask radioEvenMask;
 	radioEvenMask.raw = 0x00;
 //	radioEvenMask.revmdone = 1;
-	AX5043IrqSetRadioEventMask(RADIO_UHF, radioEvenMask);
+	AX5043IrqEnableRadioEvents(RADIO_UHF, radioEvenMask);
 
 	//Calibrate RSSI: Compensate for Board effects
 	AX5043PacketSetRSSIOffset(RADIO_UHF, 0xF5);					//Offset: -11dBm
@@ -323,8 +323,8 @@ void RadioUHFInit() {
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE16, &data, 1);	//F10: XTALOSC ??
 	data = 0x00;
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE17, &data, 1);	//F11: XTALAMPL ??
-//	data = 0x06;	//For TX
-	data = 0x02;	//For RX
+	data = 0x06;	//For TX
+//	data = 0x02;	//For RX
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE24, &data, 1);	//F18
 	data = 0x07;
 	AX5043WriteLongAddress(RADIO_UHF, PERFTUNE28, &data, 1);	//F1C
@@ -1098,9 +1098,9 @@ void RadioUHFWriteFrame(uint8_t data[], uint8_t dataLength) {
 	uint8_t fifoData[256];
 	uint8_t i = 0;
 
-	fifoData[i++] = 0xE1;		//FIFO Data command
+	fifoData[i++] = 0xE1;			//FIFO Data command
 	fifoData[i++] = dataLength + 1;	//FIFO Data Length + 1 (info/flag byte, the next byte)
-	fifoData[i++] = 0x03;		//Set as start and end packet
+	fifoData[i++] = 0x03;			//Set as start and end packet
 
 	//Copy to send data
 	uint8_t j;

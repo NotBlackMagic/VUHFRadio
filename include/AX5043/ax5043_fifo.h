@@ -80,7 +80,7 @@ typedef enum {
 	FIFOStat_NoOPeration = 0,				//No Operation
 	FIFOStat_ASKCoherent = 1,				//ASK Coherent
 	FIFOStat_ClearFIFOErrorFlag = 2,		//Clear FIFO Error (OVER and UNDER) Flags
-	FIFOStat_ClearFIFODataFlag = 3,			//Clear FIFO Data and Flags
+	FIFOStat_ClearFIFO = 3,					//Clear FIFO Data and Flags
 	FIFOStat_Commit = 4,					//Commit
 	FIFOStat_Rollback = 5					//Rollback
 } FIFOStatCmd;

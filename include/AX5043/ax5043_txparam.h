@@ -87,6 +87,38 @@ typedef enum {
 #define TXPWRCOEFFE0_MASK					0xFF	//Transmit Predistortion. TXPWRCOEFFE = a4 * 2^12 + 1/2
 #define TXPWRCOEFFE1_MASK					0xFF	//Transmit Predistortion. TXPWRCOEFFE = a4 * 2^12 + 1/2
 
+//Register Configuration of MODCFGP Register
+#define PSKPULSELEN_MASK					0x07
+#define PSKPULSECFG_MASK					0x18
+#define PSKPULSEBOST_MASK					0xE0
+//PSKPULSELEN Bits
+typedef enum {
+	PSKPulseLen_1 = 0,
+	PSKPulseLen_2 = 1,
+	PSKPulseLen_4 = 2,
+	PSKPulseLen_8 = 3,
+	PSKPulseLen_16 = 4,
+	PSKPulseLen_32 = 5,
+	PSKPulseLen_Off = 7
+} PSKPulseLength;
+//PSKPULSECFG Bits
+typedef enum {
+	PSKPulseCFG_Positive = 0,
+	PSKPulseCFG_Negative = 1,
+	PSKPulseCFG_Copysign = 2
+} PSKPulsePolarity;
+//PSKPULSEBOST Bits
+typedef enum {
+	PSKPulseBoost_1 = 0,
+	PSKPulseBoost_2 = 1,
+	PSKPulseBoost_4 = 2,
+	PSKPulseBoost_8 = 3,
+	PSKPulseBoost_16 = 4,
+	PSKPulseBoost_32 = 5,
+	PSKPulseBoost_64 = 6,
+	PSKPulseBoost_Off = 7
+} PSKPulseBoost;
+
 void AX5043TXParamSetFrequencyShape(uint8_t interfaceID, FreqShape freqShape);
 FreqShape AX5043TXParamGetFrequencyShape(uint8_t interfaceID);
 void AX5043TXParamSetFSKFrequencyDeviation(uint8_t interfaceID, uint32_t freqDeviation);
@@ -123,6 +155,12 @@ void AX5043TXParamSetTXPredistortionCoeffD(uint8_t interfaceID, uint16_t coeff);
 uint16_t AX5043TXParamGetTXPredistortionCoeffD(uint8_t interfaceID);
 void AX5043TXParamSetTXPredistortionCoeffE(uint8_t interfaceID, uint16_t coeff);
 uint16_t AX5043TXParamGetTXPredistortionCoeffE(uint8_t interfaceID);
+void AX5043TXParamSetPSKPulseLength(uint8_t interfaceID, PSKPulseLength pulseLength);
+PSKPulseLength AX5043TXParamGetPSKPulseLength(uint8_t interfaceID);
+void AX5043TXParamSetPSKPulsePolarity(uint8_t interfaceID, PSKPulsePolarity pulsePolarity);
+PSKPulsePolarity AX5043TXParamGetPSKPulsePolarity(uint8_t interfaceID);
+void AX5043TXParamSetPSKPulseBoost(uint8_t interfaceID, PSKPulseBoost pulseBoost);
+PSKPulseBoost AX5043TXParamGetPSKPulseBoost(uint8_t interfaceID);
 
 #ifdef __cplusplus
 }

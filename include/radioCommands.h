@@ -23,17 +23,8 @@ extern "C" {
 
 #include "radioConfigs.h"
 
-#define RADIO_A								0
-#define RADIO_B								1
-
-#define RADIO_A_XTAL						16000000	//Xtal Frequency in Hz of Radio A
-#define RADIO_B_XTAL						16000000	//Xtal Frequency in Hz of Radio A
-
-#define RADIO_A_FREQ_MAX					437000000
-#define RADIO_A_FREQ_MIN					435000000
-
-#define RADIO_B_FREQ_MAX					147000000
-#define RADIO_B_FREQ_MIN					145000000
+uint8_t RadioInitBaseConfiguration(uint8_t radio);
+uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuration);
 
 uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range);
@@ -51,7 +42,8 @@ uint8_t RadioSetTXDatarate(uint8_t radio, uint32_t bitrate);
 uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation);
 uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq);
 uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq);
-
+uint8_t RadioWriteFIFORepeatData(uint8_t radio, uint8_t dataByte, uint8_t count);
+uint8_t RadioWriteFIFOData(uint8_t radio, uint8_t data[], uint8_t dataLength);
 
 #ifdef __cplusplus
 }

@@ -8,10 +8,12 @@ Some characteristics of this firmware:
 -	AX5043 Library Supports Multiple AX5043 Chips, multiple SPI Interfaces
 -	The MCU used is an STM32F103 and this firmware uses mostly the LL Library, except the VCP (Virtual COM) Library is using HAL
 -	Command interface is based on CAT commands, similar to what is used in popular HAM Radios from Yaesu or Kenwood
+-   Packet/frame interface based on the KISS protocol
 
 Current version is tested and works with:
-- AX.25 Frames with HDLC and CRC handled in the radio.
-- AFSK-1200: RX and TX compatible with HAM Radios using a TNC
+- AX.25 Frames with HDLC and CRC handled in the radio and sent to PC (USB) using the KISS protocol
+- AFSK-1200: RX and TX compatible with HAM Radios using a TNC. Tested with RTL.SDR and SDR# output to SoundModem.
+- FSK-9600 (G3RUH): RX and TX compatible with HAM Radios using a TNC. Tested with RTL.SDR and SDR# output to SoundModem HS.
 - (G)MSK/(G)FSK: Both RX and TX, tested @ 9600 bits/s MSK and GMSK (with BT of 0.5 and 0.3)
 - BPSK: Only RX working so far, TX has to high distortion currently
 - Morse decoding using the RSSI tracking
@@ -36,4 +38,4 @@ Detailed explanation on the configuration of the AX5043 transceiver: www.notblac
 
 **src/radioCommands.c:** Radio configuration functions/wrappers
 
-**include/configs.c:** Radio configurations save files
+**src/memoryChannelConfigs.c:** Tested and saved radio configurations, like AFSK-1200 and G3RUH

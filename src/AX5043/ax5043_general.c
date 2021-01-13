@@ -41,7 +41,7 @@ RadioState AX5043GeneralRadioState(uint8_t interfaceID) {
   */
 uint8_t AX5043GeneralXTALStatus(uint8_t interfaceID) {
 	uint8_t xtalState;
-	AX5043ReadShortAddress(interfaceID, RADIOSTATE, &xtalState, 1);
+	AX5043ReadShortAddress(interfaceID, XTALSTATUS, &xtalState, 1);
 	xtalState = xtalState & XTALSTATUS_MASK;
 	return xtalState;
 }

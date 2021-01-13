@@ -63,28 +63,28 @@ void GPIOInit() {
 	//Set Input Pins Interrupts
 	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE0);		//IRQ of UHF
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_0);
-	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_0);
+	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_0);
 
 	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE1);		//IRQ of UHF
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_1);
-	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_1);
+	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_1);
 
-	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE11);	//IRQ DCLK of UHF
-	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_11);
-	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_11);
-
-	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTA, LL_GPIO_AF_EXTI_LINE8);		//IRQ DCLK of VHF
-	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_8);
-	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_8);
+//	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE11);	//IRQ DCLK of UHF
+//	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_11);
+//	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_11);
+//
+//	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTA, LL_GPIO_AF_EXTI_LINE8);		//IRQ DCLK of VHF
+//	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_8);
+//	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_8);
 
 	NVIC_EnableIRQ(EXTI0_IRQn);
+	NVIC_SetPriority(EXTI0_IRQn, 1);
 	NVIC_EnableIRQ(EXTI1_IRQn);
-	NVIC_EnableIRQ(EXTI15_10_IRQn);
-	NVIC_EnableIRQ(EXTI9_5_IRQn);
-	NVIC_SetPriority(EXTI0_IRQn, 0);
-	NVIC_SetPriority(EXTI1_IRQn, 0);
-	NVIC_SetPriority(EXTI15_10_IRQn, 0);
-	NVIC_SetPriority(EXTI9_5_IRQn, 0);
+	NVIC_SetPriority(EXTI1_IRQn, 1);
+//	NVIC_EnableIRQ(EXTI15_10_IRQn);
+//	NVIC_SetPriority(EXTI15_10_IRQn, 1);
+//	NVIC_EnableIRQ(EXTI9_5_IRQn);
+//	NVIC_SetPriority(EXTI9_5_IRQn, 1);
 }
 
 /**
@@ -128,36 +128,6 @@ uint8_t GPIORead(uint8_t gpio) {
 }
 
 /**
-  * @brief	This function is the Handler for GPIO0s
-  * @param	None
-  * @return	None
-  */
-void EXTI0_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_0) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0) == 0x01) {
-		//Interrupt for IRQ of UHF
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
-
-		RadioIRQUHFHandler();
-	}
-}
-
-/**
-  * @brief	This function is the Handler for GPIO1s
-  * @param	None
-  * @return	None
-  */
-void EXTI1_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_1) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) == 0x01) {
-		//Interrupt for IRQ of VHF
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
-
-		RadioIRQVHFHandler();
-	}
-}
-
-/**
   * @brief	This function is the Handler for GPIO2s
   * @param	None
   * @return	None
@@ -182,34 +152,4 @@ void EXTI3_IRQHandler(void) {
   */
 void EXTI4_IRQHandler(void) {
 
-}
-
-/**
-  * @brief	This function is the Handler for GPIO5s to GPIO9s
-  * @param	None
-  * @return	None
-  */
-void EXTI9_5_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_8) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_8) == 0x01) {
-		//Interrupt for DCLK of VHF
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_8);
-
-		RadioDCLKVHFHandler();
-	}
-}
-
-/**
-  * @brief	This function is the Handler for GPIO10s to GPIO15s
-  * @param	None
-  * @return	None
-  */
-void EXTI15_10_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_11) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_11) == 0x01) {
-		//Interrupt for DCLK of UHF
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_11);
-
-		RadioDCLKUHFHandler();
-	}
 }

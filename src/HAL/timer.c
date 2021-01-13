@@ -20,7 +20,7 @@ void TIM3Init() {
 	LL_TIM_DisableMasterSlaveMode(TIM3);
 
 	//Configure Interrupts
-	NVIC_SetPriority(TIM3_IRQn, 0);
+	NVIC_SetPriority(TIM3_IRQn, 2);
 	NVIC_EnableIRQ(TIM3_IRQn);
 	LL_TIM_EnableIT_CC1(TIM3);
 
@@ -38,14 +38,14 @@ void TIM3SetFreq(uint32_t freq) {
 }
 
 /**
-  * @brief	TIM3 IRQ Hanlder, get updated tracking/status from AX5043 Radio
+  * @brief	TIM3 IRQ Handler, get updated tracking/status from AX5043 Radio
   * @param	None
   * @return	None
   */
 void TIM3_IRQHandler(void) {
 	//Check whether CC1 interrupt is pending
 	if(LL_TIM_IsActiveFlag_CC1(TIM3) == 1) {
-		RadioTrackUpdaHFHandler();
+		RadioTrackingUpdateHandler();
 
 		//Clear the update interrupt flag
 		LL_TIM_ClearFlag_CC1(TIM3);

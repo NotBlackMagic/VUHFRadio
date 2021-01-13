@@ -242,6 +242,7 @@ extern "C" {
 #define TXPWRCOEFFD0					0x016F	//Transmitter Predistortion Coefficient D
 #define TXPWRCOEFFE1					0x0170	//Transmitter Predistortion Coefficient E
 #define TXPWRCOEFFE0					0x0171	//Transmitter Predistortion Coefficient E
+#define MODCFGP							0x0F5F	//Modulator Configuration P: PSK settings
 
 //PLL Parameters
 #define PLLVCOI							0x0180	//VCO Current

@@ -480,3 +480,75 @@ uint16_t AX5043TXParamGetTXPredistortionCoeffE(uint8_t interfaceID) {
 	coeff += (config & TXPWRCOEFFE1_MASK) << 8;
 	return coeff;
 }
+
+/**
+  * @brief	This function sets the PSK Pulse Length
+  * @param	interfaceID: Which interface (chip) used
+  * @param	pulseLength: The PSK Pulse Length
+  * @return	None
+  */
+void AX5043TXParamSetPSKPulseLength(uint8_t interfaceID, PSKPulseLength pulseLength) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	config = (config & ~PSKPULSELEN_MASK) | (pulseLength);
+	AX5043WriteLongAddress(interfaceID, MODCFGP, &config, 1);
+}
+
+/**
+  * @brief	This function gets the PSK Pulse Length
+  * @param	interfaceID: Which interface (chip) used
+  * @return	The PSK Pulse Length
+  */
+PSKPulseLength AX5043TXParamGetPSKPulseLength(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	return (config & PSKPULSELEN_MASK);
+}
+
+/**
+  * @brief	This function sets the PSK Pulse Polarity
+  * @param	interfaceID: Which interface (chip) used
+  * @param	pulsePolarity: The PSK Pulse Polarity
+  * @return	None
+  */
+void AX5043TXParamSetPSKPulsePolarity(uint8_t interfaceID, PSKPulsePolarity pulsePolarity) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	config = (config & ~PSKPULSECFG_MASK) | (pulsePolarity << 3);
+	AX5043WriteLongAddress(interfaceID, MODCFGP, &config, 1);
+}
+
+/**
+  * @brief	This function gets the PSK Pulse Polarity
+  * @param	interfaceID: Which interface (chip) used
+  * @return	The PSK Pulse Polarity
+  */
+PSKPulsePolarity AX5043TXParamGetPSKPulsePolarity(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	return ((config & PSKPULSECFG_MASK) >> 3);
+}
+
+/**
+  * @brief	This function sets the PSK Pulse Boost
+  * @param	interfaceID: Which interface (chip) used
+  * @param	pulseBoost: The PSK Pulse Boost
+  * @return	None
+  */
+void AX5043TXParamSetPSKPulseBoost(uint8_t interfaceID, PSKPulseBoost pulseBoost) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	config = (config & ~PSKPULSEBOST_MASK) | (pulseBoost << 5);
+	AX5043WriteLongAddress(interfaceID, MODCFGP, &config, 1);
+}
+
+/**
+  * @brief	This function gets the PSK Pulse Boost
+  * @param	interfaceID: Which interface (chip) used
+  * @return	The PSK Pulse Boost
+  */
+PSKPulseBoost AX5043TXParamGetPSKPulseBoost(uint8_t interfaceID) {
+	uint8_t config;
+	AX5043ReadLongAddress(interfaceID, MODCFGP, &config, 1);
+	return ((config & PSKPULSEBOST_MASK) >> 5);
+}

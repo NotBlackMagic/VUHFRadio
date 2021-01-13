@@ -206,7 +206,7 @@ typedef enum {
 #define STRFOFFS_MASK						0x04	//Store RF Frequency offset at end of packet
 #define STDR_MASK							0x08	//Store Datarate offset at end of packet
 #define STRSSI_MASK							0x10	//Store RSSI at end of packet
-#define STCRCB_MASK							0x20	//Store CRC Bytes. Normally, CRC bytes are discarded after checking. In HDLC [1] mode, CRC bytes are always stored, regardless of this bi
+#define STCRCB_MASK							0x20	//Store CRC Bytes. Normally, CRC bytes are discarded after checking. In HDLC [1] mode, CRC bytes are always stored, regardless of this bit
 #define STANTRSSI_MASK						0x40	//Store RSSI and Background Noise Estimate at antenna selection time
 
 //Register Configuration of PKTACCEPTFLAGS Register

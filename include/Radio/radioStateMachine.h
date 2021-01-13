@@ -12,16 +12,21 @@ extern "C" {
 #include "ax25.h"
 #include "radio.h"
 
-#include "globalVariables.h"
+extern volatile uint32_t errorBits;
+extern volatile uint32_t totalBits;
 
-extern uint32_t errorBits;
-extern uint32_t totalBits;
+extern volatile uint8_t newFIFODataPacketA;
+extern volatile uint8_t fifoDataPacketLengthA;
+extern volatile uint8_t fifoDataPacketA[255];
+extern volatile uint8_t newFIFODataPacketB;
+extern volatile uint8_t fifoDataPacketLengthB;
+extern volatile uint8_t fifoDataPacketB[255];
 
-void RadioIRQVHFHandler();
-void RadioIRQUHFHandler();
-void RadioTrackUpdateHandler();
-void RadioDCLKVHFHandler();
-void RadioDCLKUHFHandler();
+void RadioAIRQHandler();
+void RadioBIRQHandler();
+void RadioTrackingUpdateHandler();
+void RadioADCLKHandler();
+void RadioBDCLKHandler();
 
 #ifdef __cplusplus
 }

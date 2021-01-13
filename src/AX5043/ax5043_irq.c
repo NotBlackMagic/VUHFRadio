@@ -6,10 +6,62 @@
   * @param	irqMask: Which interrupts should be enabled
   * @return	None
   */
-void AX5043IrqSetIRQMask(uint8_t interfaceID, IrqMask irqMask) {
-	uint8_t config = irqMask.raw & IRQMASK0_MASK;
+//void AX5043IrqSetIRQMask(uint8_t interfaceID, IrqMask irqMask) {
+//	uint8_t config = irqMask.raw & IRQMASK0_MASK;
+//	AX5043WriteShortAddress(interfaceID, IRQMASK0, &config, 1);
+//	config = (irqMask.raw >> 8) & IRQMASK1_MASK;
+//	AX5043WriteShortAddress(interfaceID, IRQMASK1, &config, 1);
+//}
+
+/**
+  * @brief	This function Enables the selected Interrupts, keeping the other interrupts as programmed
+  * @param	interfaceID: Which interface (chip) used
+  * @param	irqMask: Which interrupts should be enabled
+  * @return	None
+  */
+void AX5043IrqEnableIRQs(uint8_t interfaceID, IrqMask irqMask) {
+	uint8_t config;
+	uint16_t irqConfig;
+
+	//Get currently set IRQs
+	AX5043ReadShortAddress(interfaceID, IRQMASK0, &config, 1);
+	irqConfig = config;
+	AX5043ReadShortAddress(interfaceID, IRQMASK1, &config, 1);
+	irqConfig += (config & IRQMASK1_MASK) << 8;
+
+	//Mask/add to be enabled interrupts
+	irqConfig = irqConfig | irqMask.raw;
+
+	//Write back new IRQ settings
+	config = irqConfig & IRQMASK0_MASK;
 	AX5043WriteShortAddress(interfaceID, IRQMASK0, &config, 1);
-	config = (irqMask.raw >> 8) & IRQMASK1_MASK;
+	config = (irqConfig >> 8) & IRQMASK1_MASK;
+	AX5043WriteShortAddress(interfaceID, IRQMASK1, &config, 1);
+}
+
+/**
+  * @brief	This function Disables the selected Interrupts, keeping the other interrupts as programmed
+  * @param	interfaceID: Which interface (chip) used
+  * @param	irqMask: Which interrupts should be disabled
+  * @return	None
+  */
+void AX5043IrqDisableIRQs(uint8_t interfaceID, IrqMask irqMask) {
+	uint8_t config;
+	uint16_t irqConfig;
+
+	//Get currently set IRQs
+	AX5043ReadShortAddress(interfaceID, IRQMASK0, &config, 1);
+	irqConfig = config;
+	AX5043ReadShortAddress(interfaceID, IRQMASK1, &config, 1);
+	irqConfig += (config & IRQMASK1_MASK) << 8;
+
+	//Mask/add to be disabled interrupts
+	irqConfig = irqConfig & (~irqMask.raw);
+
+	//Write back new IRQ settings
+	config = irqConfig & IRQMASK0_MASK;
+	AX5043WriteShortAddress(interfaceID, IRQMASK0, &config, 1);
+	config = (irqConfig >> 8) & IRQMASK1_MASK;
 	AX5043WriteShortAddress(interfaceID, IRQMASK1, &config, 1);
 }
 
@@ -34,10 +86,62 @@ IrqMask AX5043IrqGetIRQMask(uint8_t interfaceID) {
   * @param	radioEventMask: Which events should be enabled
   * @return	None
   */
-void AX5043IrqSetRadioEventMask(uint8_t interfaceID, RadioEventMask radioEventMask) {
-	uint8_t config = radioEventMask.raw & RADIOEVENTMASK0_MASK;
+//void AX5043IrqSetRadioEventMask(uint8_t interfaceID, RadioEventMask radioEventMask) {
+//	uint8_t config = radioEventMask.raw & RADIOEVENTMASK0_MASK;
+//	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK0, &config, 1);
+//	config = (radioEventMask.raw >> 8) & RADIOEVENTMASK1_MASK;
+//	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK1, &config, 1);
+//}
+
+/**
+  * @brief	This function enables the selected Radio Events, keeping the other Radio Events as programmed
+  * @param	interfaceID: Which interface (chip) used
+  * @param	radioEventMask: Which events should be enabled
+  * @return	None
+  */
+void AX5043IrqEnableRadioEvents(uint8_t interfaceID, RadioEventMask radioEventMask) {
+	uint8_t config;
+	uint16_t eventConfig;
+
+	//Get currently set IRQs
+	AX5043ReadShortAddress(interfaceID, RADIOEVENTMASK0, &config, 1);
+	eventConfig = config;
+	AX5043ReadShortAddress(interfaceID, RADIOEVENTMASK1, &config, 1);
+	eventConfig += (config & RADIOEVENTMASK1_MASK) << 8;
+
+	//Mask/add to be enabled Radio Events
+	eventConfig = eventConfig | radioEventMask.raw;
+
+	//Write back new IRQ settings
+	config = eventConfig & RADIOEVENTMASK0_MASK;
 	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK0, &config, 1);
-	config = (radioEventMask.raw >> 8) & RADIOEVENTMASK1_MASK;
+	config = (eventConfig >> 8) & RADIOEVENTMASK1_MASK;
+	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK1, &config, 1);
+}
+
+/**
+  * @brief	This function disables the selected Radio Events, keeping the other Radio Events as programmed
+  * @param	interfaceID: Which interface (chip) used
+  * @param	radioEventMask: Which events should be disabled
+  * @return	None
+  */
+void AX5043IrqDisableRadioEvents(uint8_t interfaceID, RadioEventMask radioEventMask) {
+	uint8_t config;
+	uint16_t eventConfig;
+
+	//Get currently set IRQs
+	AX5043ReadShortAddress(interfaceID, RADIOEVENTMASK0, &config, 1);
+	eventConfig = config;
+	AX5043ReadShortAddress(interfaceID, RADIOEVENTMASK1, &config, 1);
+	eventConfig += (config & RADIOEVENTMASK1_MASK) << 8;
+
+	//Mask/add to be disabled Radio Events
+	eventConfig = eventConfig & (~radioEventMask.raw);
+
+	//Write back new IRQ settings
+	config = eventConfig & RADIOEVENTMASK0_MASK;
+	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK0, &config, 1);
+	config = (eventConfig >> 8) & RADIOEVENTMASK1_MASK;
 	AX5043WriteShortAddress(interfaceID, RADIOEVENTMASK1, &config, 1);
 }
 
