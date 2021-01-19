@@ -3,23 +3,23 @@
 RadioConfigStruct uhfRadioConfiguration;
 RadioConfigStruct vhfRadioConfiguration;
 
-void RadioUHFCS(uint8_t cs) {
-	GPIOWrite(GPIO_OUT_CS_U, cs);
-}
-
-void RadioVHFCS(uint8_t cs) {
-	GPIOWrite(GPIO_OUT_CS_V, cs);
-}
-
-void RadioInterfacesInit() {
-	//Initialize Radio Interfaces
-	AX5043InterfaceStruct radioInterfaces[2];
-	radioInterfaces[RADIO_UHF].SPICS = RadioUHFCS;
-	radioInterfaces[RADIO_UHF].SPIReadWrite = SPI1ReadWrite;
-	radioInterfaces[RADIO_VHF].SPICS = RadioVHFCS;
-	radioInterfaces[RADIO_VHF].SPIReadWrite = SPI2ReadWrite;
-	AX5043InterfacesInit(radioInterfaces, 2);
-}
+//void RadioUHFCS(uint8_t cs) {
+//	GPIOWrite(GPIO_OUT_CS_U, cs);
+//}
+//
+//void RadioVHFCS(uint8_t cs) {
+//	GPIOWrite(GPIO_OUT_CS_V, cs);
+//}
+//
+//void RadioInterfacesInit() {
+//	//Initialize Radio Interfaces
+//	AX5043InterfaceStruct radioInterfaces[2];
+//	radioInterfaces[RADIO_UHF].SPICS = RadioUHFCS;
+//	radioInterfaces[RADIO_UHF].SPIReadWrite = SPI1ReadWrite;
+//	radioInterfaces[RADIO_VHF].SPICS = RadioVHFCS;
+//	radioInterfaces[RADIO_VHF].SPIReadWrite = SPI2ReadWrite;
+//	AX5043InterfacesInit(radioInterfaces, 2);
+//}
 
 void RadioVHFInit() {
 	//Reset Radio
@@ -569,8 +569,8 @@ uint8_t RadioVHFModConfig(RadioConfigStruct configuration) {
 		modulationRXBW = vhfRadioConfiguration.datarate;
 	}
 	else if(vhfRadioConfiguration.modulation == OQPSK) {
-		//OQPSK BW = 2 * Bitrate
-		modulationRXBW = 2 * vhfRadioConfiguration.datarate;
+		//OQPSK BW = 1/2 * Bitrate
+		modulationRXBW = vhfRadioConfiguration.datarate >> 1;
 	}
 	else if(vhfRadioConfiguration.modulation == ASK || vhfRadioConfiguration.modulation == ASK_Coherent) {
 		//ASK BW = Bitrate
@@ -722,8 +722,8 @@ uint8_t RadioUHFModConfig(RadioConfigStruct configuration) {
 		modulationRXBW = uhfRadioConfiguration.datarate;
 	}
 	else if(uhfRadioConfiguration.modulation == OQPSK) {
-		//OQPSK BW = 2 * Bitrate
-		modulationRXBW = 2 * uhfRadioConfiguration.datarate;
+		//OQPSK BW = 1/2 * Bitrate
+		modulationRXBW = vhfRadioConfiguration.datarate >> 1;
 	}
 	else if(uhfRadioConfiguration.modulation == ASK || uhfRadioConfiguration.modulation == ASK_Coherent) {
 		//ASK BW = Bitrate

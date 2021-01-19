@@ -1,9 +1,9 @@
 #include "memoryChannelConfigs.h"
 
-volatile RadioConfigsStruct memoryChannelsFixed[3] = {
+volatile RadioConfigsStruct memoryChannelsFixed[MEMORY_CHANNELS_FIXED] = {
 {		//AFSK-1200 Settings
 		.operationMode = RadioMode_RX,
-		.centerFrequency = 436450000 + 4300,
+		.centerFrequency = 0,
 		.modulation = RadioModulation_AFSK,
 		.frequencyDeviation = 3000,
 		.bandwidth = 15000,
@@ -26,7 +26,7 @@ volatile RadioConfigsStruct memoryChannelsFixed[3] = {
 },
 {		//FSK-9600 (G3RUH) Settings
 		.operationMode = RadioMode_RX,
-		.centerFrequency = 436450000 + 4300,
+		.centerFrequency = 0,
 		.modulation = RadioModulation_FSK,
 		.frequencyDeviation = 4800,
 		.bandwidth = 14400,
@@ -35,7 +35,30 @@ volatile RadioConfigsStruct memoryChannelsFixed[3] = {
 		.txDatarate = 9600,
 		.outputPower = 16,
 		.afcRange = 3600,
-		.agcSpeed = 7,
+		.agcSpeed = 4,
+
+		.afskSpace = 2200,
+		.afskMark = 1200,
+
+		.tncMode = RadioTNCMode_KISS,
+		.encoder = RadioEncoder_NRZI_S,
+		.framing = RadioFraming_HDLC,
+		.crc = RadioCRC_CCITT,
+		.preambleSymbol = 0x55,
+		.preambleLength = 20
+},
+{		//BPSK-9600 Settings
+		.operationMode = RadioMode_RX,
+		.centerFrequency = 0,
+		.modulation = RadioModulation_BPSK,
+		.frequencyDeviation = 4800,
+		.bandwidth = 19200,
+		.ifFrequency = 9600,
+		.rxDatarate = 9600,
+		.txDatarate = 9600,
+		.outputPower = 16,
+		.afcRange = 4800,
+		.agcSpeed = 4,
 
 		.afskSpace = 2200,
 		.afskMark = 1200,

@@ -23,6 +23,7 @@ extern "C" {
 
 #include "radioConfigs.h"
 
+void RadioInterfacesInit();
 uint8_t RadioInitBaseConfiguration(uint8_t radio);
 uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuration);
 

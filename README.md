@@ -15,7 +15,7 @@ Current version is tested and works with:
 - AFSK-1200: RX and TX compatible with HAM Radios using a TNC. Tested with RTL.SDR and SDR# output to SoundModem.
 - FSK-9600 (G3RUH): RX and TX compatible with HAM Radios using a TNC. Tested with RTL.SDR and SDR# output to SoundModem HS.
 - (G)MSK/(G)FSK: Both RX and TX, tested @ 9600 bits/s MSK and GMSK (with BT of 0.5 and 0.3)
-- BPSK: Only RX working so far, TX has to high distortion currently
+- BPSK: Now working as well, both RX and TX
 - Morse decoding using the RSSI tracking
 - AM and FM Demodulation output by the DAC
 - FM Modulation from ADC input

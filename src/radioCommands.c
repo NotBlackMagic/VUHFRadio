@@ -1,5 +1,28 @@
 #include "radioCommands.h"
 
+void RadioACS(uint8_t cs) {
+	GPIOWrite(GPIO_OUT_CS_U, cs);
+}
+
+void RadioBCS(uint8_t cs) {
+	GPIOWrite(GPIO_OUT_CS_V, cs);
+}
+
+/**
+  * @brief	This function Inits the Radio Interfaces, the SPI interfaces to the AX5043 transceivers
+  * @param	None
+  * @return	None
+  */
+void RadioInterfacesInit() {
+	//Initialize Radio Interfaces
+	AX5043InterfaceStruct radioInterfaces[2];
+	radioInterfaces[RADIO_A].SPICS = RadioACS;
+	radioInterfaces[RADIO_A].SPIReadWrite = SPI1ReadWrite;
+	radioInterfaces[RADIO_B].SPICS = RadioBCS;
+	radioInterfaces[RADIO_B].SPIReadWrite = SPI2ReadWrite;
+	AX5043InterfacesInit(radioInterfaces, 2);
+}
+
 /**
   * @brief	This function Inits the Radio with the base configurations, fixed ones not changed by other commands including RadioSetFullConfiguration
   * @param	radio: Selects the Radio
@@ -100,11 +123,11 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 //		AX5043SynthSetFrequencyB(RADIO_A, 0x1B474335);
 	}
 	else if(radio == RADIO_B) {
-//		AX5043SynthSetPLLLoopFilter(RADIO_B, PLLLoop_Filter100kHz);
+		AX5043SynthSetPLLLoopFilter(RADIO_B, PLLLoop_Filter500kHz);
 //		AX5043SynthSetPLLChargePumpCurrent(RADIO_B, 0x10);
 		AX5043SynthSetPLLVCOSelection(RADIO_B, 1);			//Use VCO 2 with external inductor
 		AX5043SynthSetPLLVCO2Internal(RADIO_B, 1);			//Use VCO 2 with external inductor
-		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_B, 1);
+		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_B, 0);
 		AX5043SynthSetFrequencyA(RADIO_B, 0x06166667);		//For 145.895MHz is 0x091E51EC calculated value
 //		AX5043SynthSetFrequencyB(RADIO_B, 0x08B22E58);
 	}
@@ -215,12 +238,13 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043PacketSetLengthByteSignificantBits(radio, 0x0F);	//Enable arbitrary packet length
 	AX5043PacketSetMaxLength(radio, 0xFF);
 	AX5043PacketSetAcceptPacketsMultiChuck(radio, 0);
-	AX5043PacketSetAcceptPacketsCRCFailed(radio, 1);
+	AX5043PacketSetAcceptPacketsCRCFailed(radio, 0);
 
 	//Append RX tracking data in FIFO
 //	AX5043PacketEnableStoreRFFrequencyValue(radio, 0x01);	//Append/save RF frequency offset
 //	AX5043PacketEnableStoreDatarateValue(radio, 0x01);		//Append/save RX datarate
 //	AX5043PacketEnableStoreRSSI(radio, 0x01);				//Append/save RSSI value
+	AX5043PacketEnableStoreCRCBytes(radio, 0x01);			//Always append CRC/FEC bytes
 
 	//Set Pattern Matching
 	AX5043PacketSetPaternMatch0(radio, 0x7E7E7E7E);
@@ -258,9 +282,12 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
   * @return	0-> Success, 1-> Failed/Error
   */
 uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuration) {
-	if(RadioSetCenterFrequency(radio, configuration.centerFrequency) != 0x00) return 0x01;
-	if(RadioSetModulation(radio, configuration.modulation) != 0x00) return 0x01;
-	if(RadioSetTXDeviation(radio, configuration.frequencyDeviation) != 0x00) return 0x01;
+	//Only change Center Frequency if the configuration has it set.
+	//This allows to only change modulation/demodulation settings without switching the center frequency to
+	if(configuration.centerFrequency != 0) {
+		if(RadioSetCenterFrequency(radio, configuration.centerFrequency) != 0x00) return 0x01;
+	}
+
 	if(RadioSetBandwidth(radio, configuration.bandwidth) != 0x00) return 0x01;
 	if(RadioSetIF(radio, configuration.ifFrequency) != 0x00) return 0x01;
 	if(RadioSetRXDatarate(radio, configuration.rxDatarate) != 0x00) return 0x01;
@@ -270,7 +297,11 @@ uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuratio
 	if(RadioSetAGCSpeed(radio, configuration.agcSpeed) != 0x00) return 0x01;
 	if(RadioSetOperationMode(radio, configuration.operationMode) != 0x00) return 0x01;
 
-	//Have to be done AFTER operation mode is set, depends on operationMode
+	//Has to be done AFTER RX settings are performed as some settings depend on them
+	if(RadioSetModulation(radio, configuration.modulation) != 0x00) return 0x01;
+	if(RadioSetTXDeviation(radio, configuration.frequencyDeviation) != 0x00) return 0x01;
+
+	//Has to be done AFTER operation mode is set, depends on operationMode
 	if(RadioSetAFSKSpaceFreq(radio, configuration.afskSpace) != 0x00) return 0x01;
 	if(RadioSetAFSKMarkFreq(radio, configuration.afskMark) != 0x00) return 0x01;
 
@@ -636,7 +667,6 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 
 		uint8_t dec = AX5043RXParamGetDecimation(radio);
 		uint32_t rxRate = AX5043RXParamGetRXDatarate(radio);
-		rxRate = (uint32_t)((FXTAL << 7) / (((float)rxRate - 0.5f) * dec));
 
 		uint8_t exp = floorf(log2f(((float)rxRate / 4.f) / 8.f));
 		uint8_t man = roundf(((float)rxRate / 4.f) / (1 << exp));
@@ -652,17 +682,18 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 		AX5043PacketSetGainDatarateRecovery2(radio, man, exp);
 		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);
 
-		uint16_t afskBW = (uint16_t)(2.f * log2f((float)FXTAL / (32 * rxRate * dec)) + 1.5f);
+		rxRate = (uint32_t)((FXTAL << 7) / (((float)rxRate - 0.5f) * dec));
+		uint16_t afskBW = (uint16_t)(rint(2.f * log2f((float)FXTAL / (32 * rxRate * dec))));
 		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
 	}
 
 	if(modulation == RadioModulation_BPSK) {
 		//MODCFGP: PSK settings, enable PSK
-//		AX5043TXParamSetPSKPulseLength(radio, PSKPulseLen_2);	//F5F: MODCFGP (PSK: 0xE1)
+		AX5043TXParamSetPSKPulseLength(radio, PSKPulseLen_2);	//F5F: MODCFGP (PSK: 0xE1)
 	}
 	else {
 		//MODCFGP: PSK settings, disable PSK
-//		AX5043TXParamSetPSKPulseLength(radio, PSKPulseLen_Off);	//F5F: MODCFGP (PSK: 0xE7)
+		AX5043TXParamSetPSKPulseLength(radio, PSKPulseLen_Off);	//F5F: MODCFGP (PSK: 0xE7)
 	}
 
 	return 0;
@@ -815,14 +846,14 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 	Modulations modulation = (Modulations)AX5043GeneralGetModulation(radio);
 	if(modulation != FM) {
 		//Set RX Datarate dependent parameters
-		uint8_t exp = floorf(log2f(((float)bitrate / 4.f) / 8.f));
-		uint8_t man = roundf(((float)bitrate / 4.f) / (1 << exp));
+		uint8_t exp = floorf(log2f(((float)rxDr / 4.f) / 8.f));
+		uint8_t man = roundf(((float)rxDr / 4.f) / (1 << exp));
 		AX5043PacketSetGainTimingRecovery0(radio, man, exp);
 		AX5043PacketSetGainTimingRecovery1(radio, man, exp);
 		AX5043PacketSetGainTimingRecovery3(radio, man, exp);
 
-		exp = floorf(log2f(((float)bitrate / 64.f) / 8.f));
-		man = roundf(((float)bitrate / 64.f) / (1 << exp));
+		exp = floorf(log2f(((float)rxDr / 64.f) / 8.f));
+		man = roundf(((float)rxDr / 64.f) / (1 << exp));
 		AX5043PacketSetGainDatarateRecovery0(radio, man, exp);
 		AX5043PacketSetGainDatarateRecovery1(radio, man, exp);
 		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);

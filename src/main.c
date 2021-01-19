@@ -70,8 +70,13 @@ int main(void) {
 //	radioBConfig.preambleSymbol = 0x55;
 //	radioBConfig.preambleLength = 20;
 
-	radioBConfig = memoryChannelsFixed[Memory_FM_WB];
+//	RadioSetCenterFrequency(RADIO_B, 145895000 + 1400);
+//	volatile uint8_t rangeError = AX5043SynthGetAutoRangingErrorA(RADIO_B);
+//	volatile uint8_t pllRange = AX5043SynthGetVCORangeA(RADIO_B);
+	radioBConfig = memoryChannelsFixed[Memory_AFSK_1200];
+	radioBConfig.centerFrequency = 145895000 + 1400;
 	RadioSetFullConfiguration(RADIO_B, radioBConfig);
+//	AX5043PacketSetAcceptPacketsCRCFailed(RADIO_B, 1);
 
 //	RadioSetCenterFrequency(RADIO_B, radioBConfig.centerFrequency);
 //	RadioSetModulation(RADIO_B, radioBConfig.modulation);
@@ -110,29 +115,31 @@ int main(void) {
 	radioABaseConfigs.radioXTAL = RADIO_A_XTAL;
 	radioABaseConfigs.radioCenterFrequencyMin = RADIO_A_FREQ_MIN;
 	radioABaseConfigs.radioCenterFrequencyMax = RADIO_A_FREQ_MAX;
+
 //	radioAConfig.operationMode = RadioMode_RX;
 //	radioAConfig.centerFrequency = 436450000 + 4300;
-//	radioAConfig.modulation = RadioModulation_AFSK;
-//	radioAConfig.frequencyDeviation = 3000;
-//	radioAConfig.bandwidth = 15000;
-//	radioAConfig.ifFrequency = 7500;
-//	radioAConfig.rxDatarate = 1200;
-//	radioAConfig.txDatarate = 1200;
+//	radioAConfig.modulation = RadioModulation_BPSK;
+//	radioAConfig.frequencyDeviation = 2400;
+//	radioAConfig.bandwidth = 19200;
+//	radioAConfig.ifFrequency = 9600;
+//	radioAConfig.rxDatarate = 2400;
+//	radioAConfig.txDatarate = 2400;
 //	radioAConfig.outputPower = 16;
-//	radioAConfig.afcRange = 3750;
-//	radioAConfig.agcSpeed = 7;
+//	radioAConfig.afcRange = 4800;
+//	radioAConfig.agcSpeed = 6;
 //
 //	radioAConfig.afskSpace = 2200;
 //	radioAConfig.afskMark = 1200;
 //
 //	radioAConfig.tncMode = RadioTNCMode_KISS;
-//	radioAConfig.encoder = RadioEncoder_NRZI;
+//	radioAConfig.encoder = RadioEncoder_NRZI_S;
 //	radioAConfig.framing = RadioFraming_HDLC;
 //	radioAConfig.crc = RadioCRC_CCITT;
 //	radioAConfig.preambleSymbol = 0x55;
 //	radioAConfig.preambleLength = 20;
 
 	radioAConfig = memoryChannelsFixed[Memory_AFSK_1200];
+	radioAConfig.centerFrequency = 436450000 + 4300;
 	RadioSetFullConfiguration(RADIO_A, radioAConfig);
 
 //	RadioSetCenterFrequency(RADIO_A, radioAConfig.centerFrequency);
@@ -310,6 +317,68 @@ int main(void) {
 						RadioWritePacket(RADIO_A, txRadioData, txRadioDataLength);
 					}
 					else if(kissPort == RADIO_B && radioBConfig.tncMode == RadioTNCMode_KISS) {
+						txRadioDataLength = 0;
+						txRadioData[txRadioDataLength++] = 'N' << 1;
+						txRadioData[txRadioDataLength++] = 'B' << 1;
+						txRadioData[txRadioDataLength++] = 'M' << 1;
+						txRadioData[txRadioDataLength++] = 'W' << 1;
+						txRadioData[txRadioDataLength++] = 'I' << 1;
+						txRadioData[txRadioDataLength++] = 'N' << 1;
+						txRadioData[txRadioDataLength++] = '1' << 1;
+
+						txRadioData[txRadioDataLength++] = 'V' << 1;
+						txRadioData[txRadioDataLength++] = 'U' << 1;
+						txRadioData[txRadioDataLength++] = 'H' << 1;
+						txRadioData[txRadioDataLength++] = 'F' << 1;
+						txRadioData[txRadioDataLength++] = 'T' << 1;
+						txRadioData[txRadioDataLength++] = 'X' << 1;
+						txRadioData[txRadioDataLength++] = ('1' << 1) | 0x01;
+
+						txRadioData[txRadioDataLength++] = 0x03;
+						txRadioData[txRadioDataLength++] = 0x00;
+						txRadioData[txRadioDataLength++] = 'T';
+						txRadioData[txRadioDataLength++] = 'H';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'Q';
+						txRadioData[txRadioDataLength++] = 'I';
+						txRadioData[txRadioDataLength++] = 'C';
+						txRadioData[txRadioDataLength++] = 'K';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'B';
+						txRadioData[txRadioDataLength++] = 'R';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'W';
+						txRadioData[txRadioDataLength++] = 'N';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'F';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'X';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'J';
+						txRadioData[txRadioDataLength++] = 'U';
+						txRadioData[txRadioDataLength++] = 'M';
+						txRadioData[txRadioDataLength++] = 'P';
+						txRadioData[txRadioDataLength++] = 'S';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'V';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = 'R';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'T';
+						txRadioData[txRadioDataLength++] = 'H';
+						txRadioData[txRadioDataLength++] = 'E';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'L';
+						txRadioData[txRadioDataLength++] = 'A';
+						txRadioData[txRadioDataLength++] = 'Z';
+						txRadioData[txRadioDataLength++] = 'Y';
+						txRadioData[txRadioDataLength++] = ' ';
+						txRadioData[txRadioDataLength++] = 'D';
+						txRadioData[txRadioDataLength++] = 'O';
+						txRadioData[txRadioDataLength++] = 'G';
+
 						//Send Frame over radio
 						RadioWritePacket(RADIO_B, txRadioData, txRadioDataLength);
 					}

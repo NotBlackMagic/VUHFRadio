@@ -137,6 +137,10 @@ void RadioAIRQHandler() {
 //
 //					}
 
+					if((dataStatus & DATA_CRCFAIL) != DATA_CRCFAIL) {
+						GPIOWrite(GPIO_OUT_LED1, 1);
+					}
+
 					fifoDataPacketLengthA = dataLength - 1;
 					uint8_t i;
 					for(i = 0; i < fifoDataPacketLengthA; i++) {

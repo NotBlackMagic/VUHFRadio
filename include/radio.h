@@ -50,7 +50,7 @@ typedef struct {
 	uint16_t afskMarkTX;
 } RadioConfigStruct;
 
-void RadioInterfacesInit();
+//void RadioInterfacesInit();
 void RadioVHFInit();
 void RadioUHFInit();
 uint8_t RadioVHFModConfig(RadioConfigStruct configuration);
