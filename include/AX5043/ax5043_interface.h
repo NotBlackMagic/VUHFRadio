@@ -5,8 +5,7 @@
 extern "C" {
 #endif
 
-#include "gpio.h"
-#include "spi.h"
+#include <stdint.h>
 
 #define AX5043_MAX_INTERFACES_INSTANCES				2
 

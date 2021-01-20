@@ -14,8 +14,6 @@
 
 #include "pinMaping.h"
 
-#include "radioStateMachine.h"
-
 typedef enum {
 	GPIO_Mode_Analog = 0,
 	GPIO_Mode_Float = 1,

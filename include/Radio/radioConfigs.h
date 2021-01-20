@@ -9,17 +9,16 @@ extern "C" {
 
 #define RADIO_RSSI_THRESHOLD						-90		//Radio RSSI activity threshold, above this level channel activity is assumed (for Morse and LED indication)
 
-#define RADIO_A								0
-#define RADIO_B								1
+#define RADIO_A										0
+#define RADIO_B										1
 
-#define RADIO_A_XTAL						16000000	//Xtal Frequency in Hz of Radio A
-#define RADIO_B_XTAL						16000000	//Xtal Frequency in Hz of Radio A
+#define RADIO_XTAL									16000000	//Xtal Frequency in Hz
 
-#define RADIO_A_FREQ_MAX					437000000
-#define RADIO_A_FREQ_MIN					435000000
+#define RADIO_A_FREQ_MAX							437000000
+#define RADIO_A_FREQ_MIN							435000000
 
-#define RADIO_B_FREQ_MAX					147000000
-#define RADIO_B_FREQ_MIN					145000000
+#define RADIO_B_FREQ_MAX							147000000
+#define RADIO_B_FREQ_MIN							145000000
 
 typedef enum {
 	RadioMode_OFF = 0,

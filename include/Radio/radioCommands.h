@@ -23,6 +23,10 @@ extern "C" {
 
 #include "radioConfigs.h"
 
+//Platform Specific Peripherals Includes
+#include "gpio.h"
+#include "spi.h"
+
 void RadioInterfacesInit();
 uint8_t RadioInitBaseConfiguration(uint8_t radio);
 uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuration);

@@ -11,11 +11,12 @@
 #include "morse.h"
 #include "radio.h"
 
+#include "radioCommands.h"
+#include "radioConfigs.h"
+
 #include "radioStateMachine.h"
 
 #include "CATInterface.h"
-#include "radioCommands.h"
-
 #include "memoryChannelConfigs.h"
 
 uint8_t RadioWritePacket(uint8_t radio, uint8_t data[], uint8_t dataLength);
@@ -44,7 +45,7 @@ int main(void) {
 
 	//Config VHF Radio
 	radioBBaseConfigs.radio = RADIO_B;
-	radioBBaseConfigs.radioXTAL = RADIO_B_XTAL;
+	radioBBaseConfigs.radioXTAL = RADIO_XTAL;
 	radioBBaseConfigs.radioCenterFrequencyMin = RADIO_B_FREQ_MIN;
 	radioBBaseConfigs.radioCenterFrequencyMax = RADIO_B_FREQ_MAX;
 	radioBBaseConfigs.radioRSSIOffset = -11;
@@ -112,7 +113,7 @@ int main(void) {
 
 	//Config UHF Radio
 	radioABaseConfigs.radio = RADIO_A;
-	radioABaseConfigs.radioXTAL = RADIO_A_XTAL;
+	radioABaseConfigs.radioXTAL = RADIO_XTAL;
 	radioABaseConfigs.radioCenterFrequencyMin = RADIO_A_FREQ_MIN;
 	radioABaseConfigs.radioCenterFrequencyMax = RADIO_A_FREQ_MAX;
 

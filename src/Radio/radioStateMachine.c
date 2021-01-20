@@ -1,4 +1,3 @@
-#include "radioConfigs.h"
 #include "radioStateMachine.h"
 
 //BER Data variables
@@ -161,8 +160,8 @@ void RadioAIRQHandler() {
 
 uint8_t fDivider = 0;
 void RadioTrackingUpdateHandler() {
-	radioATracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_UHF);
-	radioBTracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_VHF);
+	radioATracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_A);
+	radioBTracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_B);
 
 	if(radioATracking.rssiTracking >= RADIO_RSSI_THRESHOLD) {
 		GPIOWrite(GPIO_OUT_LED1, 1);
@@ -180,8 +179,8 @@ void RadioTrackingUpdateHandler() {
 
 	if(fDivider == 10) {
 		//Update RF Frequency Tracking less frequently
-		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
-		radioBTracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
+		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_A);
+		radioBTracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_B);
 
 		fDivider = 0;
 	}
@@ -305,7 +304,7 @@ void EXTI15_10_IRQHandler(void) {
 //
 //			uint16_t len = sprintf(str, "UHF+");
 //
-//			int8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+//			int8_t rssi = AX5043GeneralGetRSSI(RADIO_A);
 //			len += sprintf(&str[len], "RSSI=%d\n", rssi);
 //
 //			len += sprintf(&str[len], "UHF+BER=%d;%d\n", errorBits, totalBits);
@@ -344,11 +343,11 @@ void EXTI15_10_IRQHandler(void) {
 //	//Check for VHF and UHF Activity
 //	if(GPIORead(GPIO_IN_IRQ_V) == 0x01) {
 //		//Have VHF activity
-//		radio = RADIO_VHF;
+//		radio = RADIO_B;
 //	}
 //	else if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
 //		//Have UHF activity and no VHF
-//		radio = RADIO_UHF;
+//		radio = RADIO_A;
 //		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED off
 //	}
 //	else {
@@ -368,10 +367,10 @@ void EXTI15_10_IRQHandler(void) {
 //		while(fifoIndex < fifoCnt) {
 //			uint16_t len = 0;
 //			char str[300];
-//			if(radio == RADIO_UHF) {
+//			if(radio == RADIO_A) {
 //				len = sprintf(str, "UHF+");
 //			}
-//			else if(radio == RADIO_VHF) {
+//			else if(radio == RADIO_B) {
 //				len = sprintf(str, "VHF+");
 //			}
 //
@@ -491,10 +490,10 @@ void EXTI15_10_IRQHandler(void) {
 //						}
 //					}
 //
-//					if(radio == RADIO_UHF) {
+//					if(radio == RADIO_A) {
 //						GPIOWrite(GPIO_OUT_LED1, 1);
 //					}
-//					else if(radio == RADIO_VHF) {
+//					else if(radio == RADIO_B) {
 //						GPIOWrite(GPIO_OUT_LED3, 1);
 //					}
 //

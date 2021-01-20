@@ -7,10 +7,11 @@ extern "C" {
 
 #include "stdio.h"
 
-#include "usb_vcp.h"
+#include "radioCommands.h"
+#include "radioConfigs.h"
 
-#include "ax25.h"
-#include "radio.h"
+//Platform Specific Peripherals Includes
+#include "gpio.h"
 
 extern volatile uint32_t errorBits;
 extern volatile uint32_t totalBits;
