@@ -108,7 +108,7 @@ typedef struct {
 
 typedef struct {
 	int8_t rssiTracking;			//RSSI in signed format
-	int32_t rfFrequencyTracking;	//Tracking in signed format and counts not Hz
+	int32_t rfFrequencyTracking;	//Tracking in signed format
 } RadioTrackingStruct;
 
 //Radio A (UHF) Configurations

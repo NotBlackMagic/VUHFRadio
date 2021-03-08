@@ -76,10 +76,14 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043WriteLongAddress(radio, PERFTUNE8, &data, 1);		//F08: Power Control 1??
 	data = 0x03;
 	AX5043WriteLongAddress(radio, PERFTUNE13, &data, 1);	//F0D: Ref ??
+
+	//Set PERFTUNE16 to 0x04 for TCXO. If crystal us used then to 0x03 for crystals under 43MHz or 0x0D if above
 	data = 0x04;
 	AX5043WriteLongAddress(radio, PERFTUNE16, &data, 1);	//F10: XTALOSC ??
+	//Set PERFTUNE17 to 0x00 for TCXO or 0x07 when a crystal is used
 	data = 0x00;
 	AX5043WriteLongAddress(radio, PERFTUNE17, &data, 1);	//F11: XTALAMPL ??
+
 	data = 0x06;	//For TX
 //	data = 0x02;	//For RX
 	AX5043WriteLongAddress(radio, PERFTUNE24, &data, 1);	//F18
@@ -101,10 +105,16 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043WriteLongAddress(radio, PERFTUNE50, &data, 1);	//F32
 	data = 0xF0;
 	AX5043WriteLongAddress(radio, PERFTUNE51, &data, 1);	//F33
-	data = 0x28;	//Set to 0x28 if RFDIV is set, 0x08 otherwise
-	AX5043WriteLongAddress(radio, PERFTUNE52, &data, 1);	//F34
-	data = 0x10;
+
+	//Set XTALDIV, if refrence frequency (XTAL or TCXO) is bellow 24.8MHz set to 0x10, if above set to 0x11
+	if((radio == RADIO_A && RADIO_A_XTAL >= 24800000) || (radio == RADIO_B && RADIO_B_XTAL >= 24800000)) {
+		data = 0x11;
+	}
+	else {
+		data = 0x10;
+	}
 	AX5043WriteLongAddress(radio, PERFTUNE53, &data, 1);	//F35
+
 	data = 0x25;
 	AX5043WriteLongAddress(radio, PERFTUNE68, &data, 1);	//F44
 	data = 0xE7;
@@ -119,6 +129,12 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 		AX5043SynthSetPLLVCOSelection(RADIO_A, 0);			//Use VCO 1
 //		AX5043SynthSetPLLVCO2Internal(RADIO_A, 1);			//Use VCO 2 with external inductor
 		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_A, 1);
+
+		//Set PERFTUNE52 to 0x28 if RFDIV is set (AX5043SynthSetPLLVCOEnableRefDivider(radio, 1)), 0x08 otherwise
+		data = 0x28;
+		AX5043WriteLongAddress(RADIO_A, PERFTUNE52, &data, 1);	//F34
+
+		//This can be ignored, will be set latter in RadioSetFullConfiguration with RadioSetCenterFrequency
 		AX5043SynthSetFrequencyA(RADIO_A, 0x1B473334);		//For 436.45MHz is 0x1B473334 calculated but calibrated value is 0x1B474335
 //		AX5043SynthSetFrequencyB(RADIO_A, 0x1B474335);
 	}
@@ -128,6 +144,12 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 		AX5043SynthSetPLLVCOSelection(RADIO_B, 1);			//Use VCO 2 with external inductor
 		AX5043SynthSetPLLVCO2Internal(RADIO_B, 1);			//Use VCO 2 with external inductor
 		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_B, 0);
+
+		//Set PERFTUNE52 to 0x28 if RFDIV is set (AX5043SynthSetPLLVCOEnableRefDivider(radio, 1)), 0x08 otherwise
+		data = 0x08;
+		AX5043WriteLongAddress(RADIO_B, PERFTUNE52, &data, 1);	//F34
+
+		//This can be ignored, will be set latter in RadioSetFullConfiguration with RadioSetCenterFrequency
 		AX5043SynthSetFrequencyA(RADIO_B, 0x06166667);		//For 145.895MHz is 0x091E51EC calculated value
 //		AX5043SynthSetFrequencyB(RADIO_B, 0x08B22E58);
 	}
@@ -682,8 +704,18 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 		AX5043PacketSetGainDatarateRecovery2(radio, man, exp);
 		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);
 
+		//Get if XTALDIV is used
+		uint8_t xtaldiv;
+		AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+		if(xtaldiv == 0x11) {
+			xtaldiv = 2;
+		}
+		else {
+			xtaldiv = 1;
+		}
+
 		rxRate = (uint32_t)((FXTAL << 7) / (((float)rxRate - 0.5f) * dec));
-		uint16_t afskBW = (uint16_t)(rint(2.f * log2f((float)FXTAL / (32 * rxRate * dec))));
+		uint16_t afskBW = (uint16_t)(rint(2.f * log2f((float)FXTAL / (32 * rxRate * dec * xtaldiv))));
 		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
 	}
 
@@ -800,8 +832,18 @@ uint8_t RadioSetBandwidth(uint8_t radio, uint32_t bandwidth) {
 		return 1;
 	}
 
+	//Get if XTALDIV is used
+	uint8_t xtaldiv;
+	AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+	if(xtaldiv == 0x11) {
+		xtaldiv = 2;
+	}
+	else {
+		xtaldiv = 1;
+	}
+
 	//Set RX Bandwidth, aka Decimation
-	uint8_t decimation = (uint8_t)((FXTAL * 0.210858f) / (float)(bandwidth << 4));	//For fractional bandwidth of 0.25 nominal, 0.221497 -3dB
+	uint8_t decimation = (uint8_t)((FXTAL * 0.210858f) / (float)((bandwidth * xtaldiv) << 4));	//For fractional bandwidth of 0.25 nominal, 0.221497 -3dB
 	AX5043RXParamSetDecimation(radio, decimation);
 
 	return 0;
@@ -819,8 +861,18 @@ uint8_t RadioSetIF(uint8_t radio, uint32_t frequency) {
 		return 1;
 	}
 
+	//Get if XTALDIV is used
+	uint8_t xtaldiv;
+	AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+	if(xtaldiv == 0x11) {
+		xtaldiv = 2;
+	}
+	else {
+		xtaldiv = 1;
+	}
+
 	//Set RX IF Frequency
-	uint16_t ifF = (uint16_t)(frequency * (1048576.f / RADIO_A_XTAL) + 0.5f);
+	uint16_t ifF = (uint16_t)((frequency * xtaldiv) * (1048576.f / RADIO_A_XTAL) + 0.5f);
 	AX5043RXParamSetIFFrequency(radio, ifF);
 
 	return 0;
@@ -838,9 +890,19 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 		return 1;
 	}
 
+	//Get if XTALDIV is used
+	uint8_t xtaldiv;
+	AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+	if(xtaldiv == 0x11) {
+		xtaldiv = 2;
+	}
+	else {
+		xtaldiv = 1;
+	}
+
 	//Set RX Datarate
 	uint8_t decimation = AX5043RXParamGetDecimation(radio);
-	uint32_t rxDr = (RADIO_A_XTAL << 7) / (bitrate * decimation);
+	uint32_t rxDr = (RADIO_A_XTAL << 7) / (bitrate * decimation * xtaldiv);
 	AX5043RXParamSetRXDatarate(radio, rxDr);
 
 	Modulations modulation = (Modulations)AX5043GeneralGetModulation(radio);
@@ -858,7 +920,7 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 		AX5043PacketSetGainDatarateRecovery1(radio, man, exp);
 		AX5043PacketSetGainDatarateRecovery3(radio, man, exp);
 
-		uint16_t afskBW = (uint16_t)(2.f * log2f((float)FXTAL / (32 * bitrate * decimation)) + 1.5f);
+		uint16_t afskBW = (uint16_t)(2.f * log2f((float)FXTAL / (32 * bitrate * decimation * xtaldiv)) + 1.5f);
 		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
 	}
 
@@ -937,8 +999,19 @@ uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq) {
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(radio);
 	if(pwrMode == PwrMode_RXEN) {
 		//Configuration for AFSK RX
+
+		//Get if XTALDIV is used
+		uint8_t xtaldiv;
+		AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+		if(xtaldiv == 0x11) {
+			xtaldiv = 2;
+		}
+		else {
+			xtaldiv = 1;
+		}
+
 		uint8_t decimation = AX5043RXParamGetDecimation(radio);
-		afskSpace = (uint16_t)((spaceFreq * decimation << 16) / (float)FXTAL + 0.5f);
+		afskSpace = (uint16_t)(((spaceFreq * decimation * xtaldiv) << 16) / (float)FXTAL + 0.5f);
 	}
 	else {
 		//Configuration for AFSK TX
@@ -962,8 +1035,19 @@ uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq) {
 	PwrModeSelection pwrMode = AX5043PwrGetPowerMode(radio);
 	if(pwrMode == PwrMode_RXEN) {
 		//Configuration for AFSK RX
+
+		//Get if XTALDIV is used
+		uint8_t xtaldiv;
+		AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+		if(xtaldiv == 0x11) {
+			xtaldiv = 2;
+		}
+		else {
+			xtaldiv = 1;
+		}
+
 		uint8_t decimation = AX5043RXParamGetDecimation(radio);
-		afskMark = (uint16_t)((markFreq * decimation << 16) / (float)FXTAL + 0.5f);
+		afskMark = (uint16_t)(((markFreq * decimation * xtaldiv) << 16) / (float)FXTAL + 0.5f);
 	}
 	else {
 		//Configuration for AFSK TX

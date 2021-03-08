@@ -183,6 +183,11 @@ void RadioTrackingUpdateHandler() {
 		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
 		radioBTracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
 
+		//Convert raw values to Hz, using: Hz = TRKRFFREQ / 2^16 * BITRATE according to a forum post https://www.onsemi.com/forum/t/faq-what-is-the-trkrffreq-register-for/198
+		//But in testing doesn't match up, no conversion seems to be required...
+//		radioATracking.rfFrequencyTracking = (int32_t)(((float)radioATracking.rfFrequencyTracking / 65536.f) * radioAConfig.rxDatarate);
+//		radioBTracking.rfFrequencyTracking = (int32_t)(((float)radioBTracking.rfFrequencyTracking / 65536.f) * radioBConfig.rxDatarate);
+
 		fDivider = 0;
 	}
 	else {

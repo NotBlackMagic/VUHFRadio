@@ -97,7 +97,7 @@ void AX5043RXTrackingSetFrequency(uint8_t interfaceID, uint32_t trackFreq) {
 /**
   * @brief	This function gets the Current frequency tracking value
   * @param	interfaceID: Which interface (chip) used
-  * @return	Current frequency tracking value
+  * @return	Current frequency tracking value. Conversion to Hz: TRKFREQ / 2^16 * BITRATE
   */
 int16_t AX5043RXTrackingGetFrequency(uint8_t interfaceID) {
 	int16_t frequency = 0;
