@@ -107,7 +107,7 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043WriteLongAddress(radio, PERFTUNE51, &data, 1);	//F33
 
 	//Set XTALDIV, if refrence frequency (XTAL or TCXO) is bellow 24.8MHz set to 0x10, if above set to 0x11
-	if((radio == RADIO_A && RADIO_A_XTAL >= 24800000) || (radio == RADIO_B && RADIO_B_XTAL >= 24800000)) {
+	if(RADIO_XTAL >= 24800000) {
 		data = 0x11;
 	}
 	else {
@@ -358,7 +358,7 @@ uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency) {
 	}
 
 	//Set Central Frequency
-	uint32_t freq = (uint32_t)((frequency * (16777216.f / RADIO_A_XTAL)) + 0.5f);
+	uint32_t freq = (uint32_t)((frequency * (16777216.f / RADIO_XTAL)) + 0.5f);
 	AX5043SynthSetFrequencyA(radio, freq);
 
 	//Perform auto ranging
@@ -392,7 +392,7 @@ uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range) {
 //	}
 
 	//Set AFC Range
-	uint32_t afc = (uint32_t)((range * (16777216.f / RADIO_A_XTAL)) + 0.5f);
+	uint32_t afc = (uint32_t)((range * (16777216.f / RADIO_XTAL)) + 0.5f);
 	AX5043RXParamSetRXMaximumFrequencyOffset(radio, afc);
 
 	return 0;
@@ -872,7 +872,7 @@ uint8_t RadioSetIF(uint8_t radio, uint32_t frequency) {
 	}
 
 	//Set RX IF Frequency
-	uint16_t ifF = (uint16_t)((frequency * xtaldiv) * (1048576.f / RADIO_A_XTAL) + 0.5f);
+	uint16_t ifF = (uint16_t)((frequency * xtaldiv) * (1048576.f / RADIO_XTAL) + 0.5f);
 	AX5043RXParamSetIFFrequency(radio, ifF);
 
 	return 0;
@@ -902,7 +902,7 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 
 	//Set RX Datarate
 	uint8_t decimation = AX5043RXParamGetDecimation(radio);
-	uint32_t rxDr = (RADIO_A_XTAL << 7) / (bitrate * decimation * xtaldiv);
+	uint32_t rxDr = (RADIO_XTAL << 7) / (bitrate * decimation * xtaldiv);
 	AX5043RXParamSetRXDatarate(radio, rxDr);
 
 	Modulations modulation = (Modulations)AX5043GeneralGetModulation(radio);

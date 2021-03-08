@@ -12,8 +12,7 @@ extern "C" {
 #define RADIO_A								0
 #define RADIO_B								1
 
-#define RADIO_A_XTAL						16000000	//Xtal Frequency in Hz of Radio A
-#define RADIO_B_XTAL						16000000	//Xtal Frequency in Hz of Radio A
+#define RADIO_XTAL							16000000	//Xtal Frequency in Hz of Radio A
 
 #define RADIO_A_FREQ_MAX					437000000
 #define RADIO_A_FREQ_MIN					435000000
