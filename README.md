@@ -24,6 +24,10 @@ Results like spectrums and input matching and other tests: www.notblackmagic.com
 
 Detailed explanation on the configuration of the AX5043 transceiver: www.notblackmagic.com/bitsnpieces/ax5043/
 
+## Portability
+
+Both the low level register abstraction library as well as the higher level configuration changes library for the AX5043 transceiver are portable. To port them to a different platform, both the AX5043 folder, and all it's files, as well as the radioCommands.c/.h and radioConfigs.c/.h files have to be included. The "RadioInterfacesInit()" function in the radioCommands.c has to be changed to use the platforms SPI interface and CS GPIO.
+
 ## File Organization
 
 **src/HAL:** MCU peripheral drivers, custom HALs
@@ -35,6 +39,8 @@ Detailed explanation on the configuration of the AX5043 transceiver: www.notblac
 **src/AX5043/ax5043_interface.c:** SPI interface wrapper
 
 **src/Commands/CATInterface.c:** CAT Command Handler and interpreter functions (The other files are deprecated and will be phased out)
+
+**inc/Radio/radioConfigs.h:** Radio configuration structs defines
 
 **src/radioCommands.c:** Radio configuration functions/wrappers
 
