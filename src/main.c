@@ -17,11 +17,13 @@
 #include "radioCommands.h"
 #include "memoryChannelConfigs.h"
 
+#include "ax5043_experimental.h"
+
 uint8_t RadioWritePacket(uint8_t radio, uint8_t data[], uint8_t dataLength);
 
 int main(void) {
 	//Configure the system clock
-	SystemClockInit();
+ 	SystemClockInit();
 	SystemTickInit();
 
 	//Initialize all configured peripherals
@@ -36,6 +38,55 @@ int main(void) {
 
 	//Initialize the VHF and UHF Radio Interfaces, set the SPI and CS
 	RadioInterfacesInit();
+
+//	//Reset Radio
+//	AX5043PwrReset(RADIO_A);
+//
+//	uint8_t data[10];
+//	data[0] = 0x04;
+//	AX5043WriteLongAddress(RADIO_A, 0xF10, data, 1);
+//	data[0] = 0x00;
+//	AX5043WriteLongAddress(RADIO_A, 0xF11, data, 1);
+//	data[0] = 0x10;
+//	AX5043WriteLongAddress(RADIO_A, 0xF35, data, 1);
+//	data[0] = 0x28;
+//	AX5043WriteLongAddress(RADIO_A, 0xF34, data, 1);
+//	data[0] = 0x04;
+//	AX5043WriteShortAddress(RADIO_A, 0x032, data, 1);
+//
+////	RadioSetCenterFrequency(RADIO_A, 450000000);
+//
+//	uint32_t N = (uint32_t)((float)400000000/16000000*(1<<24));
+//	data[0] = (N>>24)&0xFF;
+//	AX5043WriteShortAddress(RADIO_A, 0x034, data, 1);
+//	data[0] = (N>>16)&0xFF;
+//	AX5043WriteShortAddress(RADIO_A, 0x035, data, 1);
+//	data[0] = (N>>8)&0xFF;
+//	AX5043WriteShortAddress(RADIO_A, 0x036, data, 1);
+//	data[0] = N&0xFF;
+//	AX5043WriteShortAddress(RADIO_A, 0x037, data, 1);
+//
+//	data[0] = 0x10;
+//	AX5043WriteShortAddress(RADIO_A, 0x033, data, 1);
+//
+//	uint8_t rcv=0;
+//	do {
+//		AX5043ReadShortAddress(RADIO_A, 0x33, &rcv, 1);
+//	} while(rcv&(1<<4));
+//
+//	volatile uint8_t pllvcodiv;
+//	AX5043ReadShortAddress(RADIO_A, 0x33, &pllvcodiv, 1);
+//
+//	volatile uint8_t rangeError = AX5043SynthGetAutoRangingErrorA(RADIO_A);
+//	volatile uint8_t pllRange = AX5043SynthGetVCORangeA(RADIO_A);
+
+	//PLL Range Values
+	//400MHz - 14
+	//410MHz - 12
+	//420MHz - 11
+	//430MHz - 10
+	//440MHz - 09
+	//450MHz - 08
 
 	//Init VHF Radio, base/general configurations
 	RadioInitBaseConfiguration(RADIO_B);
@@ -69,11 +120,35 @@ int main(void) {
 //	radioBConfig.preambleSymbol = 0x55;
 //	radioBConfig.preambleLength = 20;
 
-//	RadioSetCenterFrequency(RADIO_B, 145895000 + 1400);
+//	RadioSetCenterFrequency(RADIO_B, 145895000);
 //	volatile uint8_t rangeError = AX5043SynthGetAutoRangingErrorA(RADIO_B);
 //	volatile uint8_t pllRange = AX5043SynthGetVCORangeA(RADIO_B);
 	radioBConfig = memoryChannelsFixed[Memory_AFSK_1200];
-	radioBConfig.centerFrequency = 145895000 + 1400;
+	radioBConfig.centerFrequency = 145895000;
+
+	//QPSK Test Config
+//	radioBConfig.centerFrequency = 145895000;
+//	radioBConfig.modulation = RadioModulation_QPSK;
+//	radioBConfig.operationMode = RadioMode_RX;
+//	radioBConfig.frequencyDeviation = 4800;
+//	radioBConfig.bandwidth = 19200;
+//	radioBConfig.ifFrequency = 9600;
+//	radioBConfig.rxDatarate = 19200;
+//	radioBConfig.txDatarate = 19200;
+//	radioBConfig.outputPower = 16;
+//	radioBConfig.afcRange = 4800;
+//	radioBConfig.agcSpeed = 4;
+//
+//	radioBConfig.afskSpace = 2200;
+//	radioBConfig.afskMark = 1200;
+//
+//	radioBConfig.tncMode = RadioTNCMode_KISS;
+//	radioBConfig.encoder = RadioEncoder_NRZ;
+//	radioBConfig.framing = RadioFraming_HDLC;
+//	radioBConfig.crc = RadioCRC_CCITT;
+//	radioBConfig.preambleSymbol = 0xAA;
+//	radioBConfig.preambleLength = 200;
+
 	RadioSetFullConfiguration(RADIO_B, radioBConfig);
 //	AX5043PacketSetAcceptPacketsCRCFailed(RADIO_B, 1);
 
@@ -137,9 +212,12 @@ int main(void) {
 //	radioAConfig.preambleSymbol = 0x55;
 //	radioAConfig.preambleLength = 20;
 
+//	RadioSetCenterFrequency(RADIO_A, 436450000);
 	radioAConfig = memoryChannelsFixed[Memory_AFSK_1200];
-	radioAConfig.centerFrequency = 436450000 + 4300;
+	radioAConfig.centerFrequency = 436450000;
 	RadioSetFullConfiguration(RADIO_A, radioAConfig);
+
+//	RadioSetBandwidth(RADIO_A, 70000);
 
 //	RadioSetCenterFrequency(RADIO_A, radioAConfig.centerFrequency);
 //	RadioSetModulation(RADIO_A, radioAConfig.modulation);
@@ -169,6 +247,56 @@ int main(void) {
 //	radioUHFConfig.modulation = AFSK;
 //	RadioUHFModConfig(radioUHFConfig);
 //	RadioUHFEnterFMMode(radioUHFConfig.frequency);
+
+//	//Analog IQ Mode
+//	uint8_t reg = 0;
+//	//Config TMMUX
+//	reg = GPADCSource_5;
+//	AX5043WriteLongAddress(RADIO_A, TMMUX, &reg, 1);
+//	//Config BBDETECTOR
+//	reg = 0x08;
+//	AX5043WriteLongAddress(RADIO_A, BBDETECTOR0, &reg, 1);
+//
+//	//DSPMode
+//	#define DSPMODEFCG						0x0320	//DSPmode Configuration
+//	#define DSPMODESKIP1					0x0321	//DSPmode Receive Data 1
+//	#define DSPMODESKIP0					0x0322	//DSPmode Receive Data 0
+//
+//	//DSPMode Interface Pins:
+//	//SYSCLK -> Bit Clock
+//	//DCLK -> Frame Sync
+//	//DATA -> Receive Data
+//	//PWRAMP -> Transmit Data
+//
+//	//Config DCLK
+//	reg = 0x06;		//DSPmode Frame Sync
+//	AX5043WriteShortAddress(RADIO_A, PINFUNCDCLK, &reg, 1);
+//	//Config DATA
+//	reg = 0x86;		//DSPmode Receiver Data, weak pullup enabled
+//	AX5043WriteShortAddress(RADIO_A, PINFUNCDATA, &reg, 1);
+//	//Config SYS
+//	reg = SysClk_fXtal_div1;		//Output fXtal/16 = 16MHz/16 = 1MHz
+//	AX5043WriteShortAddress(RADIO_A, PINFUNCSYSCLK, &reg, 1);
+//
+//	AX5043RXParamSetRXFrequencyGainA0(RADIO_A, 0x0F);
+//	AX5043RXParamSetRXFrequencyGainB0(RADIO_A, 0x1F);
+//	AX5043RXParamSetRXFrequencyGainC0(RADIO_A, 0x1F);
+//	AX5043RXParamSetRXFrequencyGainD0(RADIO_A, 0x1F);
+//
+//	AX5043PacketSetGainTimingRecovery0(RADIO_A, 0x00, 0x00);
+//	AX5043PacketSetGainTimingRecovery1(RADIO_A, 0x00, 0x00);
+//	AX5043PacketSetGainTimingRecovery2(RADIO_A, 0x00, 0x00);
+//	AX5043PacketSetGainTimingRecovery3(RADIO_A, 0x00, 0x00);
+//
+//	//Config DSP Mode
+//	AX5043ExperimentalEnableFSYNCDelay(RADIO_A, 0);
+//	AX5043ExperimentalSetSyncSource(RADIO_A, SyncSource_Baseband_Clock);
+//	DSPModeSkip skipData;
+//	skipData.raw = 0xFFFF;
+//	skipData.skipbasebandiq = 0;
+//	AX5043ExperimentalSetDSPModeSkipData(RADIO_A, skipData);
+//
+//	while(1);
 
 	//Start the Tracking/Status update Timer
 	uint32_t trackingUpdateTimer = GetSysTick();

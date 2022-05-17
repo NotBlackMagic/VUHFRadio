@@ -9,13 +9,14 @@ extern "C" {
 
 #include "radioConfigs.h"
 
-#define MEMORY_CHANNELS_FIXED								4
+#define MEMORY_CHANNELS_FIXED								5
 
 typedef enum {
 	Memory_AFSK_1200,
 	Memory_FSK_9600,
 	Memory_BPSK_9600,
-	Memory_FM_WB
+	Memory_FM_WB,
+	Memory_FM_NB
 } MemoryChannels;
 
 extern volatile RadioConfigsStruct memoryChannelsFixed[MEMORY_CHANNELS_FIXED];

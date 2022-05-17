@@ -25,6 +25,7 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 uint8_t CATCommandRSSI(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandTNC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandDeviation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandPacketMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 
 /**
   * @brief	This function handles all incoming data/commands
@@ -113,6 +114,10 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 	else if(data[0] == 'P' && data[1] == 'C') {
 		//TX Output Power
 		return CATCommandTXPower(data, dataLength, rData, rDataLength);
+	}
+	else if(data[0] == 'P' && data[1] == 'M') {
+		//Packet Meter/Tracking Value
+		return CATCommandPacketMeter(data, dataLength, rData, rDataLength);
 	}
 	else if(data[0] == 'R' && data[1] == 'G') {
 		//RF Gain, LNA/AGC Gain
@@ -1576,6 +1581,76 @@ uint8_t CATCommandDeviation(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 			*rDataLength = sprintf(rData, "?;");
 			return 1;
 		}
+	}
+}
+
+uint8_t CATCommandPacketMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	uint32_t meter = 0;
+	if(CATASCIIToNumber(&data[3], 1, &meter) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[4] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+			switch(meter) {
+				case 0x00:
+					//Read RSSI Value
+					*rDataLength = sprintf(rData, "PM00%03d;", (-radioAPacketTracking.rssiTracking));
+					break;
+				case 0x01:
+					//Read RF Frequency Value
+					if(radioATracking.rfFrequencyTracking >= 0) {
+						*rDataLength = sprintf(rData, "PM01+%06d;", radioAPacketTracking.rfFrequencyTracking);
+					}
+					else {
+						*rDataLength = sprintf(rData, "PM01-%06d;", (-radioAPacketTracking.rfFrequencyTracking));
+					}
+					break;
+				default:
+					*rDataLength = sprintf(rData, "?;");
+					return 1;
+			}
+
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+			switch(meter) {
+				case 0x00:
+					//Read RSSI Value
+					*rDataLength = sprintf(rData, "PM10%03d;", (-radioBPacketTracking.rssiTracking));
+					break;
+				case 0x01:
+					//Read RF Frequency Value
+					if(radioBTracking.rfFrequencyTracking >= 0) {
+						*rDataLength = sprintf(rData, "PM11+%06d;", radioBPacketTracking.rfFrequencyTracking);
+					}
+					else {
+						*rDataLength = sprintf(rData, "PM11-%06d;", (-radioBPacketTracking.rfFrequencyTracking));
+					}
+					break;
+				default:
+					*rDataLength = sprintf(rData, "?;");
+					return 1;
+			}
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
 	}
 }
 

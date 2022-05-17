@@ -37,8 +37,8 @@ extern "C" {
 #define TXCTRL_PASTATE				0x01
 
 //Repeat Data Flag Bit Fields
-#define REPEATDATA_UNENC			0x20	//Bypass Framing but not encode
-#define REPEATDATA_RAW				0x10	//Bypass Framing and encode
+#define REPEATDATA_UNENC			0x20	//Bypass Framing and encode
+#define REPEATDATA_RAW				0x10	//Bypass Framing but not encode
 #define REPEATDATA_NOCRC			0x08	//Surpess CRC Generation
 #define REPEATDATA_RESIDUE			0x04	//Enable less the 8 bits in last byte (last bit is last high bit in last byte)
 #define REPEATDATA_PKTEND			0x02	//For Data larger then FIFO: PKTEND: Radio Data End at end of this Data field

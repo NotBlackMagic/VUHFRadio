@@ -72,15 +72,38 @@ volatile RadioConfigsStruct memoryChannelsFixed[MEMORY_CHANNELS_FIXED] = {
 },
 {		//FM Wideband
 		.operationMode = RadioMode_RX,
-		.centerFrequency = 93200000 + 50000,			//Comercial: 97400000, RFM: 93200000, Mega Hits: 92400000
+		.centerFrequency = 0,	//93200000 + 50000,			//Comercial: 97400000, RFM: 93200000, Mega Hits: 92400000
 		.modulation = RadioModulation_FM,
 		.frequencyDeviation = 65000,
 		.bandwidth = 100000,
-		.ifFrequency = 10000,
-		.rxDatarate = 200000,
-		.txDatarate = 200000,
+		.ifFrequency = 20000,
+		.rxDatarate = 75000,
+		.txDatarate = 250000,
 		.outputPower = 16,
 		.afcRange = 25000,
+		.agcSpeed = 9,
+
+		.afskSpace = 2200,
+		.afskMark = 1200,
+
+		.tncMode = RadioTNCMode_OFF,
+		.encoder = RadioEncoder_NRZI,
+		.framing = RadioFraming_HDLC,
+		.crc = RadioCRC_CCITT,
+		.preambleSymbol = 0x55,
+		.preambleLength = 20
+},
+{		//FM Narrowband
+		.operationMode = RadioMode_RX,
+		.centerFrequency = 0,	//93200000 + 50000,			//Comercial: 97400000, RFM: 93200000, Mega Hits: 92400000
+		.modulation = RadioModulation_FM,
+		.frequencyDeviation = 2500,
+		.bandwidth = 12500,
+		.ifFrequency = 20000,
+		.rxDatarate = 10000,
+		.txDatarate = 16000,
+		.outputPower = 16,
+		.afcRange = 2500,
 		.agcSpeed = 9,
 
 		.afskSpace = 2200,

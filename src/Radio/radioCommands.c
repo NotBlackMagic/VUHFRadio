@@ -41,7 +41,7 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043GPIOCnfgDATA(radio, DATA_Low, 0, 0);			//DATA_Modem_Data_Output
 	AX5043GPIOCnfgIRQ(radio, IRQ_Int_Req, 0, 0);		//Default
 	AX5043GPIOCnfgAntSel(radio, AntSel_Low, 0, 0);
-	AX5043GPIOCnfgPwrRamp(radio, PwrRamp_DAC_Output, 0, 0);	//Default
+	AX5043GPIOCnfgPwrRamp(radio, PwrRamp_DAC_Output, 0, 0);	//Default PwrRamp_HighZ
 
 	//Set DAC
 	AX5043GPIOSetDACInput(radio, DACInput_RSSI);
@@ -312,7 +312,12 @@ uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuratio
 
 	if(RadioSetBandwidth(radio, configuration.bandwidth) != 0x00) return 0x01;
 	if(RadioSetIF(radio, configuration.ifFrequency) != 0x00) return 0x01;
-	if(RadioSetRXDatarate(radio, configuration.rxDatarate) != 0x00) return 0x01;
+	if(configuration.modulation == RadioModulation_FM) {
+		if(RadioSetRXDeviationSensitivity(radio, configuration.rxDatarate) != 0x00) return 0x01;
+	}
+	else {
+		if(RadioSetRXDatarate(radio, configuration.rxDatarate) != 0x00) return 0x01;
+	}
 	if(RadioSetTXDatarate(radio, configuration.txDatarate) != 0x00) return 0x01;
 	if(RadioSetTXPower(radio, configuration.outputPower) != 0x00) return 0x01;
 	if(RadioSetAFCRange(radio, configuration.afcRange) != 0x00) return 0x01;
@@ -324,12 +329,16 @@ uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuratio
 	if(RadioSetTXDeviation(radio, configuration.frequencyDeviation) != 0x00) return 0x01;
 
 	//Has to be done AFTER operation mode is set, depends on operationMode
-	if(RadioSetAFSKSpaceFreq(radio, configuration.afskSpace) != 0x00) return 0x01;
-	if(RadioSetAFSKMarkFreq(radio, configuration.afskMark) != 0x00) return 0x01;
+	if(configuration.modulation == RadioModulation_AFSK) {
+		if(RadioSetAFSKSpaceFreq(radio, configuration.afskSpace) != 0x00) return 0x01;
+		if(RadioSetAFSKMarkFreq(radio, configuration.afskMark) != 0x00) return 0x01;
+	}
 
-	if(RadioSetEncodingMode(radio, configuration.encoder) != 0x00) return 0x01;
-	if(RadioSetFramingMode(radio, configuration.framing) != 0x00) return 0x01;
-	if(RadioSetCRCMode(radio, configuration.crc) != 0x00) return 0x01;
+	if(configuration.modulation != RadioModulation_AM && configuration.modulation != RadioModulation_FM) {
+		if(RadioSetEncodingMode(radio, configuration.encoder) != 0x00) return 0x01;
+		if(RadioSetFramingMode(radio, configuration.framing) != 0x00) return 0x01;
+		if(RadioSetCRCMode(radio, configuration.crc) != 0x00) return 0x01;
+	}
 
 	return 0x00;
 }
@@ -376,7 +385,7 @@ uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency) {
   * @return	0-> Success, 1-> Failed/Error
   */
 uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range) {
-	//Check limits, AFC Range hsa to be < 1/4 RX BW
+	//Check limits, AFC Range must be < 1/4 RX BW
 //	if(radio == RADIO_A) {
 //		if(range > (bandwidthA >> 2)) {
 //			return 1;
@@ -435,6 +444,40 @@ uint8_t RadioSetAGCSpeed(uint8_t radio, uint8_t speed) {
 	uint8_t releaseSpeedIndex[16] = {4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 14, 14, 15};
 	AX5043RXParamSetAGCReleaseSpeed0(radio, releaseSpeedIndex[speed]);
 	AX5043RXParamSetAGCReleaseSpeed1(radio, releaseSpeedIndex[speed]);
+
+	return 0;
+}
+
+/**
+  * @brief	This function sets the FM Detector Bandwidth, bandwidth of the demodulated FM signal
+  * @param	radio: Selects the Radio
+  * @param	bandwidth: Detector bandwidth
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetFMDetectorBandwidth(uint8_t radio, uint32_t bandwidth) {
+	//Check limits
+	if(bandwidth > 65000) {
+		return 1;
+	}
+
+	//Get if XTALDIV is used
+	uint8_t xtaldiv;
+	AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+	if(xtaldiv == 0x11) {
+		xtaldiv = 2;
+	}
+	else {
+		xtaldiv = 1;
+	}
+
+	//Get RX Datarate
+	uint8_t decimation = AX5043RXParamGetDecimation(radio);
+	uint32_t rxDr = AX5043RXParamGetRXDatarate(radio);
+	uint32_t bitrate = (RADIO_XTAL << 7) / (rxDr * decimation * xtaldiv);
+
+	uint8_t gainB0 = log2f((float)(bitrate >> 1)) - log2f((float)bandwidth);
+
+	AX5043RXParamSetRXFrequencyGainB0(radio, gainB0);
 
 	return 0;
 }
@@ -639,11 +682,14 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 			AX5043GeneralSetModulation(radio, FM);
 
 			//RX Parameter 0
-			AX5043RXParamSetAGCTargetAvgMagnitude0(radio, 0x80);
+			AX5043RXParamSetAGCTargetAvgMagnitude0(radio, 0x89);
+
 			AX5043RXParamSetRXFrequencyGainA0(radio, 0x0F);			//OFF
-			AX5043RXParamSetRXFrequencyGainB0(radio, 0x04);			//Bandwidth of “inner” AFC loop used for FM demodulation. f_3dB = 0.115*BR
+			AX5043RXParamSetRXFrequencyGainB0(radio, 0x02);			//Bandwidth of “inner” AFC loop used for FM demodulation. f_3dB = 0.115*BR
 			AX5043RXParamSetRXFrequencyGainC0(radio, 0x1F);			//OFF
 			AX5043RXParamSetRXFrequencyGainD0(radio, 0x08);			//bandwidth of “outer” AFC loop (tracking frequency mismatch), 78 Hz @ BR = 100 kbps, f_xtal = 16 MHz
+			AX5043RXParamSetRXFrequencyLeak(radio, 0x04);			//FREQUENCYGAINB0 + 2, prevents the demodulator AFC loop from tracking static frequency offsets
+
 			AX5043PacketSetGainTimingRecovery0(radio, 0x00, 0x00);
 			AX5043PacketSetGainDatarateRecovery0(radio, 0x00, 0x00);
 			break;
@@ -686,6 +732,7 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 		AX5043RXParamSetRXFrequencyGainB0(radio, 0x1F);
 		AX5043RXParamSetRXFrequencyGainC0(radio, 0x0A);
 		AX5043RXParamSetRXFrequencyGainD0(radio, 0x0A);
+		AX5043RXParamSetRXFrequencyLeak(radio, 0x00);
 
 		uint8_t dec = AX5043RXParamGetDecimation(radio);
 		uint32_t rxRate = AX5043RXParamGetRXDatarate(radio);
@@ -719,7 +766,7 @@ uint8_t RadioSetModulation(uint8_t radio, RadioModulation modulation) {
 		AX5043RXParamSetAFSKDetBandwitdh(radio, afskBW);
 	}
 
-	if(modulation == RadioModulation_BPSK) {
+	if(modulation == RadioModulation_BPSK) {	// || modulation == RadioModulation_QPSK
 		//MODCFGP: PSK settings, enable PSK
 		AX5043TXParamSetPSKPulseLength(radio, PSKPulseLen_2);	//F5F: MODCFGP (PSK: 0xE1)
 	}
@@ -928,6 +975,46 @@ uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate) {
 }
 
 /**
+  * @brief	This function sets the RX FM Sensitivity
+  * @param	radio: Selects the Radio
+  * @param	sensitivity: RX FM Sensitivity in kHz/V
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetRXDeviationSensitivity(uint8_t radio, uint32_t sensitivity) {
+	//Check Limits
+	if(sensitivity > 75000) {
+		return 1;
+	}
+
+	//Calculate RX bitrate from desired sensitivity
+	uint32_t bitrate = (uint32_t)(sensitivity * 1.65f);
+//	RadioSetRXDatarate(radio, bitrate);
+
+	//Get if XTALDIV is used
+	uint8_t xtaldiv;
+	AX5043ReadLongAddress(radio, PERFTUNE53, &xtaldiv, 1);
+	if(xtaldiv == 0x11) {
+		xtaldiv = 2;
+	}
+	else {
+		xtaldiv = 1;
+	}
+
+	//Set RX Datarate
+	uint8_t decimation = AX5043RXParamGetDecimation(radio);
+	uint32_t rxDr = (RADIO_XTAL << 7) / (bitrate * decimation * xtaldiv);
+
+	//Check limit, if under 2^12 will be overwritten by the radio module
+	if(rxDr < 4096) {
+		return 1;
+	}
+
+	AX5043RXParamSetRXDatarate(radio, rxDr);
+
+	return 0;
+}
+
+/**
   * @brief	This function sets the TX Datarate
   * @param	radio: Selects the Radio
   * @param	bitrate: Datarate in bits/s
@@ -1075,7 +1162,7 @@ uint8_t RadioWriteFIFORepeatData(uint8_t radio, uint8_t dataByte, uint8_t count)
 	}
 
 	fifoData[0] = FIFO_REPEATDATA;	//FIFO Repeat Data command
-	fifoData[1] = REPEATDATA_RAW | REPEATDATA_NOCRC;	//Send as RAW and supress CRC generation
+	fifoData[1] = REPEATDATA_RAW | REPEATDATA_NOCRC;	//Send as RAW and suppress CRC generation
 	fifoData[2] = count;
 	fifoData[3] = dataByte;
 

@@ -28,8 +28,7 @@ static uint32_t gpioOutputMode[5] = {	LL_GPIO_MODE_ANALOG,
 										LL_GPIO_MODE_FLOATING,
 										LL_GPIO_MODE_INPUT,
 										LL_GPIO_MODE_OUTPUT,
-										LL_GPIO_MODE_ALTERNATE
-};
+										LL_GPIO_MODE_ALTERNATE};
 
 static GPIO_TypeDef* gpioPorts[5] = {	GPIOA,
 										GPIOB,
@@ -52,8 +51,7 @@ static uint32_t gpioPins[16] = {	LL_GPIO_PIN_0,
 								LL_GPIO_PIN_12,
 								LL_GPIO_PIN_13,
 								LL_GPIO_PIN_14,
-								LL_GPIO_PIN_15
-};
+								LL_GPIO_PIN_15};
 
 void GPIOInit();
 void GPIOSetPinMode(uint8_t gpio, GPIOOutputMode mode);

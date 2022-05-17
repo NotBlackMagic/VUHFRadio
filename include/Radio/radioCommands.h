@@ -30,6 +30,7 @@ uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuratio
 uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range);
 uint8_t RadioSetAGCSpeed(uint8_t radio, uint8_t speed);
+uint8_t RadioSetFMDetectorBandwidth(uint8_t radio, uint32_t bandwidth);
 uint8_t RadioSetCRCMode(uint8_t radio, RadioCRC crcMode);
 uint8_t RadioSetEncodingMode(uint8_t radio, RadioEncoder encMode);
 uint8_t RadioSetFramingMode(uint8_t radio, RadioFraming frmMode);
@@ -39,6 +40,7 @@ uint8_t RadioSetTXPower(uint8_t radio, int8_t power);
 uint8_t RadioSetBandwidth(uint8_t radio, uint32_t bandwidth);
 uint8_t RadioSetIF(uint8_t radio, uint32_t frequency);
 uint8_t RadioSetRXDatarate(uint8_t radio, uint32_t bitrate);
+uint8_t RadioSetRXDeviationSensitivity(uint8_t radio, uint32_t sensitivity);
 uint8_t RadioSetTXDatarate(uint8_t radio, uint32_t bitrate);
 uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation);
 uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq);

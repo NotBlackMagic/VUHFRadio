@@ -333,6 +333,20 @@ extern "C" {
 #define DACVALUE0						0x0331	//DAC Value
 #define DACCONFIG						0x0332	//DAC Configuration
 
+//Experimental Features Registers
+
+//Analog IQ Mode
+#define TMMUX							0x0F02	//TMMUX
+#define BBDETECTOR0						0x0F46	//Baseband Power Detector 0
+
+//DSPmode2
+#define DSPMODESHREG					0x006F	//DSPmode SPI Shift Register Access
+
+//DSP Mode Interface
+#define DSPMODECFG						0x0320	//DSP Mode Setting
+#define DSPMODESKIP1					0x0321	//DSP Mode Skip 1
+#define DSPMODESKIP0					0x0322	//DSP Mode Skip 2
+
 //Performance Tuning Registers
 #define PERFTUNE0						0x0F00	//Performance Tuning Register 0
 #define PERFTUNE1						0x0F01	//Performance Tuning Register 1

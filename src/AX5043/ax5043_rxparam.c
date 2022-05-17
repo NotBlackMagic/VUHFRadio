@@ -342,7 +342,7 @@ uint8_t AX5043RXParamGetAmplitudeFilter(uint8_t interfaceID) {
   * @param	leakiness: The Leakiness of the Baseband Frequency Recovery Loop
   * @return	None
   */
-void AX5043RXParamSetRXFrequncyLeak(uint8_t interfaceID, uint8_t leakiness) {
+void AX5043RXParamSetRXFrequencyLeak(uint8_t interfaceID, uint8_t leakiness) {
 	uint8_t config;
 	config = (leakiness & FREQUENCYLEAK_MASK);
 	AX5043WriteLongAddress(interfaceID, FREQUENCYLEAK, &config, 1);
@@ -353,7 +353,7 @@ void AX5043RXParamSetRXFrequncyLeak(uint8_t interfaceID, uint8_t leakiness) {
   * @param	interfaceID: Which interface (chip) used
   * @return	The Leakiness of the Baseband Frequency Recovery Loop
   */
-uint8_t AX5043RXParamGetRXFrequncyLeak(uint8_t interfaceID) {
+uint8_t AX5043RXParamGetRXFrequencyLeak(uint8_t interfaceID) {
 	uint8_t config;
 	AX5043ReadLongAddress(interfaceID, FREQUENCYLEAK, &config, 1);
 	return (config & FREQUENCYLEAK_MASK);

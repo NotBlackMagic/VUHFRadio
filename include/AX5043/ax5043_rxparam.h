@@ -343,8 +343,8 @@ void AX5043RXParamSetAFSKDetBandwitdh(uint8_t interfaceID, uint8_t detBandwidth)
 uint8_t AX5043RXParamGetAFSKDetBandwitdh(uint8_t interfaceID);
 void AX5043RXParamSetAmplitudeFilter(uint8_t interfaceID, uint8_t filter);
 uint8_t AX5043RXParamGetAmplitudeFilter(uint8_t interfaceID);
-void AX5043RXParamSetRXFrequncyLeak(uint8_t interfaceID, uint8_t leakiness);
-uint8_t AX5043RXParamGetRXFrequncyLeak(uint8_t interfaceID);
+void AX5043RXParamSetRXFrequencyLeak(uint8_t interfaceID, uint8_t leakiness);
+uint8_t AX5043RXParamGetRXFrequencyLeak(uint8_t interfaceID);
 void AX5043RXParamSetRXParameterNumber0(uint8_t interfaceID, uint8_t number);
 uint8_t AX5043RXParamGetRXParameterNumber0(uint8_t interfaceID);
 void AX5043RXParamSetRXParameterNumber1(uint8_t interfaceID, uint8_t number);

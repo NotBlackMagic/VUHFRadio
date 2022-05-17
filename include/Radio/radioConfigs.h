@@ -84,11 +84,11 @@ typedef struct {
 	uint32_t ifFrequency;			//Hz
 	uint32_t bandwidth;				//Hz
 	uint32_t txDatarate;			//bit/s
-	uint32_t rxDatarate;			//bit/s
+	uint32_t rxDatarate;			//For digital modulations: bit/s; For FM: Hz/V
 	uint32_t afcRange;				//Hz
 	int8_t outputPower;				//In dBm from -10dBm to 16 dBm
 	uint8_t agcSpeed;				//0: 79577Hz; 1: 59683Hz; 2: 34815Hz; 3: 18651Hz; 4: 9636Hz; 5: 4896Hz; 6: 2467Hz; 7: 1239Hz; 8: 620Hz; 9: 311Hz; 10: 155Hz; 11: 78Hz; 12: 39Hz; 13: 19Hz; 14: 10Hz; 15: OFF
-	//Special for FSK
+	//Special for FSK and FM
 	uint32_t frequencyDeviation;	//Hz
 	//Special for AFSK
 	uint16_t afskSpace;				//Hz
@@ -116,6 +116,7 @@ extern volatile RadioConfigsStruct radioAConfig;
 
 //Tracking Variables
 extern volatile RadioTrackingStruct radioATracking;
+extern volatile RadioTrackingStruct radioAPacketTracking;
 
 //Radio B (UHF) Configurations
 extern volatile RadioBaseConfigs radioBBaseConfigs;			//Base Radio Configs Module
@@ -123,6 +124,7 @@ extern volatile RadioConfigsStruct radioBConfig;
 
 //Tracking Variables
 extern volatile RadioTrackingStruct radioBTracking;
+extern volatile RadioTrackingStruct radioBPacketTracking;
 
 #ifdef __cplusplus
 }

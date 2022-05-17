@@ -71,6 +71,10 @@ void RadioBIRQHandler() {
 						fifoDataPacketB[i] = rxRadioData[fifoIndex++];
 					}
 
+					//Save Tracking Variable Values
+					radioBPacketTracking.rfFrequencyTracking = radioBTracking.rfFrequencyTracking;
+					radioBPacketTracking.rssiTracking = radioBTracking.rssiTracking;
+
 					newFIFODataPacketB = 0x01;
 					break;
 				}
@@ -146,6 +150,10 @@ void RadioAIRQHandler() {
 					for(i = 0; i < fifoDataPacketLengthA; i++) {
 						fifoDataPacketA[i] = rxRadioData[fifoIndex++];
 					}
+
+					//Save Tracking Variable Values
+					radioAPacketTracking.rfFrequencyTracking = radioATracking.rfFrequencyTracking;
+					radioAPacketTracking.rssiTracking = radioATracking.rssiTracking;
 
 					newFIFODataPacketA = 0x01;
 					break;

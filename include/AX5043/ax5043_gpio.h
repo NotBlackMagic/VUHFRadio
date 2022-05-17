@@ -57,6 +57,7 @@ typedef enum {
 	DCLK_Modem_Data_Clk_Input = 3,		//DCLK Output Modem Data Clock Input; use when inputting/outputting framing data on DATA
 	DCLK_Modem_Data_Clk_Output = 4,		//DCLK Output Modem Data Clock Output; use when observing modem data on DATA
 	DCLK_Modem_Data_Clk_Output_2 = 5,	//DCLK Output Modem Data Clock Output; use when inputting/outputting framing data on DATA, and you do not want to generate a clock yourself
+	DCLK_DSPmode_Frame_Sync = 6,		//DCLK Output DSPmode Frame Sync
 	DCLK_Test_Obs = 7					//DCLK Output Test Observation
 } PinFunctionsDCLK;
 
@@ -72,6 +73,7 @@ typedef enum {
 	DATA_IO_Framing_Data = 3,		//DATA Input/Output Framing Data
 	DATA_IO_Modem_Data = 4,			//DATA Input/Output Modem Data
 	DATA_IO_Async_Modem_Data = 5,	//DATA Input/Output Async Modem Data
+	DATA_DSPMode_Receiver_Data = 6,	//DATA Ouput DSPmode Receiver Data
 	DATA_Modem_Data_Output = 7,		//DATA Output Modem Data
 	DATA_Test_Obs = 15				//DATA Output Test Observation
 } PinFunctionsDATA;
