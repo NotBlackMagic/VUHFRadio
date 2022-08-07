@@ -13,7 +13,9 @@ uint8_t CATCommandCenterFequencyB(uint8_t* data, uint16_t dataLength, uint8_t* r
 uint8_t CATCommandFraming(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandFunctionRX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandFirmware(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandIdentification(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandRecallMemory(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
@@ -81,9 +83,17 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 		//Function TX (ON or OFF)
 		return CATCommandFunctionTX(data, dataLength, rData, rDataLength);
 	}
+	else if(data[0] == 'F' && data[1] == 'W') {
+		//Radio firmware Identification (Firmware Version)
+		return CATCommandFirmware(data, dataLength, rData, rDataLength);
+	}
 	else if(data[0] == 'G' && data[1] == 'T') {
 		//AGC Speed setting
 		return CATCommandAGCSpeed(data, dataLength, rData, rDataLength);
+	}
+	else if(data[0] == 'I' && data[1] == 'D') {
+		//Radio module Identification (Hardware Version)
+		return CATCommandIdentification(data, dataLength, rData, rDataLength);
 	}
 	else if(data[0] == 'I' && data[1] == 'S') {
 		//IF Frequency setting
@@ -122,6 +132,14 @@ uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 	else if(data[0] == 'T' && data[1] == 'C') {
 		//TNC Mode
 		return CATCommandTNC(data, dataLength, rData, rDataLength);
+	}
+	else if(data[0] == '?' && data[1] == ';') {
+		//Command return ERROR
+		return 1;
+	}
+	else if(data[0] == 'O' && data[1] == 'K' && data[2] == ';') {
+		//Command return OK
+		return 0;
 	}
 	else {
 		*rDataLength = sprintf(rData, "?;");
@@ -828,6 +846,35 @@ uint8_t CATCommandFunctionTX(uint8_t* data, uint16_t dataLength, uint8_t* rData,
 }
 
 /**
+  * @brief	This function handles the Identification Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: NA; Read: FW; Return: FW103232323230023232323;
+  */
+uint8_t CATCommandFirmware(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		*rDataLength = sprintf(rData, "FW%d%02d%08d%d%02d%08d;", SOFTWARE_VERSION_MAJOR, SOFTWARE_VERSION_MINOR, SOFTWARE_HASH, CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_HASH);
+		return 0;
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+}
+
+/**
   * @brief	This function handles the AGC Speed Command
   * @param	data: Current Input data string
   * @param	dataLength: Length of the data string
@@ -892,6 +939,35 @@ uint8_t CATCommandAGCSpeed(uint8_t* data, uint16_t dataLength, uint8_t* rData, u
 
 	*rDataLength = sprintf(rData, "OK;");
 	return 0;
+}
+
+/**
+  * @brief	This function handles the Identification Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: NA; Read: ID; Return: ID0103;
+  */
+uint8_t CATCommandIdentification(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		*rDataLength = sprintf(rData, "ID%02d%02d;", HARDWARE_VERSION_MAJOR, HARDWARE_VERSION_MINOR);
+		return 0;
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
 }
 
 /**

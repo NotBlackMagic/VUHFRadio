@@ -13,6 +13,8 @@ extern "C" {
 
 #include "memoryChannelConfigs.h"
 
+#include "config.h"
+
 uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 
 #ifdef __cplusplus
