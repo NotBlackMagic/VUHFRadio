@@ -13,13 +13,13 @@ extern "C" {
 
 //Software Identification Defines
 #define SOFTWARE_VERSION_MAJOR				1
-#define SOFTWARE_VERSION_MINOR				0
-#define SOFTWARE_HASH						0x00000000
+#define SOFTWARE_VERSION_MINOR				5
+#define SOFTWARE_HASH						0x0a325ff7
 
 //CAT Interface
 #define CAT_VERSION_MAJOR					1
-#define CAT_VERSION_MINOR					0
-#define CAT_VERSION_HASH					0x00000000
+#define CAT_VERSION_MINOR					5
+#define CAT_VERSION_HASH					0x0a325ff7
 
 #ifdef __cplusplus
 }
