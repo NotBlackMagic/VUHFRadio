@@ -169,6 +169,7 @@ void RadioAIRQHandler() {
 
 uint8_t fDivider = 0;
 void RadioTrackingUpdateHandler() {
+	//RSSI Tracking
 	radioATracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_UHF);
 	radioBTracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_VHF);
 
@@ -186,6 +187,7 @@ void RadioTrackingUpdateHandler() {
 		GPIOWrite(GPIO_OUT_LED3, 0);
 	}
 
+	//RF Frequency offset tracking
 	if(fDivider == 10) {
 		//Update RF Frequency Tracking less frequently
 		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
@@ -201,6 +203,10 @@ void RadioTrackingUpdateHandler() {
 	else {
 		fDivider += 1;
 	}
+
+	//AGC Gain Tracking
+	radioATracking.agcGainTracking = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
+	radioBTracking.agcGainTracking = AX5043GeneralGetAGCCurrentGain(RADIO_VHF);
 }
 
 void RadioADCLKHandler() {

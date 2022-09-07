@@ -1,6 +1,11 @@
 #include "CATInterface.h"
 
-uint8_t CATASCIIToNumber(uint8_t* ascii, uint8_t asciiLength, int32_t* value);
+typedef uint8_t (*CATCommandHandler)(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+
+typedef struct {
+	char code[3];
+	CATCommandHandler handler;
+} CATCommandStruct;
 
 //CAT Command Handlers
 uint8_t CATCommandAFCControl(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
@@ -20,12 +25,44 @@ uint8_t CATCommandIFFrequency(uint8_t* data, uint16_t dataLength, uint8_t* rData
 uint8_t CATCommandRecallMemory(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandModulation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+uint8_t CATCommandRXGain(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandBandwidth(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandRSSI(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandTNC(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandDeviation(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 uint8_t CATCommandPacketMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
+
+//CAT Commands Handler List
+#define CAT_COMMAND_LIST_LENGTH						26
+CATCommandStruct catCommands[CAT_COMMAND_LIST_LENGTH] = {
+		{.code = "AF\0", .handler = CATCommandAFCControl},
+		{.code = "CT\0", .handler = CATCommandCRC},
+		{.code = "DA\0", .handler = NULL},
+		{.code = "EM\0", .handler = CATCommandEncoding},
+		{.code = "EX\0", .handler = CATCommandExtendedMenu},
+		{.code = "DR\0", .handler = CATCommandDatarateRX},
+		{.code = "DT\0", .handler = CATCommandDatarateTX},
+		{.code = "FA\0", .handler = CATCommandCenterFequencyA},
+		{.code = "FB\0", .handler = CATCommandCenterFequencyB},
+		{.code = "FM\0", .handler = CATCommandFraming},
+		{.code = "FR\0", .handler = CATCommandFunctionRX},
+		{.code = "FT\0", .handler = CATCommandFunctionTX},
+		{.code = "FW\0", .handler = CATCommandFirmware},
+		{.code = "GT\0", .handler = CATCommandAGCSpeed},
+		{.code = "ID\0", .handler = CATCommandIdentification},
+		{.code = "IS\0", .handler = CATCommandIFFrequency},
+		{.code = "KS\0", .handler = NULL},
+		{.code = "MC\0", .handler = CATCommandRecallMemory},
+		{.code = "MD\0", .handler = CATCommandModulation},
+		{.code = "PC\0", .handler = CATCommandTXPower},
+		{.code = "PM\0", .handler = CATCommandPacketMeter},
+		{.code = "RG\0", .handler = CATCommandRXGain},
+		{.code = "RM\0", .handler = CATCommandReadMeter},
+		{.code = "SH\0", .handler = CATCommandBandwidth},
+		{.code = "SM\0", .handler = CATCommandRSSI},
+		{.code = "TC\0", .handler = CATCommandTNC}
+};
 
 /**
   * @brief	This function handles all incoming data/commands
@@ -38,118 +75,162 @@ uint8_t CATCommandPacketMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData
   * CAT Command Example: Set: FA145895000; Read: FA; Return: FA145895000;
   */
 uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
-	if(data[0] == 'A' && data[1] == 'F') {
-		//AFC Control
-		return CATCommandAFCControl(data, dataLength, rData, rDataLength);
+	uint8_t status = 0x01;
+
+	//Check for command handler in list
+	uint8_t i;
+	for(i = 0; i < CAT_COMMAND_LIST_LENGTH; i++) {
+//		if(strcmp(catCommands[i].code, data) == 0) {
+		if(catCommands[i].code[0] == data[0] && catCommands[i].code[1] == data[1]) {
+			if(catCommands[i].handler == NULL) {
+				//Is CAT command but handler was not defined
+				status = 0x00;
+				break;
+			}
+
+			//Call CAT command handler function
+			catCommands[i].handler(data, dataLength, rData, rDataLength);
+
+			status = 0x00;
+			break;
+		}
+		else {
+			status = 0x01;
+		}
 	}
-	else if(data[0] == 'C' && data[1] == 'T') {
-		//CRC/CCITT Control
-		return CATCommandCRC(data, dataLength, rData, rDataLength);
+
+	//Not a CAT Command
+	if(status != 0x00) {
+		if(data[0] == '?' && data[1] == ';') {
+			//Command return ERROR
+			return 1;
+		}
+		else if(data[0] == 'O' && data[1] == 'K' && data[2] == ';') {
+			//Command return OK
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
 	}
-	else if(data[0] == 'D' && data[1] == 'A') {
-		//Screen Brightness setting
-	}
-	else if(data[0] == 'E' && data[1] == 'M') {
-		//Bit Encoding Mode
-		return CATCommandEncoding(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'E' && data[1] == 'X') {
-		//Extended Menu
-	}
-	else if(data[0] == 'D' && data[1] == 'R') {
-		//Datarate RX
-		return CATCommandDatarateRX(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'D' && data[1] == 'T') {
-		//Datarate TX
-		return CATCommandDatarateTX(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'A') {
-		//Center Frequency of Radio A
-		return CATCommandCenterFequencyA(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'B') {
-		//Center Frequency of Radio B
-		return CATCommandCenterFequencyB(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'M') {
-		//Framing Mode
-		return CATCommandFraming(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'R') {
-		//Function RX (ON or OFF)
-		return CATCommandFunctionRX(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'T') {
-		//Function TX (ON or OFF)
-		return CATCommandFunctionTX(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'F' && data[1] == 'W') {
-		//Radio firmware Identification (Firmware Version)
-		return CATCommandFirmware(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'G' && data[1] == 'T') {
-		//AGC Speed setting
-		return CATCommandAGCSpeed(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'I' && data[1] == 'D') {
-		//Radio module Identification (Hardware Version)
-		return CATCommandIdentification(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'I' && data[1] == 'S') {
-		//IF Frequency setting
-		return CATCommandIFFrequency(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'K' && data[1] == 'S') {
-		//CW/Morse Key Speed
-	}
-	else if(data[0] == 'M' && data[1] == 'C') {
-		//Recall Memory
-		return CATCommandRecallMemory(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'M' && data[1] == 'D') {
-		//Operating Mode/Modulation
-		return CATCommandModulation(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'P' && data[1] == 'C') {
-		//TX Output Power
-		return CATCommandTXPower(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'P' && data[1] == 'M') {
-		//Packet Meter/Tracking Value
-		return CATCommandPacketMeter(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'R' && data[1] == 'G') {
-		//RF Gain, LNA/AGC Gain
-	}
-	else if(data[0] == 'R' && data[1] == 'M') {
-		//Read Meter/Tracking Value
-		return CATCommandReadMeter(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'S' && data[1] == 'H') {
-		//RX Bandwidth
-		return CATCommandBandwidth(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'S' && data[1] == 'M') {
-		//RSSI Reading
-		return CATCommandRSSI(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == 'T' && data[1] == 'C') {
-		//TNC Mode
-		return CATCommandTNC(data, dataLength, rData, rDataLength);
-	}
-	else if(data[0] == '?' && data[1] == ';') {
-		//Command return ERROR
-		return 1;
-	}
-	else if(data[0] == 'O' && data[1] == 'K' && data[2] == ';') {
-		//Command return OK
-		return 0;
-	}
-	else {
-		*rDataLength = sprintf(rData, "?;");
-		return 1;
-	}
+
+	return status;
+
+//	if(data[0] == 'A' && data[1] == 'F') {
+//		//AFC Control
+//		return CATCommandAFCControl(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'C' && data[1] == 'T') {
+//		//CRC/CCITT Control
+//		return CATCommandCRC(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'D' && data[1] == 'A') {
+//		//Screen Brightness setting
+//	}
+//	else if(data[0] == 'E' && data[1] == 'M') {
+//		//Bit Encoding Mode
+//		return CATCommandEncoding(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'E' && data[1] == 'X') {
+//		//Extended Menu
+//		return CATCommandExtendedMenu(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'D' && data[1] == 'R') {
+//		//Datarate RX
+//		return CATCommandDatarateRX(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'D' && data[1] == 'T') {
+//		//Datarate TX
+//		return CATCommandDatarateTX(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'A') {
+//		//Center Frequency of Radio A
+//		return CATCommandCenterFequencyA(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'B') {
+//		//Center Frequency of Radio B
+//		return CATCommandCenterFequencyB(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'M') {
+//		//Framing Mode
+//		return CATCommandFraming(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'R') {
+//		//Function RX (ON or OFF)
+//		return CATCommandFunctionRX(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'T') {
+//		//Function TX (ON or OFF)
+//		return CATCommandFunctionTX(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'F' && data[1] == 'W') {
+//		//Radio firmware Identification (Firmware Version)
+//		return CATCommandFirmware(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'G' && data[1] == 'T') {
+//		//AGC Speed setting
+//		return CATCommandAGCSpeed(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'I' && data[1] == 'D') {
+//		//Radio module Identification (Hardware Version)
+//		return CATCommandIdentification(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'I' && data[1] == 'S') {
+//		//IF Frequency setting
+//		return CATCommandIFFrequency(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'K' && data[1] == 'S') {
+//		//CW/Morse Key Speed
+//	}
+//	else if(data[0] == 'M' && data[1] == 'C') {
+//		//Recall Memory
+//		return CATCommandRecallMemory(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'M' && data[1] == 'D') {
+//		//Operating Mode/Modulation
+//		return CATCommandModulation(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'P' && data[1] == 'C') {
+//		//TX Output Power
+//		return CATCommandTXPower(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'P' && data[1] == 'M') {
+//		//Packet Meter/Tracking Value
+//		return CATCommandPacketMeter(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'R' && data[1] == 'G') {
+//		//RF Gain, LNA/AGC Gain
+//		return CATCommandRXGain(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'R' && data[1] == 'M') {
+//		//Read Meter/Tracking Value
+//		return CATCommandReadMeter(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'S' && data[1] == 'H') {
+//		//RX Bandwidth
+//		return CATCommandBandwidth(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'S' && data[1] == 'M') {
+//		//RSSI Reading
+//		return CATCommandRSSI(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == 'T' && data[1] == 'C') {
+//		//TNC Mode
+//		return CATCommandTNC(data, dataLength, rData, rDataLength);
+//	}
+//	else if(data[0] == '?' && data[1] == ';') {
+//		//Command return ERROR
+//		return 1;
+//	}
+//	else if(data[0] == 'O' && data[1] == 'K' && data[2] == ';') {
+//		//Command return OK
+//		return 0;
+//	}
+//	else {
+//		*rDataLength = sprintf(rData, "?;");
+//		return 1;
+//	}
 
 	return 0;
 }
@@ -1235,6 +1316,56 @@ uint8_t CATCommandTXPower(uint8_t* data, uint16_t dataLength, uint8_t* rData, ui
 }
 
 /**
+  * @brief	This function handles the RX Gain Command
+  * @param	data: Current Input data string
+  * @param	dataLength: Length of the data string
+  * @param	rData: Return data string, what to answer over the interface
+  * @param	rDataLength: Length of the return data string
+  * @return	0-> No Errors, 1->Error in Command
+  *
+  * Example: Set: PG1010; Read: PG1; Return: PG1010;
+  */
+uint8_t CATCommandRXGain(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength) {
+	uint32_t radio = 0;
+	if(CATASCIIToNumber(&data[2], 1, &radio) != 0x00) {
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	if(data[3] == ';') {
+		//Read Command
+		if(radio == RADIO_A) {
+			*rDataLength = sprintf(rData, "RG0%03d;", radioATracking.agcGainTracking);
+			return 0;
+		}
+		else if(radio == RADIO_B) {
+			*rDataLength = sprintf(rData, "RG1%03d;", radioBTracking.agcGainTracking);
+			return 0;
+		}
+		else {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else if(data[5] == ';') {
+		//Write/Set Command
+		uint32_t value = 0;
+		if(CATASCIIToNumber(&data[3], 3, &value) != 0x00) {
+			*rDataLength = sprintf(rData, "?;");
+			return 1;
+		}
+	}
+	else {
+		//Syntax Error
+		*rDataLength = sprintf(rData, "?;");
+		return 1;
+	}
+
+	*rDataLength = sprintf(rData, "OK;");
+	return 0;
+}
+
+/**
   * @brief	This function handles the RX Bandwidth Command
   * @param	data: Current Input data string
   * @param	dataLength: Length of the data string
@@ -1356,6 +1487,10 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 						*rDataLength = sprintf(rData, "RM01-%06d;", (-radioATracking.rfFrequencyTracking));
 					}
 					break;
+				case 0x02:
+					//Read AGC Gain Value
+					*rDataLength = sprintf(rData, "RM02%03d;", radioATracking.agcGainTracking);
+					break;
 				default:
 					*rDataLength = sprintf(rData, "?;");
 					return 1;
@@ -1377,6 +1512,10 @@ uint8_t CATCommandReadMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData, 
 					else {
 						*rDataLength = sprintf(rData, "RM11-%06d;", (-radioBTracking.rfFrequencyTracking));
 					}
+					break;
+				case 0x02:
+					//Read AGC Gain Value
+					*rDataLength = sprintf(rData, "RM12%03d;", radioATracking.agcGainTracking);
 					break;
 				default:
 					*rDataLength = sprintf(rData, "?;");
@@ -1645,46 +1784,4 @@ uint8_t CATCommandPacketMeter(uint8_t* data, uint16_t dataLength, uint8_t* rData
 		*rDataLength = sprintf(rData, "?;");
 		return 1;
 	}
-}
-
-/**
-  * @brief	This function calculates the Power of base^exp, both uint8_t
-  * @param	base: Base value of the Power
-  * @param	exp: Exponent value of the Power
-  * @return	The Power of base^exp
-  */
-uint32_t UIntPow(uint8_t base, uint8_t exp) {
-	if(exp == 0) {
-		return 1;
-	}
-
-	uint32_t value = base;
-	uint8_t i;
-	for(i = 1; i < exp; i++) {
-		value *= base;
-	}
-
-	return value;
-}
-
-/**
-  * @brief	This function converts the CAT value fields to int
-  * @param	ascii: The CAT value field in ASCII
-  * @param	asciiLength: Length of the ASCII field aka N digits
-  * @param	value: Pointer to return value
-  * @return	0-> Success, 1-> Failed/Error
-  */
-uint8_t CATASCIIToNumber(uint8_t* ascii, uint8_t asciiLength, int32_t* value) {
-	*value = 0;
-
-	uint8_t i;
-	for(i = 0; i < asciiLength; i++) {
-		if(ascii[i] < '0' || ascii[i] > '9') {
-			return 1;
-		}
-		uint32_t mult = UIntPow(10, (asciiLength - i - 1));
-		*value += (ascii[i] - '0') * mult;
-	}
-
-	return 0;
 }

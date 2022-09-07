@@ -15,6 +15,9 @@ extern "C" {
 
 #include "config.h"
 
+#include "CATExtendedMenu.h"
+#include "CATHelper.h"
+
 uint8_t CATInterfaceHandler(uint8_t* data, uint16_t dataLength, uint8_t* rData, uint16_t* rDataLength);
 
 #ifdef __cplusplus

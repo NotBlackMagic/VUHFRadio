@@ -215,6 +215,7 @@ int main(void) {
 //	RadioSetCenterFrequency(RADIO_A, 436450000);
 	radioAConfig = memoryChannelsFixed[Memory_AFSK_1200];
 	radioAConfig.centerFrequency = 436450000;
+	radioAConfig.tncMode = RadioTNCMode_OFF;
 	RadioSetFullConfiguration(RADIO_A, radioAConfig);
 
 //	RadioSetBandwidth(RADIO_A, 70000);
@@ -267,15 +268,15 @@ int main(void) {
 //	//DCLK -> Frame Sync
 //	//DATA -> Receive Data
 //	//PWRAMP -> Transmit Data
-//
+
 //	//Config DCLK
-//	reg = 0x06;		//DSPmode Frame Sync
+//	uint8_t reg = 0x06;		//DSPmode Frame Sync
 //	AX5043WriteShortAddress(RADIO_A, PINFUNCDCLK, &reg, 1);
 //	//Config DATA
 //	reg = 0x86;		//DSPmode Receiver Data, weak pullup enabled
 //	AX5043WriteShortAddress(RADIO_A, PINFUNCDATA, &reg, 1);
 //	//Config SYS
-//	reg = SysClk_fXtal_div1;		//Output fXtal/16 = 16MHz/16 = 1MHz
+//	reg = SysClk_fXtal_div4;		//Output fXtal/16 = 16MHz/16 = 1MHz
 //	AX5043WriteShortAddress(RADIO_A, PINFUNCSYSCLK, &reg, 1);
 //
 //	AX5043RXParamSetRXFrequencyGainA0(RADIO_A, 0x0F);
@@ -298,8 +299,13 @@ int main(void) {
 //
 //	while(1);
 
+	//Test Experimental Modes
+//	RadioSetExperimentalMode(RADIO_A, RadioExperimental_AnalogIQ);
+	RadioSetExperimentalMode(RADIO_A, RadioExperimental_DSPMode);
+
 	//Start the Tracking/Status update Timer
 	uint32_t trackingUpdateTimer = GetSysTick();
+	uint32_t timestamp = GetSysTick();
 //	TIM3Init();
 
 	//Initializations done, VUHFRadio Powered Up

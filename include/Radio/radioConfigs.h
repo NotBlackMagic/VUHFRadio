@@ -68,6 +68,12 @@ typedef enum {
 	RadioCRC_CRC32 = 4
 } RadioCRC;
 
+typedef enum {
+	RadioExperimental_OFF = 0,
+	RadioExperimental_AnalogIQ = 1,
+	RadioExperimental_DSPMode = 2
+} RadioExperimentalMode;
+
 typedef struct {
 	uint8_t radio;						//RADIO_A: 0; RADIO_B: 1;
 	uint32_t radioXTAL;					//Xtal Frequency in Hz
@@ -107,7 +113,8 @@ typedef struct {
 
 typedef struct {
 	int8_t rssiTracking;			//RSSI in signed format
-	int32_t rfFrequencyTracking;	//Tracking in signed format
+	int32_t rfFrequencyTracking;	//RF frequency offset tracking in signed format
+	uint8_t agcGainTracking;		//AGC gain tracking
 } RadioTrackingStruct;
 
 //Radio A (UHF) Configurations

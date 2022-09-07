@@ -44,7 +44,7 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043GPIOCnfgPwrRamp(radio, PwrRamp_DAC_Output, 0, 0);	//Default PwrRamp_HighZ
 
 	//Set DAC
-	AX5043GPIOSetDACInput(radio, DACInput_RSSI);
+	AX5043GPIOSetDACInput(radio, DACInput_SampleRotI);
 	AX5043GPIOSetDACInputShift(radio, 0x0C);
 	AX5043GPIOSetDACOutputMode(radio, 0x00);
 	AX5043GPIOSetDACClockDoubling(radio, 0x01);
@@ -1142,6 +1142,76 @@ uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq) {
 	}
 
 	AX5043RXParamSetAFSKMarkFrequency(radio, afskMark);		//Set RX AFSK Space Frequency
+
+	return 0;
+}
+
+/**
+  * @brief	This function sets the Experimental Modes
+  * @param	radio: Selects the Radio
+  * @param	experimentalMode: Experimental Mode to be used/enabled
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experimentalMode) {
+	if(experimentalMode == RadioExperimental_OFF) {
+		//Disable Experimental Mode(s)
+
+		//Disable Analog IQ Output
+		//Config TMMUX
+		uint8_t reg = GPADCSource_0;
+		AX5043WriteLongAddress(radio, TMMUX, &reg, 1);
+		//Config BBDETECTOR
+		reg = 0x00;
+		AX5043WriteLongAddress(radio, BBDETECTOR0, &reg, 1);
+
+		//Disable DSPMode Interface
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Off);
+
+		AX5043GPIOCnfgDCLK(radio, DCLK_Low, 0, 0);
+		AX5043GPIOCnfgDATA(radio, DATA_Low, 0, 0);
+		AX5043GPIOCnfgSysClk(radio, SysClk_Low, 0);
+		AX5043GPIOCnfgPwrRamp(radio, PwrRamp_DAC_Output, 0, 0);	//Default PwrRamp_HighZ
+	}
+	else if(experimentalMode == RadioExperimental_AnalogIQ) {
+		//Enable Analog IQ Output
+		//Analog IQ Output Pins:
+		//Analog I -> GPADC1
+		//Analog Q -> GPADC2
+
+		//Config TMMUX
+		uint8_t reg = GPADCSource_5;
+		AX5043WriteLongAddress(radio, TMMUX, &reg, 1);
+		//Config BBDETECTOR
+		reg = 0x08;
+		AX5043WriteLongAddress(radio, BBDETECTOR0, &reg, 1);
+	}
+	else if(experimentalMode == RadioExperimental_DSPMode) {
+		//Enable DSPMode Interface
+		//DSPMode Interface Pins:
+		//SYSCLK -> Bit Clock
+		//DCLK -> Frame Sync
+		//DATA -> Receive Data
+		//PWRAMP -> Transmit Data
+
+		//Config DCLK: DSPmode Frame Sync
+		AX5043GPIOCnfgDCLK(radio, DCLK_DSPmode_Frame_Sync, 0, 0);
+		//Config DATA: DSPmode Receiver Data, weak pullup enabled
+		AX5043GPIOCnfgDATA(radio, DATA_DSPMode_Receiver_Data, 0, 1);
+		//Config SYS: Output fXtal/16 = 16MHz/16 = 1MHz
+		AX5043GPIOCnfgSysClk(radio, SysClk_fXtal_div4, 0);
+		//Config PWRAMP: DSPMode Transmit Data
+//		AX5043GPIOCnfgPwrRamp(RADIO_A, PwrRamp_HighZ, 0, 0);
+
+		//Config DSP Mode
+		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Baseband_Clock);
+		//Select what data to output
+		DSPModeSkip skipData;
+		skipData.raw = 0xFFFF;
+		skipData.skipbasebandiq = 0;
+//		skipData.skipsampiq = 0;
+		AX5043ExperimentalSetDSPModeSkipData(radio, skipData);
+	}
 
 	return 0;
 }
