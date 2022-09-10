@@ -1,6 +1,6 @@
 #include "morse.h"
 
-#define MORSE_THRESHOLD_VHF				-90
+#define MORSE_THRESHOLD					-90
 #define MORSE_CALL_MS					5
 
 uint8_t morseSymbolIndex = 0;
@@ -16,10 +16,10 @@ void MorseStateMachine() {
 	if(morseStateMachineTime + MORSE_CALL_MS <= GetSysTick()) {
 		morseStateMachineTime = GetSysTick();
 
-		int8_t vhfRSSI = AX5043GeneralGetRSSI(RADIO_VHF);
+		int8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
 
-		if(vhfRSSI > MORSE_THRESHOLD_VHF) {
-			GPIOWrite(GPIO_OUT_LED3, 1);
+		if(rssi > MORSE_THRESHOLD) {
+//			GPIOWrite(GPIO_OUT_LED3, 1);
 
 			if(morseLastState == 0) {
 				morseDeltaTime = GetSysTick() - morseLastStateTime;
@@ -84,7 +84,7 @@ void MorseStateMachine() {
 			morseLastState = 1;
 		}
 		else {
-			GPIOWrite(GPIO_OUT_LED3, 0);
+//			GPIOWrite(GPIO_OUT_LED3, 0);
 
 			if(morseLastState == 1) {
 				morseDeltaTime = GetSysTick() - morseLastStateTime;

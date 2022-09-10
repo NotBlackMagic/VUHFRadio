@@ -21,70 +21,38 @@ void GPIOInit() {
 //	PWR->CR &= 0xFFFFFEFF;
 
 	//Set Generic Output GPIO's
-	GPIOSetPinMode(GPIO_OUT_LED0, GPIO_Mode_Output);	//Output LED 0
-	GPIOSetPinMode(GPIO_OUT_LED1, GPIO_Mode_Output);	//Output LED 1
-	GPIOSetPinMode(GPIO_OUT_LED2, GPIO_Mode_Output);	//Output LED 2
-	GPIOSetPinMode(GPIO_OUT_LED3, GPIO_Mode_Output);	//Output LED 3
-	GPIOSetPinMode(GPIO_OUT_LED4 ,GPIO_Mode_Output);	//Output LED 4
-	GPIOSetPinMode(GPIO_OUT_LED5 ,GPIO_Mode_Output);	//Output LED 5
+	GPIOSetPinMode(GPIO_OUT_LVSH_EN, GPIO_Mode_Output);	//Output Level-Shift Enable
+
+	//Set Generic Input GPIO's
+	GPIOSetPinMode(GPIO_IN_UART_WAKE, GPIO_Mode_Input);	//Input UART Wake pin
 
 	//Set Generic ADC Input GPIO's
-	GPIOSetPinMode(GPIO_ADC_I_VCC_U, GPIO_Mode_Analog);	//ADC Input Current AX5043 UHF Radio
-	GPIOSetPinMode(GPIO_ADC_I_VCC_V, GPIO_Mode_Analog);	//ADC Input Current AX5043 VHF Radio
-	GPIOSetPinMode(GPIO_ADC_I_VCC_M, GPIO_Mode_Analog);	//ADC Input Current MCU/Amps
-	GPIOSetPinMode(GPIO_ADC_I_5V, GPIO_Mode_Analog);	//ADC Input Current USB/5V
+	GPIOSetPinMode(GPIO_ADC_Q, GPIO_Mode_Analog);		//ADC Input Q Signal from AX Radio
+	GPIOSetPinMode(GPIO_ADC_I, GPIO_Mode_Analog);		//ADC Input I Signal from AX Radio
+	GPIOSetPinMode(GPIO_ADC_DAC, GPIO_Mode_Analog);		//ADC Input DAC from AX Radio
 
-	//Set AX5043 Output GPIO's
-	GPIOSetPinMode(GPIO_OUT_CS_U, GPIO_Mode_Output);	//Output CS of UHF
-	GPIOSetPinMode(GPIO_OUT_CS_V, GPIO_Mode_Output);	//Output CS of VHF
-	//Set AX5043 Input GPIO's
-	GPIOSetPinMode(GPIO_IN_PTT_V, GPIO_Mode_Input);		//Input PTT of VHF	(PA10)
-	GPIOSetPinMode(GPIO_IN_PTT_U, GPIO_Mode_Input);		//Input PTT of UHF	(PA15)
-	GPIOSetPinMode(GPIO_IN_IRQ_U, GPIO_Mode_Input);		//Input IRQ of UHF	(PB0)
-	GPIOSetPinMode(GPIO_IN_IRQ_V, GPIO_Mode_Input);		//Input IRQ of VHF	(PB1)
-	GPIOSetPinMode(GPIO_IN_DCLK_U, GPIO_Mode_Input);	//Input DCLK of UHF	(PB11)
-	GPIOSetPinMode(GPIO_IN_DCLK_V, GPIO_Mode_Input);	//Input DCLK of VHF (PA8)
-	GPIOSetPinMode(GPIO_IN_DATA_U, GPIO_Mode_Input);	//Input DATA of UHF (PB10)
-	GPIOSetPinMode(GPIO_IN_DATA_V, GPIO_Mode_Input);	//Input DATA of VHF (PA9)
-
-	//Set Debbug Output GPIO's
-	GPIOSetPinMode(45, GPIO_Mode_Output);	//Output LED Blue Pill Dev. Board
+	//Set AX Radio Output GPIO's
+	GPIOSetPinMode(GPIO_OUT_CS_AX, GPIO_Mode_Output);	//Output CS of AX Radio
+	//Set AX Radio Input GPIO's
+	GPIOSetPinMode(GPIO_IN_DCLK_AX, GPIO_Mode_Input);		//Input DCLK of AX Radio
+	GPIOSetPinMode(GPIO_IN_DATA_AX, GPIO_Mode_Input);		//Input DATA of AX Radio
 
 	//Set Output Pins to Initial State
-	GPIOWrite(GPIO_OUT_LED0, 0);
-	GPIOWrite(GPIO_OUT_LED1, 0);
-	GPIOWrite(GPIO_OUT_LED2, 0);
-	GPIOWrite(GPIO_OUT_LED3, 0);
-	GPIOWrite(GPIO_OUT_LED4, 0);
-	GPIOWrite(GPIO_OUT_LED5, 0);
-	GPIOWrite(GPIO_OUT_CS_U, 1);
-	GPIOWrite(GPIO_OUT_CS_V, 1);
+	GPIOWrite(GPIO_OUT_CS_AX, 1);
 
 	//Set Input Pins Interrupts
-	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE0);		//IRQ of UHF
+	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE0);		//IRQ of AX Radio
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_0);
 	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_0);
 
-	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE1);		//IRQ of UHF
-	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_1);
-	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_1);
-
-//	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE11);	//IRQ DCLK of UHF
+//	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTB, LL_GPIO_AF_EXTI_LINE11);	//IRQ DCLK AX Radio
 //	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_11);
 //	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_11);
-//
-//	LL_GPIO_AF_SetEXTISource(LL_GPIO_AF_EXTI_PORTA, LL_GPIO_AF_EXTI_LINE8);		//IRQ DCLK of VHF
-//	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_8);
-//	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_8);
 
 	NVIC_EnableIRQ(EXTI0_IRQn);
 	NVIC_SetPriority(EXTI0_IRQn, 1);
-	NVIC_EnableIRQ(EXTI1_IRQn);
-	NVIC_SetPriority(EXTI1_IRQn, 1);
 //	NVIC_EnableIRQ(EXTI15_10_IRQn);
 //	NVIC_SetPriority(EXTI15_10_IRQn, 1);
-//	NVIC_EnableIRQ(EXTI9_5_IRQn);
-//	NVIC_SetPriority(EXTI9_5_IRQn, 1);
 }
 
 /**

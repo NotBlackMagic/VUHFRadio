@@ -7,18 +7,14 @@ extern "C" {
 
 #include <stdint.h>
 
-#define RADIO_RSSI_THRESHOLD						-90		//Radio RSSI activity threshold, above this level channel activity is assumed (for Morse and LED indication)
+#define RADIO_RSSI_THRESHOLD				-90		//Radio RSSI activity threshold, above this level channel activity is assumed (for Morse and LED indication)
 
-#define RADIO_A								0
-#define RADIO_B								1
+#define RADIO_AX							0
 
-#define RADIO_XTAL							16000000	//Xtal Frequency in Hz of Radio A
+#define RADIO_XTAL							16000000	//Xtal Frequency in Hz of AX Radio
 
 #define RADIO_A_FREQ_MAX					437000000
 #define RADIO_A_FREQ_MIN					435000000
-
-#define RADIO_B_FREQ_MAX					147000000
-#define RADIO_B_FREQ_MIN					145000000
 
 typedef enum {
 	RadioMode_OFF = 0,
@@ -69,10 +65,17 @@ typedef enum {
 } RadioCRC;
 
 typedef enum {
-	RadioExperimental_OFF = 0,
-	RadioExperimental_AnalogIQ = 1,
-	RadioExperimental_DSPMode = 2
+	RadioExpMode_OFF = 0,
+	RadioExpMode_AnalogIQ = 1,
+	RadioExpMode_DSPMode = 2
 } RadioExperimentalMode;
+
+typedef enum {
+	RadioExpOutput_BasebandIQ = 0,
+	RadioExpOutput_SampleIQ = 1,
+	RadioExpOutput_SampleRotIQ = 2,
+	RadioExpOutput_SampleMagPhase = 3
+} RadioExperimentalOutput;
 
 typedef struct {
 	uint8_t radio;						//RADIO_A: 0; RADIO_B: 1;
@@ -121,17 +124,13 @@ typedef struct {
 extern volatile RadioBaseConfigs radioABaseConfigs;			//Base Radio Configs Module
 extern volatile RadioConfigsStruct radioAConfig;
 
+//Radio A (UHF) Memory Bank/Channel in use/selected
+extern volatile uint8_t radioAMemoryBank;
+extern volatile uint8_t radioAMemoryChannel;
+
 //Tracking Variables
 extern volatile RadioTrackingStruct radioATracking;
 extern volatile RadioTrackingStruct radioAPacketTracking;
-
-//Radio B (UHF) Configurations
-extern volatile RadioBaseConfigs radioBBaseConfigs;			//Base Radio Configs Module
-extern volatile RadioConfigsStruct radioBConfig;
-
-//Tracking Variables
-extern volatile RadioTrackingStruct radioBTracking;
-extern volatile RadioTrackingStruct radioBPacketTracking;
 
 #ifdef __cplusplus
 }

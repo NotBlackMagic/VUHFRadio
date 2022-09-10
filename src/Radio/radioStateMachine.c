@@ -11,84 +11,8 @@ volatile uint8_t newFIFODataPacketA;
 volatile uint8_t fifoDataPacketLengthA;
 volatile uint8_t fifoDataPacketA[255];
 
-volatile uint8_t newFIFODataPacketB;
-volatile uint8_t fifoDataPacketLengthB;
-volatile uint8_t fifoDataPacketB[255];
-void RadioBIRQHandler() {
-	IrqRequest irqRequest = AX5043IrqGetIRQRequest(RADIO_B);
-
-	if(irqRequest.irqrqfifonotempty == 0x01) {
-		//FIFO Packet/Data available
-		uint8_t fifoCnt;
-		uint8_t rxRadioData[255];
-
-		//Get FIFO Packet
-		fifoCnt = AX5043FIFOGetFIFOCount(RADIO_B);
-		AX5043FIFOGetFIFO(RADIO_B, rxRadioData, fifoCnt);
-
-		uint8_t fifoIndex = 0;
-		while(fifoIndex < fifoCnt) {
-			uint8_t fifoOpcode = rxRadioData[fifoIndex++];
-			switch(fifoOpcode) {
-				case FIFO_RSSI: {
-					radioBTracking.rssiTracking =  rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_FREQOFFS: {
-					int16_t trackFreq = (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_ANTRSSI2: {
-					radioBTracking.rssiTracking = rxRadioData[fifoIndex++];
-					int8_t bRSSI = rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_TIMER: {
-					uint32_t timer = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_RFFREQOFFS: {
-					radioBTracking.rfFrequencyTracking = ((rxRadioData[fifoIndex++] << 28) + (rxRadioData[fifoIndex++] << 20) + (rxRadioData[fifoIndex++] << 12)) >> 12;
-					break;
-				}
-				case FIFO_DATARATE: {
-					uint32_t trackDatarate = (rxRadioData[fifoIndex++] << 16) + (rxRadioData[fifoIndex++] << 8) + rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_ANTRSSI3: {
-					radioBTracking.rssiTracking = rxRadioData[fifoIndex++];
-					int8_t rssi2 = rxRadioData[fifoIndex++];
-					int8_t bRSSI = rxRadioData[fifoIndex++];
-					break;
-				}
-				case FIFO_DATA: {
-					uint8_t dataLength = rxRadioData[fifoIndex++];
-					uint8_t dataStatus = rxRadioData[fifoIndex++];
-
-					fifoDataPacketLengthB = dataLength - 1;				//LENGTH Byte from the FIFO includes the status flags byte
-					uint8_t i;
-					for(i = 0; i < fifoDataPacketLengthB; i++) {
-						fifoDataPacketB[i] = rxRadioData[fifoIndex++];
-					}
-
-					//Save Tracking Variable Values
-					radioBPacketTracking.rfFrequencyTracking = radioBTracking.rfFrequencyTracking;
-					radioBPacketTracking.rssiTracking = radioBTracking.rssiTracking;
-
-					newFIFODataPacketB = 0x01;
-					break;
-				}
-				default: {
-					//Invalid OpCode, abort
-					return;
-				}
-			}
-		}
-	}
-}
-
 void RadioAIRQHandler() {
-	IrqRequest irqRequest = AX5043IrqGetIRQRequest(RADIO_A);
+	IrqRequest irqRequest = AX5043IrqGetIRQRequest(RADIO_AX);
 
 	if(irqRequest.irqrqfifonotempty == 0x01) {
 		//FIFO Packet/Data available
@@ -96,8 +20,8 @@ void RadioAIRQHandler() {
 		uint8_t rxRadioData[255];
 
 		//Get FIFO Packet
-		fifoCnt = AX5043FIFOGetFIFOCount(RADIO_A);
-		AX5043FIFOGetFIFO(RADIO_A, rxRadioData, fifoCnt);
+		fifoCnt = AX5043FIFOGetFIFOCount(RADIO_AX);
+		AX5043FIFOGetFIFO(RADIO_AX, rxRadioData, fifoCnt);
 
 		uint8_t fifoIndex = 0;
 		while(fifoIndex < fifoCnt) {
@@ -142,7 +66,7 @@ void RadioAIRQHandler() {
 //					}
 
 					if((dataStatus & DATA_CRCFAIL) != DATA_CRCFAIL) {
-						GPIOWrite(GPIO_OUT_LED1, 1);
+//						GPIOWrite(GPIO_OUT_LED1, 1);
 					}
 
 					fifoDataPacketLengthA = dataLength - 1;
@@ -170,28 +94,19 @@ void RadioAIRQHandler() {
 uint8_t fDivider = 0;
 void RadioTrackingUpdateHandler() {
 	//RSSI Tracking
-	radioATracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_UHF);
-	radioBTracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_VHF);
+	radioATracking.rssiTracking = AX5043GeneralGetRSSI(RADIO_AX);
 
 	if(radioATracking.rssiTracking >= RADIO_RSSI_THRESHOLD) {
-		GPIOWrite(GPIO_OUT_LED1, 1);
+//		GPIOWrite(GPIO_OUT_LED1, 1);
 	}
 	else {
-		GPIOWrite(GPIO_OUT_LED1, 0);
-	}
-
-	if(radioBTracking.rssiTracking >= RADIO_RSSI_THRESHOLD) {
-		GPIOWrite(GPIO_OUT_LED3, 1);
-	}
-	else {
-		GPIOWrite(GPIO_OUT_LED3, 0);
+//		GPIOWrite(GPIO_OUT_LED1, 0);
 	}
 
 	//RF Frequency offset tracking
 	if(fDivider == 10) {
 		//Update RF Frequency Tracking less frequently
-		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_UHF);
-		radioBTracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_VHF);
+		radioATracking.rfFrequencyTracking = AX5043RXTrackingGetRFFrequency(RADIO_AX);
 
 		//Convert raw values to Hz, using: Hz = TRKRFFREQ / 2^16 * BITRATE according to a forum post https://www.onsemi.com/forum/t/faq-what-is-the-trkrffreq-register-for/198
 		//But in testing doesn't match up, no conversion seems to be required...
@@ -205,12 +120,11 @@ void RadioTrackingUpdateHandler() {
 	}
 
 	//AGC Gain Tracking
-	radioATracking.agcGainTracking = AX5043GeneralGetAGCCurrentGain(RADIO_UHF);
-	radioBTracking.agcGainTracking = AX5043GeneralGetAGCCurrentGain(RADIO_VHF);
+	radioATracking.agcGainTracking = AX5043GeneralGetAGCCurrentGain(RADIO_AX);
 }
 
 void RadioADCLKHandler() {
-	uint8_t bit = GPIORead(GPIO_IN_DATA_U);
+	uint8_t bit = GPIORead(GPIO_IN_DATA_AX);
 
 	if(bit != 0x00) {
 		errorBits += 1;
@@ -229,26 +143,6 @@ void RadioADCLKHandler() {
 //	}
 }
 
-void RadioBDCLKHandler() {
-	uint8_t bit = GPIORead(GPIO_IN_DATA_V);
-
-//	if(bit != 0x00) {
-//		errorBits += 1;
-//	}
-//
-//	totalBits += 1;
-
-//	rawByteVHF += bit << rawByteIndexVHF;
-//	if(rawByteIndexVHF == 0) {
-//		rawByteReadyVHF = 1;
-//		rawByteIndexVHF = 7;
-//	}
-//	else {
-//		rawByteReadyVHF = 0;
-//		rawByteIndexVHF -= 1;
-//	}
-}
-
 /**
   * @brief	This function is the Handler for GPIO0s
   * @param	None
@@ -261,36 +155,6 @@ void EXTI0_IRQHandler(void) {
 
 		//Clear Interrupt Flag
 		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
-	}
-}
-
-/**
-  * @brief	This function is the Handler for GPIO1s
-  * @param	None
-  * @return	None
-  */
-void EXTI1_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_1) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) == 0x01) {
-		//Interrupt for IRQ of Radio B, VHF
-		RadioBIRQHandler();
-
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
-	}
-}
-
-/**
-  * @brief	This function is the Handler for GPIO5s to GPIO9s
-  * @param	None
-  * @return	None
-  */
-void EXTI9_5_IRQHandler(void) {
-	if(LL_EXTI_IsEnabledIT_0_31(LL_EXTI_LINE_8) == 0x01 && LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_8) == 0x01) {
-		//Interrupt for DCLK of Radio B, VHF
-		//Clear Interrupt Flag
-		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_8);
-
-		RadioBDCLKHandler();
 	}
 }
 
@@ -324,7 +188,7 @@ void EXTI15_10_IRQHandler(void) {
 //
 //			uint16_t len = sprintf(str, "UHF+");
 //
-//			int8_t rssi = AX5043GeneralGetRSSI(RADIO_UHF);
+//			int8_t rssi = AX5043GeneralGetRSSI(RADIO_AX);
 //			len += sprintf(&str[len], "RSSI=%d\n", rssi);
 //
 //			len += sprintf(&str[len], "UHF+BER=%d;%d\n", errorBits, totalBits);
@@ -367,7 +231,7 @@ void EXTI15_10_IRQHandler(void) {
 //	}
 //	else if(GPIORead(GPIO_IN_IRQ_U) == 0x01) {
 //		//Have UHF activity and no VHF
-//		radio = RADIO_UHF;
+//		radio = RADIO_AX;
 //		GPIOWrite(GPIO_OUT_LED1, 0);	//Turn VHF RX LED off
 //	}
 //	else {
@@ -387,7 +251,7 @@ void EXTI15_10_IRQHandler(void) {
 //		while(fifoIndex < fifoCnt) {
 //			uint16_t len = 0;
 //			char str[300];
-//			if(radio == RADIO_UHF) {
+//			if(radio == RADIO_AX) {
 //				len = sprintf(str, "UHF+");
 //			}
 //			else if(radio == RADIO_VHF) {
@@ -510,7 +374,7 @@ void EXTI15_10_IRQHandler(void) {
 //						}
 //					}
 //
-//					if(radio == RADIO_UHF) {
+//					if(radio == RADIO_AX) {
 //						GPIOWrite(GPIO_OUT_LED1, 1);
 //					}
 //					else if(radio == RADIO_VHF) {

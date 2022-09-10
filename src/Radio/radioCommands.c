@@ -1,11 +1,7 @@
 #include "radioCommands.h"
 
 void RadioACS(uint8_t cs) {
-	GPIOWrite(GPIO_OUT_CS_U, cs);
-}
-
-void RadioBCS(uint8_t cs) {
-	GPIOWrite(GPIO_OUT_CS_V, cs);
+	GPIOWrite(GPIO_OUT_CS_AX, cs);
 }
 
 /**
@@ -15,12 +11,10 @@ void RadioBCS(uint8_t cs) {
   */
 void RadioInterfacesInit() {
 	//Initialize Radio Interfaces
-	AX5043InterfaceStruct radioInterfaces[2];
-	radioInterfaces[RADIO_A].SPICS = RadioACS;
-	radioInterfaces[RADIO_A].SPIReadWrite = SPI1ReadWrite;
-	radioInterfaces[RADIO_B].SPICS = RadioBCS;
-	radioInterfaces[RADIO_B].SPIReadWrite = SPI2ReadWrite;
-	AX5043InterfacesInit(radioInterfaces, 2);
+	AX5043InterfaceStruct radioInterfaces[1];
+	radioInterfaces[RADIO_AX].SPICS = RadioACS;
+	radioInterfaces[RADIO_AX].SPIReadWrite = SPI1ReadWrite;
+	AX5043InterfacesInit(radioInterfaces, 1);
 }
 
 /**
@@ -123,35 +117,20 @@ uint8_t RadioInitBaseConfiguration(uint8_t radio) {
 	AX5043WriteLongAddress(radio, PERFTUNE114, &data, 1);	//F72
 
 	//Set Synth
-	if(radio == RADIO_A) {
-		AX5043SynthSetPLLLoopFilter(RADIO_A, PLLLoop_Filter500kHz);
-//		AX5043SynthSetPLLChargePumpCurrent(RADIO_A, 0x10);
-		AX5043SynthSetPLLVCOSelection(RADIO_A, 0);			//Use VCO 1
-//		AX5043SynthSetPLLVCO2Internal(RADIO_A, 1);			//Use VCO 2 with external inductor
-		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_A, 1);
+	if(radio == RADIO_AX) {
+		AX5043SynthSetPLLLoopFilter(RADIO_AX, PLLLoop_Filter500kHz);
+//		AX5043SynthSetPLLChargePumpCurrent(RADIO_AX, 0x10);
+		AX5043SynthSetPLLVCOSelection(RADIO_AX, 0);			//Use VCO 1
+//		AX5043SynthSetPLLVCO2Internal(RADIO_AX, 1);			//Use VCO 2 with external inductor
+		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_AX, 1);
 
 		//Set PERFTUNE52 to 0x28 if RFDIV is set (AX5043SynthSetPLLVCOEnableRefDivider(radio, 1)), 0x08 otherwise
 		data = 0x28;
-		AX5043WriteLongAddress(RADIO_A, PERFTUNE52, &data, 1);	//F34
+		AX5043WriteLongAddress(RADIO_AX, PERFTUNE52, &data, 1);	//F34
 
 		//This can be ignored, will be set latter in RadioSetFullConfiguration with RadioSetCenterFrequency
-		AX5043SynthSetFrequencyA(RADIO_A, 0x1B473334);		//For 436.45MHz is 0x1B473334 calculated but calibrated value is 0x1B474335
-//		AX5043SynthSetFrequencyB(RADIO_A, 0x1B474335);
-	}
-	else if(radio == RADIO_B) {
-		AX5043SynthSetPLLLoopFilter(RADIO_B, PLLLoop_Filter500kHz);
-//		AX5043SynthSetPLLChargePumpCurrent(RADIO_B, 0x10);
-		AX5043SynthSetPLLVCOSelection(RADIO_B, 1);			//Use VCO 2 with external inductor
-		AX5043SynthSetPLLVCO2Internal(RADIO_B, 1);			//Use VCO 2 with external inductor
-		AX5043SynthSetPLLVCOEnableRefDivider(RADIO_B, 0);
-
-		//Set PERFTUNE52 to 0x28 if RFDIV is set (AX5043SynthSetPLLVCOEnableRefDivider(radio, 1)), 0x08 otherwise
-		data = 0x08;
-		AX5043WriteLongAddress(RADIO_B, PERFTUNE52, &data, 1);	//F34
-
-		//This can be ignored, will be set latter in RadioSetFullConfiguration with RadioSetCenterFrequency
-		AX5043SynthSetFrequencyA(RADIO_B, 0x06166667);		//For 145.895MHz is 0x091E51EC calculated value
-//		AX5043SynthSetFrequencyB(RADIO_B, 0x08B22E58);
+		AX5043SynthSetFrequencyA(RADIO_AX, 0x1B473334);		//For 436.45MHz is 0x1B473334 calculated but calibrated value is 0x1B474335
+//		AX5043SynthSetFrequencyB(RADIO_AX, 0x1B474335);
 	}
 
 	//Perform auto ranging
@@ -351,13 +330,8 @@ uint8_t RadioSetFullConfiguration(uint8_t radio, RadioConfigsStruct configuratio
   */
 uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency) {
 	//Check limits
-	if(radio == RADIO_A) {
+	if(radio == RADIO_AX) {
 //		if(frequency < RADIO_A_FREQ_MIN || frequency > RADIO_A_FREQ_MAX) {
-//			return 1;
-//		}
-	}
-	else if(radio == RADIO_B) {
-//		if(frequency < RADIO_B_FREQ_MIN || frequency > RADIO_B_FREQ_MAX) {
 //			return 1;
 //		}
 	}
@@ -386,7 +360,7 @@ uint8_t RadioSetCenterFrequency(uint8_t radio, uint32_t frequency) {
   */
 uint8_t RadioSetAFCRange(uint8_t radio, uint32_t range) {
 	//Check limits, AFC Range must be < 1/4 RX BW
-//	if(radio == RADIO_A) {
+//	if(radio == RADIO_AX) {
 //		if(range > (bandwidthA >> 2)) {
 //			return 1;
 //		}
@@ -1147,13 +1121,13 @@ uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq) {
 }
 
 /**
-  * @brief	This function sets the Experimental Modes
+  * @brief	This function sets the experimental modes
   * @param	radio: Selects the Radio
   * @param	experimentalMode: Experimental Mode to be used/enabled
   * @return	0-> Success, 1-> Failed/Error
   */
 uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experimentalMode) {
-	if(experimentalMode == RadioExperimental_OFF) {
+	if(experimentalMode == RadioExpMode_OFF) {
 		//Disable Experimental Mode(s)
 
 		//Disable Analog IQ Output
@@ -1172,7 +1146,7 @@ uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experiment
 		AX5043GPIOCnfgSysClk(radio, SysClk_Low, 0);
 		AX5043GPIOCnfgPwrRamp(radio, PwrRamp_DAC_Output, 0, 0);	//Default PwrRamp_HighZ
 	}
-	else if(experimentalMode == RadioExperimental_AnalogIQ) {
+	else if(experimentalMode == RadioExpMode_AnalogIQ) {
 		//Enable Analog IQ Output
 		//Analog IQ Output Pins:
 		//Analog I -> GPADC1
@@ -1185,7 +1159,7 @@ uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experiment
 		reg = 0x08;
 		AX5043WriteLongAddress(radio, BBDETECTOR0, &reg, 1);
 	}
-	else if(experimentalMode == RadioExperimental_DSPMode) {
+	else if(experimentalMode == RadioExpMode_DSPMode) {
 		//Enable DSPMode Interface
 		//DSPMode Interface Pins:
 		//SYSCLK -> Bit Clock
@@ -1200,7 +1174,7 @@ uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experiment
 		//Config SYS: Output fXtal/16 = 16MHz/16 = 1MHz
 		AX5043GPIOCnfgSysClk(radio, SysClk_fXtal_div4, 0);
 		//Config PWRAMP: DSPMode Transmit Data
-//		AX5043GPIOCnfgPwrRamp(RADIO_A, PwrRamp_HighZ, 0, 0);
+//		AX5043GPIOCnfgPwrRamp(RADIO_AX, PwrRamp_HighZ, 0, 0);
 
 		//Config DSP Mode
 		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
@@ -1214,6 +1188,60 @@ uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experiment
 	}
 
 	return 0;
+}
+
+/**
+  * @brief	This function sets the experimental digital mode output signal
+  * @param	radio: Selects the Radio
+  * @param	experimentalOutput: Experimental output singal to be used/enabled
+  * @return	0-> Success, 1-> Failed/Error
+  */
+uint8_t RadioSetExperimentalOutput(uint8_t radio, RadioExperimentalOutput experimentalOutput) {
+	if(experimentalOutput == RadioExpOutput_BasebandIQ) {
+		//Config DSP Mode
+		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Baseband_Clock);
+		//Select what data to output
+		DSPModeSkip skipData;
+		skipData.raw = 0xFFFF;
+		skipData.skipbasebandiq = 0;
+		AX5043ExperimentalSetDSPModeSkipData(radio, skipData);
+	}
+	else if(experimentalOutput == RadioExpOutput_SampleIQ) {
+		//Config DSP Mode
+		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Sample_Clock);
+		//Select what data to output
+		DSPModeSkip skipData;
+		skipData.raw = 0xFFFF;
+		skipData.skipsampiq = 0;
+		AX5043ExperimentalSetDSPModeSkipData(radio, skipData);
+	}
+	else if(experimentalOutput == RadioExpOutput_SampleRotIQ) {
+		//Config DSP Mode
+		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Sample_Clock);
+		//Select what data to output
+		DSPModeSkip skipData;
+		skipData.raw = 0xFFFF;
+		skipData.skipsamprotiq = 0;
+		AX5043ExperimentalSetDSPModeSkipData(radio, skipData);
+	}
+	else if(experimentalOutput == RadioExpOutput_SampleMagPhase) {
+		//Config DSP Mode
+		AX5043ExperimentalEnableFSYNCDelay(radio, 0);
+		AX5043ExperimentalSetSyncSource(radio, SyncSource_Sample_Clock);
+		//Select what data to output
+		DSPModeSkip skipData;
+		skipData.raw = 0xFFFF;
+		skipData.skipsampmag = 0;
+		skipData.skipsampphase = 0;
+		AX5043ExperimentalSetDSPModeSkipData(radio, skipData);
+	}
+	else {
+		return 0x01;
+	}
+	return 0x00;
 }
 
 /**

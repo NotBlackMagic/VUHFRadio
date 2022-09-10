@@ -47,6 +47,7 @@ uint8_t RadioSetTXDeviation(uint8_t radio, uint32_t deviation);
 uint8_t RadioSetAFSKSpaceFreq(uint8_t radio, uint16_t spaceFreq);
 uint8_t RadioSetAFSKMarkFreq(uint8_t radio, uint16_t markFreq);
 uint8_t RadioSetExperimentalMode(uint8_t radio, RadioExperimentalMode experimentalMode);
+uint8_t RadioSetExperimentalOutput(uint8_t radio, RadioExperimentalOutput experimentalOutput);
 uint8_t RadioWriteFIFORepeatData(uint8_t radio, uint8_t dataByte, uint8_t count);
 uint8_t RadioWriteFIFOData(uint8_t radio, uint8_t data[], uint8_t dataLength);
 

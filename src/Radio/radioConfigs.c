@@ -4,14 +4,10 @@
 volatile RadioBaseConfigs radioABaseConfigs;			//Base Radio Configs Module
 volatile RadioConfigsStruct radioAConfig;
 
+//Radio A (UHF) Memory Bank/Channel in use/selected
+volatile uint8_t radioAMemoryBank;
+volatile uint8_t radioAMemoryChannel;
+
 //Tracking Variables
 volatile RadioTrackingStruct radioATracking;
 volatile RadioTrackingStruct radioAPacketTracking;
-
-//Radio B (UHF) Configurations
-volatile RadioBaseConfigs radioBBaseConfigs;			//Base Radio Configs Module
-volatile RadioConfigsStruct radioBConfig;
-
-//Tracking Variables
-volatile RadioTrackingStruct radioBTracking;
-volatile RadioTrackingStruct radioBPacketTracking;

@@ -18,7 +18,7 @@ uint8_t CATCommandExtendedMenu(uint8_t* data, uint16_t dataLength, uint8_t* rDat
 	uint8_t status = 0x00;
 	switch(menuSel) {
 		case 0: {
-			status = RadioSetExperimentalMode(radio, RadioExperimental_DSPMode);
+//			status = RadioSetExperimentalMode(radio, RadioExpMode_DSPMode);
 			break;
 		}
 	}

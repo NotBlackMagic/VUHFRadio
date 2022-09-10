@@ -6,36 +6,34 @@ extern "C" {
 #endif
 
 //Input Pin Mapping
-#define GPIO_IN_PTT_U						15		//Input PTT of UHF
-#define GPIO_IN_PTT_V						10		//Input PTT of VHF
-#define GPIO_IN_IRQ_U						16		//Input IRQ of UHF
-#define GPIO_IN_IRQ_V						17		//Input IRQ of VHF
-#define GPIO_IN_DCLK_U						27		//Input DCLK of UHF	PB11
-#define GPIO_IN_DCLK_V						8		//Input DCLK of VHF PA8
-#define GPIO_IN_DATA_U						26		//Input DATA of UHF PB10
-#define GPIO_IN_DATA_V						9		//Input DATA of VHF PA9
+#define GPIO_IN_IRQ_AX						16		//Input IRQ of AX Radio
+#define GPIO_IN_DCLK_AX						27		//Input DCLK of AX Radio
+#define GPIO_IN_DATA_AX						26		//Input DATA of AX Radio
+#define GPIO_IN_UART_WAKE					8		//Input UART Wake
 
 //Output Pin Mapping
-#define GPIO_OUT_LED0						3		//Output LED 0
-#define GPIO_OUT_LED1						2		//Output LED 1
-#define GPIO_OUT_LED2						1		//Output LED 2
-#define GPIO_OUT_LED3						0		//Output LED 3
-#define GPIO_OUT_LED4						47		//Output LED 4
-#define GPIO_OUT_LED5						46		//Output LED 5
-#define GPIO_OUT_CS_U						18		//Output CS of UHF
-#define GPIO_OUT_CS_V						28		//Output CS of VHF
+#define GPIO_OUT_LVSH_EN					17		//Output Level-Shift Enable
+#define GPIO_OUT_CS_AX						15		//Output CS of AX Radio
+
+//SAI TDM Pin Mapping
+#define GPIO_TDM_LRCLK						28		//SAI TDM LRCLK of AX Radio (Input)
+#define GPIO_TDM_BCLK						29		//SAI TDM BLCK of AX Radio (Input)
+#define GPIO_TDM_DIN						30		//SAI TDM DIN of AX Radio (Input)
+#define GPIO_TDM_DOUT						31		//SAI TDM DOUT of AX Radio (Output)
 
 //ADC Pin Mapping
-#define	GPIO_ADC_I_VCC_U					5		//ADC Input Current AX5043 UHF Radio
-#define	GPIO_ADC_I_VCC_V					4		//ADC Input Current AX5043 VHF Radio
-#define	GPIO_ADC_I_VCC_M					6		//ADC Input Current MCU/Amps
-#define	GPIO_ADC_I_5V						7		//ADC Input Current USB/5V
+#define	GPIO_ADC_Q							4		//ADC Input of AX Radio Q Signal
+#define	GPIO_ADC_I							5		//ADC Input of AX Radio I Signal
+#define GPIO_ADC_DAC						6		//ADC Input of AX Radio DAC Output
+
+//DAC Pin Mapping
+#define GPIO_DAC_GPADC2						4		//ADC Input of AX Radio GPADC2
+#define GPIO_DAC_GPADC1						5		//ADC Input of AX Radio GPADC1
 
 //ADC Channel Mapping
-#define ADC_CH_I_VCC_U						5		//ADC Channel Current AX5043 UHF Radio
-#define ADC_CH_I_VCC_V						4		//ADC Channel Current AX5043 VHF Radio
-#define ADC_CH_I_VCC_M						6		//ADC Channel Current MCU/Amps
-#define ADC_CH_I_5V							7		//ADC Channel Current USB/5V
+#define ADC_CH_Q							4
+#define ADC_CH_I							5
+#define ADC_CH_DAC							6
 
 
 #ifdef __cplusplus
